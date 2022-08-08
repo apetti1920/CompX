@@ -19,9 +19,12 @@ type PropType = {
 export default function(props: PropType) {
     return (
         <React.Fragment>
-            {props.blocks.map(block => <BlockComponent
+            {props.blocks.sort(
+                (a, b) =>
+                    ((a.selected?1:0) - (b.selected?1:0))
+            ).map(block => <BlockComponent
                 key={`block-${block.id}`}
-                onSelectBlock={props.onSelectedBlock} onMouseMove={props.onMoveBlocks}
+                onSelectBlock={props.onSelectedBlock} onMouseMove={ props.onMoveBlocks }
                 screenSize={props.screenSize} canvasTranslation={props.canvasTranslation}
                 canvasZoom={props.canvasZoom} block={block} theme={props.theme}
                 onZoom={props.onZoom} /> )}

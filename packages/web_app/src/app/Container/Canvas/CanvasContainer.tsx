@@ -79,17 +79,10 @@ class CanvasContainer extends Component<PropsType, StateType> {
     // -------------------------------------- Block Events -------------------------------------------------------------
     onSelectBlock = (blockId: string, selectMultiple: boolean) => {
         this.props.onSelectBlock(blockId, selectMultiple);
-        // this.setState({
-        //     selectedBlockIdsCache: this.props.blocks.filter(block => block.selected).map(block => block.id)
-        // });
     }
 
     onDeselectBlocks = () => {
-        // TODO: Only call deselect if cache is present
-        // if (this.state.selectedBlockIdsCache.length > 0) {
         this.props.onDeselectBlocks();
-        //     this.setState({selectedBlockIdsCache: []});
-        // }
     }
 
     render() {
@@ -123,17 +116,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                 canvasZoom={this.props.canvasZoom} theme={this.props.theme} onZoom={this.props.onZoom} />
                         </Layer>
                     ) : <React.Fragment /> }
-
-                    {/*TODO: Impliment Moving Layer*/}
-                    {/*{this.props.blocks.filter(blo).length > 0 ? (*/}
-                    {/*    <Layer id="dragging-graph">*/}
-                    {/*        <GraphComponent*/}
-                    {/*            blocks={this.state.draggingBlocks}*/}
-                    {/*            dragEvent={{dragging: {onDrag: this.onBlockDrag, onDragEng: this.onBlockDragEnd}}}*/}
-                    {/*            screenSize={this.state.canvasSize} canvasTranslation={this.props.canvasTranslation}*/}
-                    {/*            canvasZoom={this.props.canvasZoom} theme={this.props.theme} onZoom={this.props.onZoom} />*/}
-                    {/*    </Layer>*/}
-                    {/*) : <React.Fragment /> }*/}
                 </Stage>
             </div>
         )
