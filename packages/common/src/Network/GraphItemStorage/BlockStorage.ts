@@ -59,8 +59,11 @@ export function isBlockStorageWithIDType<
 export interface VisualBlockStorageType<Inputs extends PortStringListType, Outputs extends PortStringListType> extends
     BlockStorageWithIDType<Inputs, Outputs> {
         visualName: string,
-        position: PointType
-        size: PointType
+        position: PointType,
+        size: PointType,
+        selected: boolean,
         mirrored: boolean,
-        shape: "rect" | "tri" | "circ"
+        shape: "rect" | "circ" | "tri",
+        color?: string,
+        icon?: string
     }

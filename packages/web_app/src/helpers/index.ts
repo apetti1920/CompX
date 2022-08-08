@@ -1,9 +1,10 @@
-import { PointType } from '@compx/common/Types';
+import { PointType } from '@compx/common/Types'
 
 /* Utility function to convert on screen mouse coordinates to canvas coordinates*/
-export function ScreenToWorld(point: PointType, translation: PointType, zoom: number): PointType {
-    const gX1 = (point.x - translation.x) / zoom;
-    const gY1 = (point.y - translation.y) / zoom;
-    return {x: gX1, y: gY1}
+export function ScreenToWorld(point: PointType, translation: PointType, zoom: number, screenSize: PointType): PointType {
+    return {
+        x: (1/zoom) * ((point.x - translation.x) - (0.5 * screenSize.x)),
+        y: -((1/zoom) * ((point.y - translation.y) - (0.5 * screenSize.y)))
+    };
 }
 

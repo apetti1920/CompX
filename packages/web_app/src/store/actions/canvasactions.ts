@@ -3,9 +3,9 @@ import { PointType } from '@compx/common/Types';
 import { ActionPayloadType, ActionType } from "../types";
 
 // Creates the Payload type and action to translate the canvas by a delta
-export const TranslatedCanvasAction: ActionType = (delta: PointType): ActionPayloadType => ({
+export const TranslatedCanvasAction: ActionType = (point: PointType): ActionPayloadType => ({
     type: TranslatedCanvasActionType,
-    payload: {delta: delta}
+    payload: {point: point}
 });
 
 // Creates the Payload type and action to translate the canvas by a delta

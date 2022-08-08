@@ -3,7 +3,7 @@
   "compilerOptions": {
     "sourceMap": true,
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist/main"
   },
   "include": ["src/**/*"]
 }

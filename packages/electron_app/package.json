@@ -1,19 +1,27 @@
 {
   "name": "@compx/electron_app",
   "version": "1.0.0",
-  "description": "Electron ",
-  "main": "dist/main/index.js",
+  "description": "Electron",
+  "main": "./dist/main/index.js",
   "scripts": {
-    "build": "npx rimraf dist && OUTPUT_PATH=\"$(pwd)/dist/renderer\" npm run --prefix ../web_app build && npx tsc",
-    "start": "npm run build && electron ./dist/main/index.js"
+    "build": "rimraf dist && mkdir dist && (pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer && popd) && tsc",
+    "start": "npm run build && electron ."
+  },
+  "build": {
+    "appId": "com.electron.electron-with-create-react-app",
+    "win": {
+      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-  },
   "devDependencies": {
-    "electron": "^16.0.0",
-    "@types/electron": "^1.6.10"
+    "@types/electron": "^1.6.10",
+    "electron": "^19.0.10",
+    "electron-builder": "^23.3.3"
   }
 }

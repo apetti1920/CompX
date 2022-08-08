@@ -3,7 +3,7 @@ import { ThemeType } from "../types";
 const DarkTheme: ThemeType = {
     palette: {
         background: "#121212",
-        text: "#ffffff",
+        text: "#dcdcfb",
         accent: "#03809d",
         shadow: "#6c7086",
         link: "#cb6501",

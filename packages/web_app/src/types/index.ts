@@ -1,3 +1,13 @@
+import { RequireOnlyOne } from '@compx/common/Types';
+
+export type MouseHandlerType = RequireOnlyOne<{
+    onDragStart?: () => void
+    dragging?: {
+        onDrag: () => void,
+        onDragEng: () => void
+    }
+}>
+
 export type ThemeType = {
     palette: {
         background: string,

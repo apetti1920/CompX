@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import Canvas from './Canvas';
+import CanvasContainer from "./Canvas/CanvasContainer";
 import Overlay from "./Overlay";
 
 type PropType = {};
@@ -14,7 +14,7 @@ export default class Container extends Component<PropType, StateType> {
     render() {
         return (
             <div id="main-container" style={{width: "100%", height: "100%", position: "relative"}}>
-                <Canvas style={{position: "absolute", top: 0, left: 0}}/>
+                <CanvasContainer />
                 <Overlay style={{zIndex: 1, position: "relative", pointerEvents: "none"}}/>
             </div>
         )

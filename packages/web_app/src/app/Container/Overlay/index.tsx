@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import { connect } from "react-redux";
 
-import Logo from '../../../../assets/logo.svg';
+import Logo from '../Helpers/Logo';
 import { User, Play, } from 'react-feather';
 import { Container, Navbar, Form } from "react-bootstrap";
 
 import { StateType as SaveState } from '../../../store/types'
 import { ThemeType } from "../../../types";
-import { SetOpacity } from "../../../theme/helpers";
+import { SetOpacityHex } from "../../../theme/helpers";
 
 type GlobalProps = {
     theme: ThemeType
@@ -34,21 +34,15 @@ class Overlay extends Component<PropsType, StateType> {
                 <div style={{
                     width: "100%",
                     height: "150px",
-                    background: `linear-gradient(to top, ${SetOpacity(this.props.theme.palette.background, 0.0)}, 
-                                    ${SetOpacity(this.props.theme.palette.background, 1.0)})`,
+                    background: `linear-gradient(to top, ${SetOpacityHex(this.props.theme.palette.background, 0.0)}, 
+                                    ${SetOpacityHex(this.props.theme.palette.background, 1.0)})`,
                     pointerEvents: "auto"
                 }}>
                     <Container fluid style={{height: "50px", padding: this.TopPadding}}>
                         <Navbar style={{height: "100%"}}>
                             <Container fluid>
                                 <Navbar.Brand style={{userSelect: "none",  color: this.props.theme.palette.text}} >
-                                    <img
-                                        alt=""
-                                        src={Logo}
-                                        width="30"
-                                        height="30"
-                                        className="d-inline-block align-top"
-                                    />{' '}
+                                    <Logo color={this.props.theme.palette.text} size="30"/>{' '}
                                     CompX
                                 </Navbar.Brand>
                                 <Navbar.Collapse className="justify-content-end">
@@ -69,9 +63,21 @@ class Overlay extends Component<PropsType, StateType> {
                                 width: "50%", height: "100%", display: "flex", flexFlow: "row nowrap",
                                 justifyContent: "flex-end", alignItems: "center", gap: "5px"
                             }}>
-                                <Play/>
+                                <Play stroke={this.props.theme.palette.shadow}
+                                      fill={SetOpacityHex(this.props.theme.palette.shadow, 0.5)}/>
+                                <style>{`
+                                    #simTimeInput::placeholder {
+                                      color: ${this.props.theme.palette.text};
+                                      opacity: 0.4;
+                                    }
+                              `}</style>
                                 <Form.Control
-                                    type="text" size="sm" placeholder="Simulation Time" style={{width: "200px"}}
+                                    id="simTimeInput"
+                                    type="text" size="sm" placeholder="Simulation Time"
+                                    style={{
+                                        width: "200px", backgroundColor: this.props.theme.palette.shadow,
+                                        color: this.props.theme.palette.text
+                                    }}
                                     onChange={()=>console.log("Changed")}/>
                             </div>
                         </div>

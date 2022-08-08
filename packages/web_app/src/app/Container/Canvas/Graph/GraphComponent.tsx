@@ -1,30 +1,30 @@
-import React, {Component} from 'react';
-import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage'
+import React from "react";
+
+import { PointType } from '@compx/common/Types';
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import BlockComponent from "./VisualTypes/BlockComponent";
-import { PointType } from '@compx/common/Types'
+import { ThemeType } from "../../../../types";
 
 type PropType = {
-    graph: VisualGraphStorageType,
-    canvasTranslation: PointType
-    canvasZoom: number
-    onWheel: (e: React.WheelEvent) => void
+    blocks: VisualBlockStorageType<any, any>[],
+    onSelectedBlock: (blockId: string, selectMultiple: boolean)=>void,
+    onMoveBlocks: (delta: PointType)=>void,
+    screenSize: PointType,
+    canvasTranslation: PointType,
+    canvasZoom: number,
+    theme: ThemeType,
+    onZoom: (delta: number, around: PointType) => void
 };
-type StateType = {};
 
-export default class GraphComponent extends Component<PropType, StateType> {
-    constructor(props: PropType) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <g id="GraphGroup" transform={`translate(${this.props.canvasTranslation.x} ${this.props.canvasTranslation.y})  
-                                                    scale(${this.props.canvasZoom} ${this.props.canvasZoom})`}>
-                <g id="BlockGroup">
-                    {this.props.graph.blocks.map(block => <BlockComponent key={block.id} block={block}
-                                                                          onWheel={this.props.onWheel}/>)}
-                </g>
-            </g>
-        )
-    }
+export default function(props: PropType) {
+    return (
+        <React.Fragment>
+            {props.blocks.map(block => <BlockComponent
+                key={`block-${block.id}`}
+                onSelectBlock={props.onSelectedBlock} onMouseMove={props.onMoveBlocks}
+                screenSize={props.screenSize} canvasTranslation={props.canvasTranslation}
+                canvasZoom={props.canvasZoom} block={block} theme={props.theme}
+                onZoom={props.onZoom} /> )}
+        </React.Fragment>
+    )
 }
