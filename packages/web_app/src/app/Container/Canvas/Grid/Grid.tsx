@@ -4,7 +4,7 @@ import { Rect, Line, Shape } from 'react-konva';
 import Konva from 'konva';
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
-import { PointType } from '@compx/common/Types';
+import { Vector2D } from '@compx/common/Types';
 import { Clamp, LinearInterp } from '@compx/common/Helpers/Other';
 import { WheelHandler } from '../utils'
 import { ThemeType } from "../../../../types";
@@ -13,7 +13,7 @@ import { HexToRgbA, SetOpacityHex } from "../../../../theme/helpers";
 
 // ----------------------------------- Grid Helpers --------------------------------------------------------------------
 const TWO_PI = 2 * Math.PI;
-function CircleGrid(canvasSize: PointType, position: PointType,
+function CircleGrid(canvasSize: Vector2D, position: Vector2D,
     spacing: number, radius: number, color: string
 ): React.ReactElement {
     // Calculations for how many dots across have to appear on screen
@@ -46,7 +46,7 @@ function CircleGrid(canvasSize: PointType, position: PointType,
       shadowForStrokeEnabled={false} hitStrokeWidth={0} />
 }
 
-function CenterTarget(props: {screenSize: PointType, canvasTranslation: PointType}): React.ReactElement {
+function CenterTarget(props: {screenSize: Vector2D, canvasTranslation: Vector2D}): React.ReactElement {
     const center = {
         x: (props.screenSize.x/2.0) + props.canvasTranslation.x,
         y: (props.screenSize.y/2.0) + props.canvasTranslation.y
@@ -68,8 +68,8 @@ function CenterTarget(props: {screenSize: PointType, canvasTranslation: PointTyp
 }
 
 type GridPropType = {
-    screenSize: PointType, theme: ThemeType,
-    canvasTranslation: PointType, canvasZoom: number
+    screenSize: Vector2D, theme: ThemeType,
+    canvasTranslation: Vector2D, canvasZoom: number
 };
 type DrawGridArgType = {
     pct: number, spacing: number, color: string,
@@ -161,9 +161,9 @@ class GridInt extends Component<GridPropType, {}> {
 
 // --------------------------------- Full Grid -------------------------------------------------------------------------
 type PropType = {
-    screenSize: PointType, canvasTranslation: PointType, canvasZoom: number,
-    theme: ThemeType, onTranslate: (position: PointType)=>void,
-    onZoom: (delta: number, zoomAround: PointType) => void,
+    screenSize: Vector2D, canvasTranslation: Vector2D, canvasZoom: number,
+    theme: ThemeType, onTranslate: (position: Vector2D)=>void,
+    onZoom: (delta: number, zoomAround: Vector2D) => void,
     onClick: ()=>void
 };
 
@@ -192,10 +192,8 @@ export default class Grid extends Component<PropType, StateType> {
         e.evt.preventDefault();
 
         if (!this.state.mouseDown) return;
-        this.props.onTranslate({
-            x: this.props.canvasTranslation.x + e.evt.movementX,
-            y: this.props.canvasTranslation.y + e.evt.movementY
-        });
+        const translate = Vector2D.add(this.props.canvasTranslation, new Vector2D(e.evt.movementX, e.evt.movementY));
+        this.props.onTranslate(translate);
         e.cancelBubble = true;
     }
 

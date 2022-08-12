@@ -8,32 +8,38 @@ import {Stage, Layer, Rect} from 'react-konva';
 
 import { PortStringListType } from '@compx/common/Graph/Port'
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { PointType } from '@compx/common/Types'
+import {DirectionType, Vector2D} from '@compx/common/Types'
 import {StateType as SaveState} from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
 import {ThemeType} from "../../../types";
 import GraphComponent from "./Graph/GraphComponent";
-import {DeselectBlockAction, MovedBlocksAction, SelectBlockAction} from "../../../store/actions/graphactions";
+import {
+    DeselectBlockAction,
+    MovedBlocksAction,
+    ResizedBlocksAction,
+    SelectBlockAction
+} from "../../../store/actions/graphactions";
 
 
 type GlobalProps = {
     canvasZoom: number,
-    canvasTranslation: PointType,
+    canvasTranslation: Vector2D,
     blocks:  VisualBlockStorageType<PortStringListType, PortStringListType>[]
     theme: ThemeType
 }
 type DispatchProps = {
     onSelectBlock: (blockId: string, selectMultiple: boolean) => void,
     onDeselectBlocks: () => void
-    onMoveBlocks: (delta: PointType) => void,
-    onZoom: (delta: number, around: PointType) => void,
-    onTranslate: (point: PointType) => void
+    onMoveBlocks: (delta: Vector2D) => void,
+    onResizeBlocks: (blockId: string, resizeDirection: DirectionType, delta: Vector2D)=>void
+    onZoom: (delta: number, around: Vector2D) => void,
+    onTranslate: (point: Vector2D) => void
 }
 type ComponentProps = {};
 type PropsType = GlobalProps & DispatchProps & ComponentProps
 type StateType = {
-    canvasSize: PointType,
+    canvasSize: Vector2D,
     dragging: boolean
     // selectedBlockIdsCache: string[]
 };
@@ -41,6 +47,7 @@ type StateType = {
 class CanvasContainer extends Component<PropsType, StateType> {
     // Initialize some class variables
     private readonly wrapperRef: React.MutableRefObject<HTMLDivElement | null>;
+    private readonly stageRef: React.MutableRefObject<Konva.Stage | null>
 
     // Create the Component
     constructor(props: PropsType) {
@@ -48,10 +55,11 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
         // Set the refs
         this.wrapperRef = React.createRef();
+        this.stageRef = React.createRef();
         Konva.pixelRatio = 1;
 
         this.state = {
-            canvasSize: { x: 0.0, y: 0.0 },
+            canvasSize: new Vector2D(),
             dragging: false
             // selectedBlockIdsCache: []
         }
@@ -63,8 +71,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
             // Check if the refs are present
             if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
 
+            const canvasSize = new Vector2D(this.wrapperRef.current.clientWidth, this.wrapperRef.current.clientHeight)
             this.setState({
-                canvasSize: {x: this.wrapperRef.current.clientWidth, y: this.wrapperRef.current.clientHeight}
+                canvasSize: canvasSize
             });
         };
         SetWindowSize();
@@ -88,7 +97,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     render() {
         return (
             <div ref={this.wrapperRef} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}>
-                <Stage width={window.innerWidth} height={window.innerHeight}>
+                <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
                     <Layer id="background" listening={false}>
                         <Rect x={0} y={0} listening={false}
                               width={this.state.canvasSize.x}
@@ -107,10 +116,11 @@ class CanvasContainer extends Component<PropsType, StateType> {
                         />
                     </Layer>
 
-                    {this.props.blocks.length > 0 ? (
+                    {(this.stageRef.current !== null && this.props.blocks.length > 0) ? (
                         <Layer id="graph">
                             <GraphComponent
-                                blocks={this.props.blocks}
+                                blocks={this.props.blocks} konvaStage={this.stageRef.current}
+                                onMouseResize={this.props.onResizeBlocks}
                                 onSelectedBlock={this.onSelectBlock} onMoveBlocks={this.props.onMoveBlocks}
                                 screenSize={this.state.canvasSize} canvasTranslation={this.props.canvasTranslation}
                                 canvasZoom={this.props.canvasZoom} theme={this.props.theme} onZoom={this.props.onZoom} />
@@ -138,6 +148,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         onSelectBlock: SelectBlockAction,
         onDeselectBlocks: DeselectBlockAction,
         onMoveBlocks: MovedBlocksAction,
+        onResizeBlocks: ResizedBlocksAction,
         onTranslate: TranslatedCanvasAction,
         onZoom: ZoomedCanvasAction
     }, dispatch)

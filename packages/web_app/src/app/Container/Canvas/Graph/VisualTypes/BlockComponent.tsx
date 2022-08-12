@@ -1,38 +1,46 @@
 import React, {Component} from 'react';
-import { Rect } from 'react-konva';
+import { Rect, Line } from 'react-konva';
 import Konva from 'konva';
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
-import { PointType } from '@compx/common/Types';
+import { Vector2D, DirectionType } from '@compx/common/Types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { WheelHandler } from  '../../utils'
 import { ThemeType } from "../../../../../types";
 import { HexToRgbA } from "../../../../../theme/helpers";
 
+type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse"
+const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
 type PropType = {
+    konvaStage: Konva.Stage,
     onSelectBlock: (blockId: string, selectMultiple: boolean)=>void,
-    onMouseMove: (delta: PointType)=>void,
-    screenSize: PointType,
-    canvasTranslation: PointType,
+    onMouseMoveRect: (delta: Vector2D)=>void,
+    onMouseResize: (blockId: string, resizeDirection: DirectionType, delta: Vector2D)=>void,
+    screenSize: Vector2D,
+    canvasTranslation: Vector2D,
     canvasZoom: number,
     block: VisualBlockStorageType<any, any>,
     theme: ThemeType,
-    onZoom: (delta: number, around: PointType) => void
+    onZoom: (delta: number, around: Vector2D) => void
 };
 type StateType = {
-    mouseDown: boolean
+    mouseDownRect: boolean,
+    mouseDownBorder?: DirectionType
 };
 
 export default class BlockComponent extends Component<PropType, StateType> {
+    private readonly resizeSize: number = 8;
+
     constructor(props: PropType) {
         super(props);
 
         this.state = {
-            mouseDown: false
+            mouseDownRect: false,
+            mouseDownBorder: undefined
         }
     }
 
-    onMouseDownHandler = (e: KonvaEventObject<MouseEvent>) => {
+    onMouseDownRectHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
 
         if (e.evt.shiftKey) {
@@ -41,20 +49,48 @@ export default class BlockComponent extends Component<PropType, StateType> {
             this.props.onSelectBlock(this.props.block.id, false);
         }
 
-        this.setState({mouseDown: true});
+        this.setState({mouseDownRect: true});
     }
 
-    onMouseMoveHandler = (e: KonvaEventObject<MouseEvent>) => {
+    onMouseMoveRectHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
-        if (!this.state.mouseDown) return;
+        if (!this.state.mouseDownRect) return;
 
-        const delta = { x: e.evt.movementX/this.props.canvasZoom, y: -e.evt.movementY/this.props.canvasZoom }
-        this.props.onMouseMove(delta);
+        const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
+        this.props.onMouseMoveRect(delta);
     }
 
-    onMouseUpHandler = (e: KonvaEventObject<MouseEvent>) => {
+    onMouseUpRectHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
-        this.setState({mouseDown: false});
+        this.setState({mouseDownRect: false});
+    }
+
+    onResizeHoverEnter = (e: KonvaEventObject<MouseEvent>, side: ArrowDirectionType) => {
+        e.evt.stopPropagation();
+        this.props.konvaStage.container().style.cursor = `${side}-resize`;
+    }
+
+    onResizeHoverLeave = (e: KonvaEventObject<MouseEvent>) => {
+        e.evt.stopPropagation();
+        this.props.konvaStage.container().style.cursor = 'default';
+    }
+
+    onMouseDownBorderHandler = (e: KonvaEventObject<MouseEvent>, dir: DirectionType) => {
+        e.evt.stopPropagation();
+        this.setState({mouseDownBorder: dir});
+    }
+
+    onMouseMoveBorderHandler = (e: KonvaEventObject<MouseEvent>) => {
+        e.evt.stopPropagation();
+        if (this.state.mouseDownBorder === undefined) return;
+
+        const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
+        this.props.onMouseResize(this.props.block.id, this.state.mouseDownBorder, delta);
+    }
+
+    onMouseUpBorderHandler = (e: KonvaEventObject<MouseEvent>) => {
+        e.evt.stopPropagation();
+        this.setState({mouseDownBorder: undefined});
     }
 
     render() {
@@ -70,22 +106,50 @@ export default class BlockComponent extends Component<PropType, StateType> {
         let radius = 5;
         radius = (width > (2.2*radius) && height > (2.2*radius)) ? radius : 5;
 
+        const lineProps = (borderDir: DirectionType): Konva.LineConfig => ({
+            stroke: "transparent",
+            strokeWidth: this.resizeSize,
+            onMouseOut: this.onResizeHoverLeave,
+            onMouseOver: (e: KonvaEventObject<MouseEvent>)=>this.onResizeHoverEnter(e, lineDict[borderDir]),
+            onMouseDown: (e: KonvaEventObject<MouseEvent>)=>this.onMouseDownBorderHandler(e, borderDir),
+            onMouseMove: this.onMouseMoveBorderHandler,
+            onMouseUp: this.onMouseUpBorderHandler
+        });
+
         return (
-            <Rect
-                x={x} y={y} width={width} height={height}
-                cornerRadius={radius} fill={this.props.block.color ?? this.props.theme.palette.background}
-                stroke={!this.props.block.selected?HexToRgbA(this.props.theme.palette.text, 0.5):"red"}
-                strokeWidth={!this.props.block.selected?1:3} shadowColor={this.props.theme.palette.shadow}
-                shadowOffsetY={2.5} shadowOffsetX={2.5} shadowBlur={2.5} perfectDrawEnabled={false}
-                shadowEnabled={false} onMouseUp={this.onMouseUpHandler}
-                onMouseMove={this.onMouseMoveHandler} onMouseDown={this.onMouseDownHandler}
-                onMouseLeave={this.onMouseUpHandler} onMouseOut={this.onMouseUpHandler}
-                shadowForStrokeEnabled={false} hitStrokeWidth={0}
-                onWheel={(e)=>WheelHandler(
-                    e, this.props.onZoom, this.props.canvasTranslation,
-                    this.props.canvasZoom, this.props.screenSize
-                )}
-            />
+            <React.Fragment>
+                <Rect
+                    x={x} y={y} width={width} height={height}
+                    cornerRadius={radius} fill={this.props.block.color ?? this.props.theme.palette.background}
+                    stroke={!this.props.block.selected?HexToRgbA(this.props.theme.palette.text, 0.5):"red"}
+                    strokeWidth={!this.props.block.selected?1:3} shadowColor={this.props.theme.palette.shadow}
+                    shadowOffsetY={2.5} shadowOffsetX={2.5} shadowBlur={2.5} perfectDrawEnabled={false}
+                    shadowEnabled={false} shadowForStrokeEnabled={false} hitStrokeWidth={0}
+                    onMouseUp={this.onMouseUpRectHandler}
+                    onMouseMove={this.onMouseMoveRectHandler} onMouseDown={this.onMouseDownRectHandler}
+                    onMouseLeave={this.onMouseUpRectHandler} onMouseOut={this.onMouseUpRectHandler}
+                    onWheel={(e)=>WheelHandler(
+                        e, this.props.onZoom, this.props.canvasTranslation,
+                        this.props.canvasZoom, this.props.screenSize
+                    )}
+                />
+                <Line points={[x+this.resizeSize, y, x+width-this.resizeSize, y]}
+                      {...lineProps("n")} />
+                <Line points={[x+width-this.resizeSize, y, x+width, y, x+width, y+this.resizeSize]}
+                      {...lineProps("ne")}/>
+                <Line points={[x+width, y+this.resizeSize, x+width, y-this.resizeSize+height]}
+                      {...lineProps("e")}/>
+                <Line points={[x+width, y-this.resizeSize+height, x+width, y+height, x+width-this.resizeSize, y+height]}
+                      {...lineProps("se")} />
+                <Line points={[x+width-this.resizeSize, y+height, x+this.resizeSize, y+height]}
+                      {...lineProps("s")}/>
+                <Line points={[x+this.resizeSize, y+height, x, y+height, x, y+height-this.resizeSize]}
+                      {...lineProps("sw")}/>
+                <Line points={[x, y+height-this.resizeSize, x, y+this.resizeSize]}
+                      {...lineProps("w")} />
+                <Line points={[x, y+this.resizeSize, x, y, x+this.resizeSize, y]}
+                      {...lineProps("nw")}/>
+            </React.Fragment>
         )
     }
 }

@@ -1,5 +1,5 @@
 import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage';
-import { PointType } from '@compx/common/Types'
+import { Vector2D } from '@compx/common/Types'
 import {ThemeType} from "../types";
 import DarkTheme from "../theme/DarkTheme";
 import {MakeVisualGraph} from "./testGraph";
@@ -10,18 +10,18 @@ export type StateType = {
         theme: ThemeType,
         canvas: {
             zoom: number,
-            translation: PointType
+            translation: Vector2D
         }
     }
 };
 
 export const defaultState: StateType = {
-    currentGraph: { blocks: MakeVisualGraph(30).blocks },
+    currentGraph: { blocks: MakeVisualGraph(1).blocks },
     userStorage: {
         theme:  DarkTheme,
         canvas: {
             zoom: 1, // 4.8
-            translation: { x: 0.0, y: 0.0 }
+            translation: new Vector2D()
         }
     }
 }
