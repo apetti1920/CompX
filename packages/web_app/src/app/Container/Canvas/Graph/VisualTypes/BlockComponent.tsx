@@ -8,6 +8,7 @@ import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/B
 import { WheelHandler } from  '../../utils'
 import { ThemeType } from "../../../../../types";
 import { HexToRgbA } from "../../../../../theme/helpers";
+import PortList from "./PortList";
 
 type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse"
 const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
@@ -96,7 +97,8 @@ export default class BlockComponent extends Component<PropType, StateType> {
     render() {
         const width = this.props.block.size.x * this.props.canvasZoom;
         const height = this.props.block.size.y * this.props.canvasZoom;
-        if (width < 5 || height < 5) return <React.Fragment />;
+        // TODO: Stop blocks from disappearing if the canvas is at max zoom
+        if (width < 25.0 || height < 25.0) return <React.Fragment />;
 
         const x = (this.props.screenSize.x/2.0) + this.props.canvasTranslation.x - (0.5*width) +
             (this.props.block.position.x * this.props.canvasZoom);
@@ -153,6 +155,9 @@ export default class BlockComponent extends Component<PropType, StateType> {
                       {...lineProps("w")} />
                 <Line points={[x, y+this.resizeSize, x, y, x+this.resizeSize, y]}
                       {...lineProps("nw")}/>
+
+                <PortList blockPosition={new Vector2D(x, y)} blockSize={new Vector2D(width, height)}
+                          inputPorts={this.props.block.inputPorts} outputPorts={this.props.block.outputPorts} />
             </React.Fragment>
         )
     }
