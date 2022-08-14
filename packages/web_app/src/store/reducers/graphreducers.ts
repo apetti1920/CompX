@@ -32,26 +32,44 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
                 type: SelectedBlockActionType, payload: {blockId: blockId, selectMultiple: false}
             });
 
+            let sizeMultiplier = new Vector2D(1.0, 1.0);
             switch (resizeDirection) {
                 case "e":
-                    delta = Vector2D.multiplyVec(delta, new Vector2D(1, 0));
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(1.0, 0.0));
                     break;
                 case "s":
-                    delta = Vector2D.multiplyVec(delta, new Vector2D(0, 1));
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(0.0, -1.0));
+                    sizeMultiplier = new Vector2D(1.0, -1.0);
                     break;
                 case "w":
-                    delta = Vector2D.multiplyVec(delta, new Vector2D(-1, 0));
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(-1.0, 0.0));
+                    sizeMultiplier = new Vector2D(-1.0, 1.0);
                     break;
                 case "n":
-                    delta = Vector2D.multiplyVec(delta, new Vector2D(0, -1));
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(0.0, 1.0));
+                    break;
+                case "ne":
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(1.0, 1.0));
+                    break;
+                case "se":
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(1.0, -1.0));
+                    sizeMultiplier = new Vector2D(1.0, -1.0);
+                    break;
+                case "sw":
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(-1.0, -1.0));
+                    sizeMultiplier = new Vector2D(-1.0, -1.0);
+                    break;
+                case "nw":
+                    delta = Vector2D.multiplyVec(delta, new Vector2D(-1.0, 1.0));
+                    sizeMultiplier = new Vector2D(-1.0, 1.0);
                     break;
                 default:
-                    break;
+                    return tempState;
             }
 
             const blockInd = tempState.currentGraph.blocks.findIndex(block => block.id === blockId);
             tempState.currentGraph.blocks[blockInd].position =
-                Vector2D.add(tempState.currentGraph.blocks[blockInd].position, delta);
+                Vector2D.add(tempState.currentGraph.blocks[blockInd].position, Vector2D.multiplyVec(delta, Vector2D.multiply(sizeMultiplier, 0.5)));
             tempState.currentGraph.blocks[blockInd].size =
                 Vector2D.add(tempState.currentGraph.blocks[blockInd].size, delta);
 

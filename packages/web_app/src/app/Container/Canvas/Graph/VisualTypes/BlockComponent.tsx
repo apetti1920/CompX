@@ -109,11 +109,15 @@ export default class BlockComponent extends Component<PropType, StateType> {
         const lineProps = (borderDir: DirectionType): Konva.LineConfig => ({
             stroke: "transparent",
             strokeWidth: this.resizeSize,
-            onMouseOut: this.onResizeHoverLeave,
+            onMouseOut: (e: KonvaEventObject<MouseEvent>)=>{
+                this.onMouseUpBorderHandler(e);
+                this.onResizeHoverLeave(e);
+            },
             onMouseOver: (e: KonvaEventObject<MouseEvent>)=>this.onResizeHoverEnter(e, lineDict[borderDir]),
             onMouseDown: (e: KonvaEventObject<MouseEvent>)=>this.onMouseDownBorderHandler(e, borderDir),
             onMouseMove: this.onMouseMoveBorderHandler,
-            onMouseUp: this.onMouseUpBorderHandler
+            onMouseUp: this.onMouseUpBorderHandler,
+            onMouseLeave: this.onMouseUpBorderHandler
         });
 
         return (
