@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import {Clamp} from '@compx/common/Helpers/Other';
-import {PointType} from '@compx/common/Types';
+import {Vector2D} from '@compx/common/Types';
 import {ActionPayloadType, StateType} from "../types";
 import {TranslatedCanvasActionType, ZoomedCanvasActionType} from "../actions/actiontypes";
 
@@ -9,7 +9,7 @@ export default function (state: StateType, action: ActionPayloadType): StateType
     switch (action.type) {
         case (TranslatedCanvasActionType): {
             const tempState  = _.cloneDeep(state);
-            tempState.userStorage.canvas.translation = action.payload['point']
+            tempState.userStorage.canvas.translation = action.payload['point'];
 
             return tempState;
         }
@@ -18,7 +18,7 @@ export default function (state: StateType, action: ActionPayloadType): StateType
 
             // Get the zoom delta and zoom around point
             const delta: number = action.payload['delta'] * 1.25;
-            const zoomAround: PointType = action.payload['around'];
+            const zoomAround: Vector2D = action.payload['around'];
 
             // Calculate the zoom and ultimate scale change
             // Have to recalculate delta becuase clamping may limit delta
@@ -34,7 +34,7 @@ export default function (state: StateType, action: ActionPayloadType): StateType
 
             // Set the new state
             tempState.userStorage.canvas.zoom = clampedZoom;
-            tempState.userStorage.canvas.translation = newTranslation;
+            tempState.userStorage.canvas.translation = new Vector2D(newTranslation.x, newTranslation.y);
 
             return tempState;
         }

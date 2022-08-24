@@ -13,7 +13,7 @@ export const PortTypeInitializers: PortTypes = {
     NUMBER: 0
 }
 
-type StringListUnionType = typeof PortTypesStringList[number]
+export type StringListUnionType = typeof PortTypesStringList[number]
 export type PortStringListType = StringListUnionType[];
 export type MapStringsToPortsType<T extends PortStringListType> =
     { [K in keyof T]: T[K] extends PortStringListType[number] ? Port<T[K]> : never }

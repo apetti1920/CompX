@@ -1,30 +1,32 @@
 import React from "react";
 
-import { PointType } from '@compx/common/Types';
+import { Vector2D } from '@compx/common/Types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import BlockComponent from "./VisualTypes/BlockComponent";
 import { ThemeType } from "../../../../types";
+import Konva from "konva";
+import {MouseOnBlockType} from "../utils";
 
 type PropType = {
+    konvaStage: Konva.Stage,
     blocks: VisualBlockStorageType<any, any>[],
-    onSelectedBlock: (blockId: string, selectMultiple: boolean)=>void,
-    onMoveBlocks: (delta: PointType)=>void,
-    screenSize: PointType,
-    canvasTranslation: PointType,
+    onSelectedBlock: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
+    screenSize: Vector2D,
+    canvasTranslation: Vector2D,
     canvasZoom: number,
     theme: ThemeType,
-    onZoom: (delta: number, around: PointType) => void
+    onZoom: (delta: number, around: Vector2D) => void
 };
 
 export default function(props: PropType) {
     return (
         <React.Fragment>
             {props.blocks.map(block => <BlockComponent
-                key={`block-${block.id}`}
-                onSelectBlock={props.onSelectedBlock} onMouseMove={props.onMoveBlocks}
-                screenSize={props.screenSize} canvasTranslation={props.canvasTranslation}
-                canvasZoom={props.canvasZoom} block={block} theme={props.theme}
-                onZoom={props.onZoom} /> )}
+                key={`block-${block.id}`} konvaStage={props.konvaStage}
+                onSelectBlock={props.onSelectedBlock} screenSize={props.screenSize}
+                canvasTranslation={props.canvasTranslation} canvasZoom={props.canvasZoom}
+                block={block} theme={props.theme} onZoom={props.onZoom} />
+            )}
         </React.Fragment>
     )
 }
