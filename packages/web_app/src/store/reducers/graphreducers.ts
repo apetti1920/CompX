@@ -24,13 +24,8 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             return tempState;
         } case (ResizedBlockActionType): {
             let tempState  = _.cloneDeep(state);
-            const blockId: string = action.payload['blockId'];
             const resizeDirection: DirectionType = action.payload['resizeDirection'];
             let delta: Vector2D = action.payload['delta'];
-
-            tempState = GraphReducer(tempState, {
-                type: SelectedBlockActionType, payload: {blockId: blockId, selectMultiple: false}
-            });
 
             let sizeMultiplier = new Vector2D(1.0, 1.0);
             switch (resizeDirection) {
@@ -67,7 +62,9 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
                     return tempState;
             }
 
-            const blockInd = tempState.currentGraph.blocks.findIndex(block => block.id === blockId);
+            const blockInd = tempState.currentGraph.blocks.findIndex(block => block.selected);
+            if (blockInd === undefined) return tempState;
+
             tempState.currentGraph.blocks[blockInd].position =
                 Vector2D.add(tempState.currentGraph.blocks[blockInd].position, Vector2D.multiplyVec(delta, Vector2D.multiply(sizeMultiplier, 0.5)));
             tempState.currentGraph.blocks[blockInd].size =

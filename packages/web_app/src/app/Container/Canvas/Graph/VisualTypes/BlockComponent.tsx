@@ -5,7 +5,7 @@ type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { WheelHandler } from  '../../utils'
+import { WheelHandler, MouseOnBlockType } from  '../../utils'
 import { ThemeType } from "../../../../../types";
 import { HexToRgbA } from "../../../../../theme/helpers";
 import PortList from "./PortList";
@@ -14,9 +14,7 @@ type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse"
 const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
 type PropType = {
     konvaStage: Konva.Stage,
-    onSelectBlock: (blockId: string, selectMultiple: boolean)=>void,
-    // onMouseMoveRect: (delta: Vector2D)=>void,
-    // onMouseResize: (blockId: string, resizeDirection: DirectionType, delta: Vector2D)=>void,
+    onSelectBlock?: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
     onMouseDown?: (on: ({mouseDownOn: "BLOCK"} | {mouseDownOn: "BLOCK_EDGE", direction: DirectionType})) => void,
     onMouseUp?: () => void,
     screenSize: Vector2D,
@@ -47,21 +45,13 @@ export default class BlockComponent extends Component<PropType, StateType> {
         e.evt.stopPropagation();
 
         if (e.evt.shiftKey) {
-            this.props.onSelectBlock(this.props.block.id, true);
+            this.props.onSelectBlock?.(this.props.block.id, true, {mouseDownOn: "BLOCK"});
             this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK"}));
         } else if (e.evt.button === 0) {
-            this.props.onSelectBlock(this.props.block.id, false);
+            this.props.onSelectBlock?.(this.props.block.id, false, {mouseDownOn: "BLOCK"});
             this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK"}));
         }
     }
-
-    // onMouseMoveRectHandler = (e: KonvaEventObject<MouseEvent>) => {
-    //     e.evt.stopPropagation();
-    //     if (!this.state.mouseDownRect) return;
-    //
-    //     const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
-    //     this.props.onMouseMoveRect(delta);
-    // }
 
     onMouseUpRectHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
@@ -80,17 +70,10 @@ export default class BlockComponent extends Component<PropType, StateType> {
 
     onMouseDownBorderHandler = (e: KonvaEventObject<MouseEvent>, dir: DirectionType) => {
         e.evt.stopPropagation();
+        this.props.onSelectBlock?.(this.props.block.id, false, {mouseDownOn: "BLOCK_EDGE", direction: dir})
         this.setState({mouseDownBorder: dir},
             ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK_EDGE", direction: dir}));
     }
-
-    // onMouseMoveBorderHandler = (e: KonvaEventObject<MouseEvent>) => {
-    //     e.evt.stopPropagation();
-    //     if (this.state.mouseDownBorder === undefined) return;
-    //
-    //     const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
-    //     this.props.onMouseResize(this.props.block.id, this.state.mouseDownBorder, delta);
-    // }
 
     onMouseUpBorderHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
@@ -114,14 +97,10 @@ export default class BlockComponent extends Component<PropType, StateType> {
         const lineProps = (borderDir: DirectionType): Konva.LineConfig => ({
             stroke: "transparent",
             strokeWidth: this.resizeSize,
-            onMouseOut: (e: KonvaEventObject<MouseEvent>)=>{
-                this.onMouseUpBorderHandler(e);
-                this.onResizeHoverLeave(e);
-            },
-            onMouseOver: (e: KonvaEventObject<MouseEvent>)=>this.onResizeHoverEnter(e, lineDict[borderDir]),
             onMouseDown: (e: KonvaEventObject<MouseEvent>)=>this.onMouseDownBorderHandler(e, borderDir),
             onMouseUp: this.onMouseUpBorderHandler,
-            onMouseLeave: this.onMouseUpBorderHandler
+            onMouseEnter: (e: KonvaEventObject<MouseEvent>)=>this.onResizeHoverEnter(e, lineDict[borderDir]),
+            onMouseLeave: this.onResizeHoverLeave
         });
 
         return (
@@ -134,33 +113,31 @@ export default class BlockComponent extends Component<PropType, StateType> {
                     shadowOffsetY={2.5} shadowOffsetX={2.5} shadowBlur={2.5} perfectDrawEnabled={false}
                     shadowEnabled={false} shadowForStrokeEnabled={false} hitStrokeWidth={0}
                     onMouseUp={this.onMouseUpRectHandler}
-                    // onMouseMove={this.onMouseMoveRectHandler}
                     onMouseDown={this.onMouseDownRectHandler}
-                    // onMouseLeave={this.onMouseUpRectHandler} onMouseOut={this.onMouseUpRectHandler}
                     onWheel={(e)=>WheelHandler(
                         e, this.props.onZoom, this.props.canvasTranslation,
                         this.props.canvasZoom, this.props.screenSize
                     )}
                 />
-                {/*<Line points={[x+this.resizeSize, y, x+width-this.resizeSize, y]}*/}
-                {/*      {...lineProps("n")} />*/}
-                {/*<Line points={[x+width-this.resizeSize, y, x+width, y, x+width, y+this.resizeSize]}*/}
-                {/*      {...lineProps("ne")}/>*/}
-                {/*<Line points={[x+width, y+this.resizeSize, x+width, y-this.resizeSize+height]}*/}
-                {/*      {...lineProps("e")}/>*/}
-                {/*<Line points={[x+width, y-this.resizeSize+height, x+width, y+height, x+width-this.resizeSize, y+height]}*/}
-                {/*      {...lineProps("se")} />*/}
-                {/*<Line points={[x+width-this.resizeSize, y+height, x+this.resizeSize, y+height]}*/}
-                {/*      {...lineProps("s")}/>*/}
-                {/*<Line points={[x+this.resizeSize, y+height, x, y+height, x, y+height-this.resizeSize]}*/}
-                {/*      {...lineProps("sw")}/>*/}
-                {/*<Line points={[x, y+height-this.resizeSize, x, y+this.resizeSize]}*/}
-                {/*      {...lineProps("w")} />*/}
-                {/*<Line points={[x, y+this.resizeSize, x, y, x+this.resizeSize, y]}*/}
-                {/*      {...lineProps("nw")}/>*/}
+                <Line points={[x+this.resizeSize, y, x+width-this.resizeSize, y]}
+                      {...lineProps("n")} />
+                <Line points={[x+width-this.resizeSize, y, x+width, y, x+width, y+this.resizeSize]}
+                      {...lineProps("ne")}/>
+                <Line points={[x+width, y+this.resizeSize, x+width, y-this.resizeSize+height]}
+                      {...lineProps("e")}/>
+                <Line points={[x+width, y-this.resizeSize+height, x+width, y+height, x+width-this.resizeSize, y+height]}
+                      {...lineProps("se")} />
+                <Line points={[x+width-this.resizeSize, y+height, x+this.resizeSize, y+height]}
+                      {...lineProps("s")}/>
+                <Line points={[x+this.resizeSize, y+height, x, y+height, x, y+height-this.resizeSize]}
+                      {...lineProps("sw")}/>
+                <Line points={[x, y+height-this.resizeSize, x, y+this.resizeSize]}
+                      {...lineProps("w")} />
+                <Line points={[x, y+this.resizeSize, x, y, x+this.resizeSize, y]}
+                      {...lineProps("nw")}/>
 
-                {/*<PortList blockPosition={new Vector2D(x, y)} blockSize={new Vector2D(width, height)}*/}
-                {/*          inputPorts={this.props.block.inputPorts} outputPorts={this.props.block.outputPorts} />*/}
+                <PortList blockPosition={new Vector2D(x, y)} blockSize={new Vector2D(width, height)}
+                          inputPorts={this.props.block.inputPorts} outputPorts={this.props.block.outputPorts} />
             </React.Fragment>
         )
     }

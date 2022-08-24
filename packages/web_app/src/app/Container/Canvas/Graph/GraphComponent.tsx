@@ -5,11 +5,12 @@ import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/B
 import BlockComponent from "./VisualTypes/BlockComponent";
 import { ThemeType } from "../../../../types";
 import Konva from "konva";
+import {MouseOnBlockType} from "../utils";
 
 type PropType = {
     konvaStage: Konva.Stage,
     blocks: VisualBlockStorageType<any, any>[],
-    onSelectedBlock: (blockId: string, selectMultiple: boolean)=>void,
+    onSelectedBlock: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
     screenSize: Vector2D,
     canvasTranslation: Vector2D,
     canvasZoom: number,

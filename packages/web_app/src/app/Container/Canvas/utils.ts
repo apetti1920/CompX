@@ -2,7 +2,7 @@ import Konva from "konva";
 
 import {ScreenToWorld} from "../../../helpers";
 
-import { Vector2D } from '@compx/common/Types';
+import {DirectionType, Vector2D} from '@compx/common/Types';
 import { LinearInterp } from '@compx/common/Helpers/Other';
 
 export const WheelHandler = (
@@ -20,3 +20,5 @@ export const WheelHandler = (
     onZoom(delta, zoomAround);
     e.cancelBubble = true;
 }
+
+export type MouseOnBlockType = {mouseDownOn: "BLOCK"} | {mouseDownOn: "BLOCK_EDGE", direction: DirectionType};

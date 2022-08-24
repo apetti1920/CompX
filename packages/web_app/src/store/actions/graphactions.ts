@@ -24,9 +24,9 @@ export const MovedBlocksAction: ActionType = (delta: Vector2D): ActionPayloadTyp
 
 // Creates the Payload type and action to resize a block in a graph
 export const ResizedBlocksAction: ActionType = (
-    blockId: string, resizeDirection: DirectionType, delta: Vector2D
+    resizeDirection: DirectionType, delta: Vector2D
 ): ActionPayloadType => ({
     type: ResizedBlockActionType,
-    payload: { blockId: blockId, resizeDirection: resizeDirection, delta: delta }
+    payload: { resizeDirection: resizeDirection, delta: delta }
 });
 

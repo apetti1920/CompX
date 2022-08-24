@@ -10,9 +10,11 @@ import {Stage, Layer, Rect} from 'react-konva';
 import { PortStringListType } from '@compx/common/Graph/Port'
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import {DirectionType, Vector2D} from '@compx/common/Types'
+
 import {StateType as SaveState} from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
+import { MouseOnBlockType } from './utils'
 import {ThemeType} from "../../../types";
 import GraphComponent from "./Graph/GraphComponent";
 import {
@@ -34,7 +36,7 @@ type DispatchProps = {
     onSelectBlock: (blockId: string, selectMultiple: boolean) => void,
     onDeselectBlocks: () => void
     onMoveBlocks: (delta: Vector2D) => void,
-    onResizeBlocks: (blockId: string, resizeDirection: DirectionType, delta: Vector2D)=>void
+    onResizeBlock: (resizeDirection: DirectionType, delta: Vector2D)=>void
     onZoom: (delta: number, around: Vector2D) => void,
     onTranslate: (point: Vector2D) => void
 }
@@ -43,10 +45,7 @@ type PropsType = GlobalProps & DispatchProps & ComponentProps
 type StateType = {
     canvasSize: Vector2D,
     dragging: boolean,
-    mouseDown?: (
-        {mouseDownOn: "BLOCK"} |
-        {mouseDownOn: "BLOCK_EDGE", direction: DirectionType}
-    )
+    mouseDown?: MouseOnBlockType
 };
 
 class CanvasContainer extends Component<PropsType, StateType> {
@@ -88,7 +87,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     }
 
     // -------------------------------------- Block Events -------------------------------------------------------------
-    onMouseDownBlock = (on: ({mouseDownOn: "BLOCK"} | {mouseDownOn: "BLOCK_EDGE", direction: DirectionType})) =>
+    onMouseDownBlock = (on: MouseOnBlockType) =>
         this.setState({mouseDown: on});
     onMouseUpBlock = () => this.setState({mouseDown: undefined});
     onMouseMoveBlock = (e: KonvaEventObject<MouseEvent>) => {
@@ -98,12 +97,15 @@ class CanvasContainer extends Component<PropsType, StateType> {
         if (this.state.mouseDown.mouseDownOn === "BLOCK") {
             const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
             this.props.onMoveBlocks(delta);
+        } else if (this.state.mouseDown.mouseDownOn === "BLOCK_EDGE") {
+            const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
+            this.props.onResizeBlock(this.state.mouseDown.direction, delta);
         }
     }
 
-    onSelectBlock = (blockId: string, selectMultiple: boolean) => {
+    onSelectBlock = (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType) => {
         this.props.onSelectBlock(blockId, selectMultiple);
-        this.setState({mouseDown: {mouseDownOn: "BLOCK"}});
+        this.setState({mouseDown: selectedOn});
     }
 
     onDeselectBlocks = () => {
@@ -188,7 +190,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         onSelectBlock: SelectBlockAction,
         onDeselectBlocks: DeselectBlockAction,
         onMoveBlocks: MovedBlocksAction,
-        onResizeBlocks: ResizedBlocksAction,
+        onResizeBlock: ResizedBlocksAction,
         onTranslate: TranslatedCanvasAction,
         onZoom: ZoomedCanvasAction
     }, dispatch)
