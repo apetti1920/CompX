@@ -4,6 +4,7 @@ import {bindActionCreators, Dispatch} from "redux";
 import {connect} from "react-redux";
 import {throttle} from "lodash";
 import Konva from 'konva';
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 import {Stage, Layer, Rect} from 'react-konva';
 
 import { PortStringListType } from '@compx/common/Graph/Port'
@@ -20,6 +21,7 @@ import {
     ResizedBlocksAction,
     SelectBlockAction
 } from "../../../store/actions/graphactions";
+import BlockComponent from "./Graph/VisualTypes/BlockComponent";
 
 
 type GlobalProps = {
@@ -40,8 +42,11 @@ type ComponentProps = {};
 type PropsType = GlobalProps & DispatchProps & ComponentProps
 type StateType = {
     canvasSize: Vector2D,
-    dragging: boolean
-    // selectedBlockIdsCache: string[]
+    dragging: boolean,
+    mouseDown?: (
+        {mouseDownOn: "BLOCK"} |
+        {mouseDownOn: "BLOCK_EDGE", direction: DirectionType}
+    )
 };
 
 class CanvasContainer extends Component<PropsType, StateType> {
@@ -60,8 +65,8 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
         this.state = {
             canvasSize: new Vector2D(),
-            dragging: false
-            // selectedBlockIdsCache: []
+            dragging: false,
+            mouseDown: undefined
         }
     }
 
@@ -80,14 +85,25 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
         // ----------------------------- Resize Event ------------------------------------------------------------------
         window.addEventListener('resize', throttle(() => requestAnimationFrame(SetWindowSize), 180));
-
-        // --------------------------------- Initialize Blocks ---------------------------------------------------------
-        // blocks.filter(block => block.selected).map(block => block.id)
     }
 
     // -------------------------------------- Block Events -------------------------------------------------------------
+    onMouseDownBlock = (on: ({mouseDownOn: "BLOCK"} | {mouseDownOn: "BLOCK_EDGE", direction: DirectionType})) =>
+        this.setState({mouseDown: on});
+    onMouseUpBlock = () => this.setState({mouseDown: undefined});
+    onMouseMoveBlock = (e: KonvaEventObject<MouseEvent>) => {
+        e.evt.stopPropagation();
+        if (this.state.mouseDown === undefined) return;
+
+        if (this.state.mouseDown.mouseDownOn === "BLOCK") {
+            const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
+            this.props.onMoveBlocks(delta);
+        }
+    }
+
     onSelectBlock = (blockId: string, selectMultiple: boolean) => {
         this.props.onSelectBlock(blockId, selectMultiple);
+        this.setState({mouseDown: {mouseDownOn: "BLOCK"}});
     }
 
     onDeselectBlocks = () => {
@@ -95,6 +111,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
     }
 
     render() {
+        const notSelectedBlocks = this.props.blocks.filter(b => !b.selected);
+        const selectedBlocks = this.props.blocks.filter(b => b.selected);
+
         return (
             <div ref={this.wrapperRef} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}>
                 <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
@@ -116,14 +135,35 @@ class CanvasContainer extends Component<PropsType, StateType> {
                         />
                     </Layer>
 
-                    {(this.stageRef.current !== null && this.props.blocks.length > 0) ? (
+                    {(this.stageRef.current !== null && notSelectedBlocks.length > 0) ? (
                         <Layer id="graph">
                             <GraphComponent
-                                blocks={this.props.blocks} konvaStage={this.stageRef.current}
-                                onMouseResize={this.props.onResizeBlocks}
-                                onSelectedBlock={this.onSelectBlock} onMoveBlocks={this.props.onMoveBlocks}
-                                screenSize={this.state.canvasSize} canvasTranslation={this.props.canvasTranslation}
-                                canvasZoom={this.props.canvasZoom} theme={this.props.theme} onZoom={this.props.onZoom} />
+                                blocks={notSelectedBlocks} konvaStage={this.stageRef.current}
+                                onSelectedBlock={this.onSelectBlock} screenSize={this.state.canvasSize}
+                                canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
+                                theme={this.props.theme} onZoom={this.props.onZoom}
+                            />
+                        </Layer>
+                    ) : <React.Fragment /> }
+
+                    {(this.stageRef.current !== null && selectedBlocks.length > 0) ? (
+                        <Layer id="graph">
+                            {selectedBlocks.map(block => (
+                                <BlockComponent
+                                    key={`block-${block.id}`} konvaStage={this.stageRef.current!}
+                                    onSelectBlock={this.onSelectBlock} screenSize={this.state.canvasSize}
+                                    onMouseDown={this.onMouseDownBlock} onMouseUp={this.onMouseUpBlock}
+                                    canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
+                                    block={block} theme={this.props.theme} onZoom={this.props.onZoom}
+                                />
+                            ))}
+                            <Rect x={0} y={0}
+                                  width={this.state.canvasSize.x}
+                                  height={this.state.canvasSize.y}
+                                  fill="transparent"
+                                  listening={this.state.mouseDown !== undefined} onMouseUp={this.onMouseUpBlock}
+                                  onMouseMove={this.onMouseMoveBlock}
+                            />
                         </Layer>
                     ) : <React.Fragment /> }
                 </Stage>
