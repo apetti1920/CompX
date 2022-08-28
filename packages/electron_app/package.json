@@ -4,7 +4,7 @@
   "description": "Electron",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "rimraf dist && mkdir dist && (pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer && popd) && tsc",
+    "build": "rimraf dist && mkdir dist && (pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer && popd) && cp -R static dist/renderer/static && tsc",
     "start": "npm run build && electron ."
   },
   "build": {
