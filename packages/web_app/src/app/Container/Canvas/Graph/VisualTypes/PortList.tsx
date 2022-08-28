@@ -6,7 +6,8 @@ type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 import { Vector2D } from '@compx/common/Types';
 import { PortStorageWithIDType } from '@compx/common/Network/GraphItemStorage/PortStorage';
 
-type PortPropType = { i: number, blockPosition: Vector2D, onMouseDown: (e: KonvaEventObject<MouseEvent>)=>void,
+type PortPropType = { i: number, blockPosition: Vector2D,
+    onMouseDown: (e: KonvaEventObject<MouseEvent>)=>void,
     onMouseUp: (e: KonvaEventObject<MouseEvent>)=>void } & (
     { vertDistInput: number } |
     { vertDistOutput: number, blockWidth: number }
@@ -33,17 +34,21 @@ function PortComponent(props: PortPropType): React.ReactElement {
 }
 
 type PropType = {
-    blockPosition: Vector2D
-    blockSize: Vector2D
-    inputPorts: PortStorageWithIDType<any>[]
-    outputPorts: PortStorageWithIDType<any>[]
-    onMouseDown: (e: KonvaEventObject<MouseEvent>, portId: string, isOutput: boolean)=>void
+    blockPosition: Vector2D,
+    blockSize: Vector2D,
+    inputPorts: PortStorageWithIDType<any>[],
+    outputPorts: PortStorageWithIDType<any>[],
+    onMouseDown: (e: KonvaEventObject<MouseEvent>, portId: string, isOutput: boolean)=>void,
     onMouseUp: (e: KonvaEventObject<MouseEvent>, portId: string, isOutput: boolean)=>void
 };
 
 type StateType = {};
 
 export default class PortList extends Component<PropType, StateType> {
+    public static defaultProps = {
+        onlyDrawTouchPoints: false
+    };
+
     constructor(props: PropType) {
         super(props);
 

@@ -5,12 +5,13 @@ import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/B
 import BlockComponent from "./VisualTypes/BlockComponent";
 import { ThemeType } from "../../../../types";
 import Konva from "konva";
-import {MouseOnBlockType} from "../utils";
+import { MouseOnBlockExtracted } from "../utils";
 
 type PropType = {
     konvaStage: Konva.Stage,
     blocks: VisualBlockStorageType<any, any>[],
-    onSelectedBlock: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
+    onSelectedBlock: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">)=>void,
+    onMouseDownBlock: ( on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => void,
     screenSize: Vector2D,
     canvasTranslation: Vector2D,
     canvasZoom: number,
@@ -24,6 +25,7 @@ export default function(props: PropType) {
             {props.blocks.map(block => <BlockComponent
                 key={`block-${block.id}`} konvaStage={props.konvaStage}
                 onSelectBlock={props.onSelectedBlock} screenSize={props.screenSize}
+                onMouseDown={props.onMouseDownBlock}
                 canvasTranslation={props.canvasTranslation} canvasZoom={props.canvasZoom}
                 block={block} theme={props.theme} onZoom={props.onZoom} />
             )}

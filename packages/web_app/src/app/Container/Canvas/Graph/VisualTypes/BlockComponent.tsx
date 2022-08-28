@@ -6,7 +6,7 @@ type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 import { Vector2D, DirectionType } from '@compx/common/Types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 
-import {WheelHandler, MouseOnBlockType, MouseOnBlockExtracted, CalculateScreenBlockSizeAndPosition} from '../../utils'
+import { WheelHandler, MouseOnBlockExtracted, CalculateScreenBlockSizeAndPosition } from '../../utils'
 import { ThemeType } from "../../../../../types";
 import { HexToRgbA } from "../../../../../theme/helpers";
 import PortList from "./PortList";
@@ -15,8 +15,8 @@ type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse";
 const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
 type PropType = {
     konvaStage: Konva.Stage,
-    onSelectBlock?: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
-    onMouseDown?: ( on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => void,
+    onSelectBlock?: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">)=>void,
+    onMouseDown: ( on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => void,
     onMouseUp?: (on?: { mouseOn: "PORT", portId: string, isOutput: boolean}) => void,
     screenSize: Vector2D,
     canvasTranslation: Vector2D,
@@ -82,9 +82,9 @@ export default class BlockComponent extends Component<PropType, StateType> {
     }
 
     onMouseDownPort = (e: KonvaEventObject<MouseEvent>, portId: string, isOutput: boolean) => {
-        this.props.onSelectBlock?.(this.props.block.id, false, {
-            mouseOn: "PORT", blockId: this.props.block.id, portId: portId, isOutput: isOutput
-        });
+        // this.props.onSelectBlock?.(this.props.block.id, false, {
+        //     mouseOn: "PORT", blockId: this.props.block.id, portId: portId, isOutput: isOutput
+        // });
         this.props.onMouseDown?.({mouseOn: "PORT", blockId: this.props.block.id, portId: portId, isOutput: isOutput});
     }
 

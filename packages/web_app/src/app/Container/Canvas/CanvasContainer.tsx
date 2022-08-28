@@ -5,18 +5,18 @@ import {connect} from "react-redux";
 import {throttle} from "lodash";
 import Konva from 'konva';
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
-import {Stage, Layer, Rect} from 'react-konva';
+import { Stage, Layer, Rect } from 'react-konva';
 
-import {PortStringListType, PortTypes} from '@compx/common/Graph/Port'
+import { PortStringListType, PortTypes } from '@compx/common/Graph/Port'
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import {DirectionType, Vector2D} from '@compx/common/Types'
+import { DirectionType, Vector2D } from '@compx/common/Types'
 
-import {StateType as SaveState} from "../../../store/types";
+import { StateType as SaveState } from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
-import {CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted, MouseOnBlockType} from './utils'
-import {ThemeType} from "../../../types";
+import { CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils'
+import { ThemeType } from "../../../types";
 import GraphComponent from "./Graph/GraphComponent";
 import {
     DeselectBlockAction,
@@ -48,7 +48,7 @@ type PropsType = GlobalProps & DispatchProps & ComponentProps
 type StateType = {
     canvasSize: Vector2D,
     dragging: boolean,
-    mouseDown?: MouseOnBlockType
+    mouseDown?: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">
 };
 
 class CanvasContainer extends Component<PropsType, StateType> {
@@ -90,23 +90,13 @@ class CanvasContainer extends Component<PropsType, StateType> {
     }
 
     // -------------------------------------- Block Events -------------------------------------------------------------
-    onMouseDownBlock = (on: MouseOnBlockType) =>
-        this.setState({mouseDown: on}, ()=>{
-            if (on.mouseOn === "PORT") {
-                const block = this.props.blocks.find(b => b.selected);
-                if (block === undefined) return;
-                const port = on.isOutput?
-                    block.outputPorts.find(p => p.id === on.portId):
-                    block.inputPorts.find(p => p.id === on.portId);
-                if (port === undefined) return;
-                console.log(`Mouse Down on block ${block.id} ${on.isOutput?"output":"input"} port ${port.id}`)
-            }
-        });
+    onMouseDownBlock = (on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => this.setState({mouseDown: on});
     onMouseUpBlock = (on?: MouseOnBlockExtracted<"PORT">) => {
         if (on !== undefined && this.state.mouseDown?.mouseOn === "PORT") {
-            console.log(`The mouse went down on block ${this.state.mouseDown.blockId} 
-            ${this.state.mouseDown.isOutput?"output":"input"} port ${this.state.mouseDown.portId} 
-            and came back up on block ${on.blockId} ${on.isOutput?"output":"input"} port ${on.portId}`)
+            console.log(`The mouse went down on
+                block ${this.state.mouseDown.blockId} ${this.state.mouseDown.isOutput?"output":"input"} port ${this.state.mouseDown.portId} 
+            and came back up on 
+                block ${on.blockId} ${on.isOutput?"output":"input "} port ${on.portId}`);
         }
 
         this.setState({mouseDown: undefined});
@@ -124,7 +114,14 @@ class CanvasContainer extends Component<PropsType, StateType> {
         }
     }
 
-    onSelectBlock = (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType) => {
+    onMouseMovePort = (e: KonvaEventObject<MouseEvent>) => {
+        e.evt.stopPropagation();
+        if (this.state.mouseDown === undefined || this.state.mouseDown.mouseOn !== "PORT") return;
+
+        this.setState({mouseDown: {...this.state.mouseDown, mouseLocation: new Vector2D(e.evt.x, e.evt.y)}});
+    }
+
+    onSelectBlock = (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">) => {
         this.props.onSelectBlock(blockId, selectMultiple);
         this.setState({mouseDown: selectedOn});
     }
@@ -163,6 +160,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                             <GraphComponent
                                 blocks={notSelectedBlocks} konvaStage={this.stageRef.current}
                                 onSelectedBlock={this.onSelectBlock} screenSize={this.state.canvasSize}
+                                onMouseDownBlock={this.onMouseDownBlock}
                                 canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
                                 theme={this.props.theme} onZoom={this.props.onZoom}
                             />
@@ -190,38 +188,40 @@ class CanvasContainer extends Component<PropsType, StateType> {
                         </Layer>
                     ) : <React.Fragment /> }
 
-                    { this.state.mouseDown?.mouseOn === "PORT" ? (
+                    {this.state.mouseDown?.mouseOn === "PORT" ? (
                         <Layer id="ports-action">
                             <Rect x={0} y={0}
                                   width={this.state.canvasSize.x}
                                   height={this.state.canvasSize.y}
                                   fill="transparent"
+                                  onMouseMove={this.onMouseMovePort}
+                                  onMouseUp={()=>this.setState({mouseDown: undefined})}
                             />
+
                             { this.props.blocks.map(b => {
-                                const blockShape = CalculateScreenBlockSizeAndPosition(
-                                    this.props.canvasTranslation, this .props.canvasZoom, this.state.canvasSize,
-                                    b.size, b.position
-                                )
+                                    const blockShape = CalculateScreenBlockSizeAndPosition(
+                                        this.props.canvasTranslation, this .props.canvasZoom, this.state.canvasSize,
+                                        b.size, b.position
+                                    )
 
-                                return (
-                                    <PortList key={`selected-portlist-${b.id}`}
-                                          blockPosition={blockShape.position} blockSize={blockShape.size}
-                                          inputPorts={b.inputPorts} outputPorts={b.outputPorts}
-                                          onMouseDown={
-                                              (e, portId, isOutput) =>
-                                                  this.onMouseDownBlock({
-                                                      mouseOn: "PORT", blockId: b.id, portId: portId, isOutput: isOutput
-                                                  })}
-                                          onMouseUp={(e, portId, isOutput) =>
-                                              this.onMouseUpBlock({
-                                                  mouseOn: "PORT", blockId: b.id, portId: portId, isOutput: isOutput
-                                              })}
-                                    />
-                                )
-                            })}
-                        </Layer>
-                    ) : <React.Fragment/> }
-
+                                    return (
+                                        <PortList key={`selected-portlist-${b.id}`}
+                                                  blockPosition={blockShape.position} blockSize={blockShape.size}
+                                                  inputPorts={b.inputPorts} outputPorts={b.outputPorts}
+                                                  onMouseDown={
+                                                      (e, portId, isOutput) =>
+                                                          this.onMouseDownBlock({
+                                                              mouseOn: "PORT", blockId: b.id, portId: portId, isOutput: isOutput
+                                                          })}
+                                                  onMouseUp={(e, portId, isOutput) =>
+                                                      this.onMouseUpBlock({
+                                                          mouseOn: "PORT", blockId: b.id, portId: portId, isOutput: isOutput
+                                                      })}
+                                        />
+                                    )
+                                })}
+                            </Layer>
+                    ) : <React.Fragment/>}
                 </Stage>
             </div>
         )

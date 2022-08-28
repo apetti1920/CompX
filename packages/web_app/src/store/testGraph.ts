@@ -22,7 +22,8 @@ function CreatePort(): PortStorageWithIDType<any> {
 
 function CreateBlock(): VisualBlockStorageType<any, any> {
     return { id: uuidv4(), visualName: "", name: "",
-        inputPorts: Array(getRandom(0, 5)).fill(CreatePort()), outputPorts: Array(getRandom(0, 5)).fill(CreatePort()),
+        inputPorts: Array(getRandom(0, 5)).fill(0).map(() => CreatePort()),
+        outputPorts: Array(getRandom(0, 5)).fill(0).map(() => CreatePort()),
         callbackString: "",
         tags: [], description: "", mirrored: false, selected: false,
         position: new Vector2D(getRandom(-100.0, 100.0), getRandom(-100.0, 100.0)),

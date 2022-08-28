@@ -33,8 +33,8 @@ export const WheelHandler = (
     e.cancelBubble = true;
 }
 
-export type MouseOnBlockType = { mouseOn: "BLOCK" } |
+type MouseOnBlockType = { mouseOn: "BLOCK" } |
     { mouseOn: "BLOCK_EDGE", direction: DirectionType } |
-    { mouseOn: "PORT", blockId: string, portId: string, isOutput: boolean};
+    { mouseOn: "PORT", blockId: string, portId: string, isOutput: boolean, mouseLocation?: Vector2D};
 type MouseOnObjects = MouseOnBlockType["mouseOn"];
 export type MouseOnBlockExtracted<T extends MouseOnObjects> = Extract<MouseOnBlockType, { mouseOn: T }>;
