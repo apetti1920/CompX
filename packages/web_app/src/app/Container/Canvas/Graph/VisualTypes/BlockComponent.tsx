@@ -5,18 +5,19 @@ type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { WheelHandler, MouseOnBlockType } from  '../../utils'
+
+import {WheelHandler, MouseOnBlockType, MouseOnBlockExtracted, CalculateScreenBlockSizeAndPosition} from '../../utils'
 import { ThemeType } from "../../../../../types";
 import { HexToRgbA } from "../../../../../theme/helpers";
 import PortList from "./PortList";
 
-type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse"
+type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse";
 const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
 type PropType = {
     konvaStage: Konva.Stage,
     onSelectBlock?: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockType)=>void,
-    onMouseDown?: (on: ({mouseDownOn: "BLOCK"} | {mouseDownOn: "BLOCK_EDGE", direction: DirectionType})) => void,
-    onMouseUp?: () => void,
+    onMouseDown?: ( on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => void,
+    onMouseUp?: (on?: { mouseOn: "PORT", portId: string, isOutput: boolean}) => void,
     screenSize: Vector2D,
     canvasTranslation: Vector2D,
     canvasZoom: number,
@@ -45,11 +46,11 @@ export default class BlockComponent extends Component<PropType, StateType> {
         e.evt.stopPropagation();
 
         if (e.evt.shiftKey) {
-            this.props.onSelectBlock?.(this.props.block.id, true, {mouseDownOn: "BLOCK"});
-            this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK"}));
+            this.props.onSelectBlock?.(this.props.block.id, true, {mouseOn: "BLOCK"});
+            this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseOn: "BLOCK"}));
         } else if (e.evt.button === 0) {
-            this.props.onSelectBlock?.(this.props.block.id, false, {mouseDownOn: "BLOCK"});
-            this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK"}));
+            this.props.onSelectBlock?.(this.props.block.id, false, {mouseOn: "BLOCK"});
+            this.setState({mouseDownRect: true}, ()=>this.props.onMouseDown?.({mouseOn: "BLOCK"}));
         }
     }
 
@@ -70,9 +71,9 @@ export default class BlockComponent extends Component<PropType, StateType> {
 
     onMouseDownBorderHandler = (e: KonvaEventObject<MouseEvent>, dir: DirectionType) => {
         e.evt.stopPropagation();
-        this.props.onSelectBlock?.(this.props.block.id, false, {mouseDownOn: "BLOCK_EDGE", direction: dir})
+        this.props.onSelectBlock?.(this.props.block.id, false, {mouseOn: "BLOCK_EDGE", direction: dir});
         this.setState({mouseDownBorder: dir},
-            ()=>this.props.onMouseDown?.({mouseDownOn: "BLOCK_EDGE", direction: dir}));
+            ()=>this.props.onMouseDown?.({mouseOn: "BLOCK_EDGE", direction: dir}));
     }
 
     onMouseUpBorderHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -80,16 +81,21 @@ export default class BlockComponent extends Component<PropType, StateType> {
         this.setState({mouseDownBorder: undefined}, this.props.onMouseUp);
     }
 
-    render() {
-        const width = this.props.block.size.x * this.props.canvasZoom;
-        const height = this.props.block.size.y * this.props.canvasZoom;
-        // TODO: Stop blocks from disappearing if the canvas is at max zoom
-        if (width < 25.0 || height < 25.0) return <React.Fragment />;
+    onMouseDownPort = (e: KonvaEventObject<MouseEvent>, portId: string, isOutput: boolean) => {
+        this.props.onSelectBlock?.(this.props.block.id, false, {
+            mouseOn: "PORT", blockId: this.props.block.id, portId: portId, isOutput: isOutput
+        });
+        this.props.onMouseDown?.({mouseOn: "PORT", blockId: this.props.block.id, portId: portId, isOutput: isOutput});
+    }
 
-        const x = (this.props.screenSize.x/2.0) + this.props.canvasTranslation.x - (0.5*width) +
-            (this.props.block.position.x * this.props.canvasZoom);
-        const y = (this.props.screenSize.y/2.0) + this.props.canvasTranslation.y - (0.5*height) -
-            (this.props.block.position.y * this.props.canvasZoom);
+    render() {
+        const blockShape = CalculateScreenBlockSizeAndPosition(
+            this.props.canvasTranslation, this.props.canvasZoom, this.props.screenSize,
+            this.props.block.size, this.props.block.position
+        );
+        const width = blockShape.size.x; const height = blockShape.size.y;
+        const x = blockShape.position.x; const y = blockShape.position.y
+        if (width <= 25 || height <= 25) return <React.Fragment/>
 
         let radius = 5;
         radius = (width > (2.2*radius) && height > (2.2*radius)) ? radius : 5;
@@ -137,7 +143,11 @@ export default class BlockComponent extends Component<PropType, StateType> {
                       {...lineProps("nw")}/>
 
                 <PortList blockPosition={new Vector2D(x, y)} blockSize={new Vector2D(width, height)}
-                          inputPorts={this.props.block.inputPorts} outputPorts={this.props.block.outputPorts} />
+                          inputPorts={this.props.block.inputPorts} outputPorts={this.props.block.outputPorts}
+                          onMouseDown={this.onMouseDownPort}
+                          onMouseUp={(e, portId, isOutput) =>
+                              this.props.onMouseUp?.({mouseOn: "PORT", portId: portId, isOutput})}
+                />
             </React.Fragment>
         )
     }

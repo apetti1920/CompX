@@ -16,7 +16,7 @@ export type StateType = {
 };
 
 export const defaultState: StateType = {
-    currentGraph: { blocks: MakeVisualGraph(3).blocks },
+    currentGraph: MakeVisualGraph(3),
     userStorage: {
         theme:  DarkTheme,
         canvas: {
