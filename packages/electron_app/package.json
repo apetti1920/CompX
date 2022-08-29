@@ -4,7 +4,10 @@
   "description": "Electron",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "rimraf dist && mkdir dist && (pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer && popd) && cp -R static dist/renderer/static && tsc",
+    "build:loader": "cp -R dist ../electron_app/dist/renderer",
+    "build:app": "pushd ../web_app && npm run build &&  && popd",
+    "build:deps": "source venv/bin/activate && python build.py && deactivate",
+    "build": "rimraf dist && mkdir dist && npm run build:deps && tsc",
     "start": "npm run build && electron ."
   },
   "build": {
@@ -25,6 +28,8 @@
     "electron-builder": "^23.3.3"
   },
   "dependencies": {
+    "@types/tmp": "^0.2.3",
+    "tmp": "^0.2.1",
     "uuid": "^8.3.2"
   }
 }
