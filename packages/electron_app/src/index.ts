@@ -1,5 +1,4 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
-import EventEmitter from "events";
 
 const SetupApp = async (onProgress: (pct: number)=>void, onFinished: ()=>void) => {
     function sleep(ms: number) {
@@ -27,19 +26,18 @@ const CreateWindow = (args?: BrowserWindowConstructorOptions) => new BrowserWind
 
 app.on('ready', () => {
     const loadingWindow = CreateWindow({width: 600, height: 400, frame: false, resizable: false});
-    loadingWindow.loadFile(__dirname + "/../renderer/static/loading.html");
+    loadingWindow.loadFile(__dirname + "/../renderer/loader/index.html");
 
     SetupApp(
         (pct) => {
             loadingWindow.webContents.send('progress', pct);
         }, ()=>{
             const mainWindow = CreateWindow();
-            mainWindow.loadFile(__dirname + "/../renderer/index.html");
+            mainWindow.loadFile(__dirname + "/../renderer/app/index.html");
             mainWindow.on('ready-to-show', () => {
                 loadingWindow.close();
                 loadingWindow.destroy();
                 mainWindow.show();
-                mainWindow.webContents.openDevTools();
             });
         }
     )

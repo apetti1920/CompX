@@ -187,6 +187,10 @@ class Vector2D {
     public get rounded(): Vector2D {
         return new Vector2D(Math.round(this.x), Math.round(this.y))
     }
+
+    public toString(): string {
+        return `{x:${this.x}, y:${this.y}}`;
+    }
 }
 
 export default Vector2D
