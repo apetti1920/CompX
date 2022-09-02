@@ -1,5 +1,5 @@
 import {
-    MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType, ResizedBlockActionType
+    MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType, ResizedBlockActionType, AddEdgeActionType
 } from './actiontypes';
 import { Vector2D, DirectionType } from '@compx/common/Types';
 import {ActionPayloadType, ActionType} from "../types";
@@ -28,5 +28,13 @@ export const ResizedBlocksAction: ActionType = (
 ): ActionPayloadType => ({
     type: ResizedBlockActionType,
     payload: { resizeDirection: resizeDirection, delta: delta }
+});
+
+// Creates the payload to Add an Edge
+export const AddedEdgeAction: ActionType = (
+    output: {blockID: string, portID: string}, input: {blockID: string, portID: string}
+): ActionPayloadType => ({
+    type: AddEdgeActionType,
+    payload: { output: output, input: input }
 });
 

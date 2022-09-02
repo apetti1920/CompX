@@ -46,10 +46,6 @@ type PropType = {
 type StateType = {};
 
 export default class PortList extends Component<PropType, StateType> {
-    public static defaultProps = {
-        onlyDrawTouchPoints: false
-    };
-
     constructor(props: PropType) {
         super(props);
 

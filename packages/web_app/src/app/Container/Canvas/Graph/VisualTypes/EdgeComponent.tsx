@@ -2,80 +2,43 @@ import {Shape} from "react-konva";
 
 import { Vector2D } from '@compx/common/Types';
 
-export default (props: { inputPortLoc: Vector2D, outputPortLoc: Vector2D, zoomLevel: number, dragging?: boolean }) => {
-    // const dragging = props.dragging!==undefined?props.dragging:false;
-
+export default (props: { inputPortLoc: Vector2D, outputPortLoc: Vector2D, zoomLevel: number, startedFrom?: "input"|"output" }) => {
     return (
         <Shape
-            sceneFunc={(context, shape) => {
-                const gap = Vector2D.subtract(props.inputPortLoc, props.outputPortLoc);
+            sceneFunc={(ctx, shape) => {
                 const radius = 20*props.zoomLevel;
+                const gap = Vector2D.subtract(props.inputPortLoc, props.outputPortLoc);
 
-                context.beginPath();
-                context.moveTo(props.outputPortLoc.x, props.outputPortLoc.y);
-
-                if (gap.x / 2 >= 2*radius) {
-                    context.lineTo(props.outputPortLoc.x + gap.x / 2 - radius, props.outputPortLoc.y);
-                    context.quadraticCurveTo(
-                        props.outputPortLoc.x + gap.x / 2, props.outputPortLoc.y,
-                        props.outputPortLoc.x + gap.x / 2, props.outputPortLoc.y + radius
-                    );
-                    context.lineTo(props.outputPortLoc.x + gap.x / 2, props.inputPortLoc.y - radius);
-
-                    if (gap.x / 2 >= 2*radius) {
-                        context.quadraticCurveTo(
-                            props.outputPortLoc.x + gap.x / 2, props.inputPortLoc.y,
-                            props.outputPortLoc.x + gap.x / 2 + radius, props.inputPortLoc.y
-                        );
-                        context.lineTo(props.inputPortLoc.x, props.inputPortLoc.y);
-                    } else {
-                        context.quadraticCurveTo(
-                            props.outputPortLoc.x + gap.x / 2, props.inputPortLoc.y,
-                            props.inputPortLoc.x, props.inputPortLoc.y
-                        );
-                    }
+                let points: Vector2D[];
+                if (props.startedFrom === "output") {
+                    points = [
+                        props.outputPortLoc,
+                        Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
+                        Vector2D.add(Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)), new Vector2D(0, gap.y)),
+                        props.inputPortLoc
+                    ]
+                } else if (props.startedFrom === "input") {
+                    points = [
+                        props.inputPortLoc,
+                        Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
+                        Vector2D.subtract(Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)), new Vector2D(0, gap.y)),
+                        props.outputPortLoc
+                    ]
                 } else {
-                    context.lineTo(props.outputPortLoc.x + radius, props.outputPortLoc.y);
-                    context.quadraticCurveTo(
-                        props.outputPortLoc.x + 2*radius, props.outputPortLoc.y,
-                        props.outputPortLoc.x + 2*radius, props.outputPortLoc.y + radius
-                    );
-                    context.lineTo(props.outputPortLoc.x + 2*radius, props.inputPortLoc.y - radius);
-
-                    if (gap.x / 2 >= 0) {
-                        context.quadraticCurveTo(
-                            props.outputPortLoc.x + 2*radius, props.inputPortLoc.y,
-                            props.inputPortLoc.x, props.inputPortLoc.y
-                        );
-                    } else {
-                        context.quadraticCurveTo(
-                            props.outputPortLoc.x + 2*radius, props.inputPortLoc.y,
-                            props.outputPortLoc.x + radius, props.inputPortLoc.y
-                        );
-                        context.lineTo(props.inputPortLoc.x, props.inputPortLoc.y);
-                    }
+                    points = [
+                        props.outputPortLoc,
+                        Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
+                        Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0.0)),
+                        props.inputPortLoc
+                    ]
                 }
-                // else {
-                //     context.quadraticCurveTo(
-                //         props.outputPortLoc.x + gap.x / 2, props.inputPortLoc.y,
-                //         props.outputPortLoc.x + gap.x / 2 + radius, props.inputPortLoc.y
-                //     );
-                // }
-                // else if (gap.x + 2*radius >= -minGapX) {
-                //     context.moveTo(props.outputPortLoc.x, props.outputPortLoc.y);
-                //     context.lineTo(props.outputPortLoc.x + minGapX, props.outputPortLoc.y);
-                //     context.quadraticCurveTo(
-                //         props.outputPortLoc.x + 2*minGapX, props.outputPortLoc.y,
-                //         props.outputPortLoc.x + 2*minGapX, props.outputPortLoc.y + dir * minGapX
-                //     );
-                //     context.lineTo(props.outputPortLoc.x + 2*minGapX, props.inputPortLoc.y - minGapX);
-                //     // context.quadraticCurveTo(
-                //     //     props.outputPortLoc.x + 2*minGapX, props.inputPortLoc.y,
-                //     //     props.outputPortLoc.x + minGapX, props.inputPortLoc.y
-                //     // );
-                //     // context.lineTo(props.inputPortLoc.x, props.inputPortLoc.y);
-                // }
-                context.fillStrokeShape(shape);
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i ++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.fillStrokeShape(shape);
             }}
             stroke="white"
             strokeWidth={2}

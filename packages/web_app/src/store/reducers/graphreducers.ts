@@ -1,11 +1,14 @@
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import {ActionPayloadType, StateType} from "../types";
 import {
     MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType,
-    ResizedBlockActionType
+    ResizedBlockActionType, AddEdgeActionType
 } from "../actions/actiontypes";
 import { Vector2D, DirectionType } from '@compx/common/Types';
+import { PortTypes } from '@compx/common/Graph/Port';
+import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage'
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
     switch (action.type) {
@@ -88,6 +91,30 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
         } case (DeselectedBlockActionType): {
             const tempState  = _.cloneDeep(state);
             tempState.currentGraph.blocks.forEach(block => block.selected = false);
+            return tempState;
+        } case (AddEdgeActionType): {
+            const tempState  = _.cloneDeep(state);
+            const outputBlockId = action.payload['output']['blockID'];
+            const outputPortId = action.payload['output']['portID'];
+            const inputBlockId = action.payload['input']['blockID'];
+            const inputPortId = action.payload['input']['portID'];
+
+            if (outputBlockId === inputBlockId) return tempState;
+
+            const outputBlock = tempState.currentGraph.blocks.find(b => b.id === outputBlockId);
+            const inputBlock = tempState.currentGraph.blocks.find(b => b.id === inputBlockId);
+            if (outputBlock === undefined || inputBlock === undefined) return tempState;
+
+            const outputPort = outputBlock.outputPorts.find(p => p.id === outputPortId);
+            const inputPort = inputBlock.inputPorts.find(p => p.id === inputPortId);
+            if (outputPort === undefined || inputPort === undefined || outputPort.type !== inputPort.type) return tempState;
+
+            const edge: VisualEdgeStorageType<keyof PortTypes> = {
+                visualName: "", type: outputPort.type, id: uuidv4(),
+                output: action.payload['output'], input:  action.payload['input'], midPoints: []
+            }
+            tempState.currentGraph.edges.push(edge);
+
             return tempState;
         } default: {
                 return state
