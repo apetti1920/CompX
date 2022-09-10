@@ -6,9 +6,11 @@ import {
     MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType,
     ResizedBlockActionType, AddEdgeActionType
 } from "../actions/actiontypes";
+
 import { Vector2D, DirectionType } from '@compx/common/Types';
 import { PortTypes } from '@compx/common/Graph/Port';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage'
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
     switch (action.type) {
@@ -94,24 +96,39 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             return tempState;
         } case (AddEdgeActionType): {
             const tempState  = _.cloneDeep(state);
-            const outputBlockId = action.payload['output']['blockID'];
-            const outputPortId = action.payload['output']['portID'];
-            const inputBlockId = action.payload['input']['blockID'];
-            const inputPortId = action.payload['input']['portID'];
 
-            if (outputBlockId === inputBlockId) return tempState;
-
-            const outputBlock = tempState.currentGraph.blocks.find(b => b.id === outputBlockId);
-            const inputBlock = tempState.currentGraph.blocks.find(b => b.id === inputBlockId);
+            // Block creation sanity checks
+            const outputBlock: VisualBlockStorageType<any, any> | undefined = action.payload['output']['block'];
+            const inputBlock: VisualBlockStorageType<any, any> | undefined  = action.payload['input']['block'];
             if (outputBlock === undefined || inputBlock === undefined) return tempState;
+            if (outputBlock.id === inputBlock.id) return tempState;
 
-            const outputPort = outputBlock.outputPorts.find(p => p.id === outputPortId);
-            const inputPort = inputBlock.inputPorts.find(p => p.id === inputPortId);
-            if (outputPort === undefined || inputPort === undefined || outputPort.type !== inputPort.type) return tempState;
+            // Port creation sanity checks
+            const outputPortInd: number | undefined = action.payload['output']['portInd'];
+            const inputPortInd: number | undefined = action.payload['input']['portInd'];
+            if (outputPortInd === undefined || inputPortInd === undefined) return tempState;
+            if (outputPortInd < 0 || outputPortInd >= outputBlock.outputPorts.length) return tempState;
+            if (inputPortInd < 0 || inputPortInd >= inputBlock.inputPorts.length) return tempState;
 
+            // Get the ports and ensure they're the same type
+            const outputPort = outputBlock.outputPorts[outputPortInd];
+            const inputPort = inputBlock.inputPorts[inputPortInd];
+            if (outputPort === undefined || inputPort === undefined || outputPort.type !== inputPort.type)
+                return tempState;
+
+            // Check if the edge already exists
+            if (tempState.currentGraph.edges.find(e => (
+                e.output.blockID === outputBlock.id && e.output.portID === outputPort.id &&
+                e.input.blockID === inputBlock.id && e.input.portID === inputPort.id
+            )) !== undefined)
+                return tempState
+
+            // Create the edge
             const edge: VisualEdgeStorageType<keyof PortTypes> = {
                 visualName: "", type: outputPort.type, id: uuidv4(),
-                output: action.payload['output'], input:  action.payload['input'], midPoints: []
+                output: { blockID: outputBlock.id, portID: outputPort.id },
+                input:  { blockID: inputBlock.id, portID: inputPort.id },
+                midPoints: []
             }
             tempState.currentGraph.edges.push(edge);
 

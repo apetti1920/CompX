@@ -2,32 +2,33 @@ import React, {Component, useState} from 'react';
 import { Circle } from 'react-konva';
 
 import { Vector2D } from '@compx/common/Types';
-import { PortStorageWithIDType } from '@compx/common/Network/GraphItemStorage/PortStorage';
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import {CalculatePortLocation} from "../../utils";
 
-type PortPropType = { i: number, blockPosition: Vector2D,
-    onMouseDown: (portLocation: Vector2D)=>void,
-    onMouseUp: ()=>void } & (
-    { vertDistInput: number } |
-    { vertDistOutput: number, blockWidth: number }
-)
+type PortPropType = {
+    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
+    block: VisualBlockStorageType<any, any>, isOutput: boolean, portInd: number
+    onMouseDown: ()=>void,
+    onMouseUp: ()=>void
+}
+
 function PortComponent(props: PortPropType): React.ReactElement {
     const [hovering, setHovering] = useState(false);
-
-    // @ts-ignore
-    const x = props.blockPosition.x + (props.blockWidth!==undefined?props.blockWidth:0.0);
-    // @ts-ignore
-    const y = props.blockPosition.y + ((props.vertDistOutput!==undefined?props.vertDistOutput:props.vertDistInput) * (props.i+1));
+    const portLocation = CalculatePortLocation(
+        props.block, props.isOutput, props.portInd,
+        props.canvasTranslation, props.canvasZoom, props.screenSize
+    )
 
     return (
         <React.Fragment>
-            <Circle x={x} y={y}
+            <Circle x={portLocation.x} y={portLocation.y}
                     radius={4} fill={hovering?"blue":"red"}/>
-            <Circle x={x} y={y}
+            <Circle x={portLocation.x} y={portLocation.y}
                     onMouseEnter={()=>setHovering(true)}
                     onMouseLeave={()=>setHovering(false)}
                     onMouseDown={(e)=> {
                         e.evt.stopPropagation();
-                        props.onMouseDown(new Vector2D(x, y))
+                        props.onMouseDown();
                     }}
                     onMouseUp={props.onMouseUp}
                     radius={12} fill="transparent"/>
@@ -36,11 +37,10 @@ function PortComponent(props: PortPropType): React.ReactElement {
 }
 
 type PropType = {
-    blockShape: { position: Vector2D, size: Vector2D },
-    inputPorts: PortStorageWithIDType<any>[],
-    outputPorts: PortStorageWithIDType<any>[],
-    onMouseDown: (portId: string, isOutput: boolean, portLocation: Vector2D)=>void,
-    onMouseUp: (portId: string, isOutput: boolean)=>void
+    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
+    block: VisualBlockStorageType<any, any>,
+    onMouseDown: (block: VisualBlockStorageType<any, any>, portInd: number, isOutput: boolean)=>void,
+    onMouseUp: (block: VisualBlockStorageType<any, any>, portInd: number, isOutput: boolean)=>void
 };
 
 type StateType = {};
@@ -55,29 +55,25 @@ export default class PortList extends Component<PropType, StateType> {
     }
 
     render() {
-        const vertDistInput = this.props.blockShape.size.y / (this.props.inputPorts.length + 1);
-        const vertDistOutput = this.props.blockShape.size.y / (this.props.outputPorts.length + 1);
-
         return (
             <React.Fragment>
-                {this.props.inputPorts.map((p, i) => (
+                {this.props.block.inputPorts.map((p, i) => (
                     <PortComponent
-                        key={`input-port-${i}`} i={i}
-                        blockPosition={this.props.blockShape.position} vertDistInput={vertDistInput}
-                        onMouseDown={(portLocation)=>
-                            this.props.onMouseDown(p.id, false, portLocation)}
-                        onMouseUp={()=>this.props.onMouseUp(p.id, false)}
+                        key={`input-port-${i}`}
+                        canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
+                        screenSize={this.props.screenSize} block={this.props.block} isOutput={false} portInd={i}
+                        onMouseDown={() => this.props.onMouseDown(this.props.block, i, false)}
+                        onMouseUp={()=>this.props.onMouseUp(this.props.block, i, false)}
                     />
                 ))}
 
-                {this.props.outputPorts.map((p, i) => (
+                {this.props.block.outputPorts.map((p, i) => (
                     <PortComponent
-                        key={`output-port-${i}`} i={i}
-                        blockPosition={this.props.blockShape.position} vertDistOutput={vertDistOutput}
-                        blockWidth={this.props.blockShape.size.x}
-                        onMouseDown={(portLocation)=>
-                            this.props.onMouseDown(p.id, true, portLocation)}
-                        onMouseUp={()=>this.props.onMouseUp(p.id, true)}
+                        key={`output-port-${i}`}
+                        canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
+                        screenSize={this.props.screenSize} block={this.props.block} isOutput={true} portInd={i}
+                        onMouseDown={()=>this.props.onMouseDown(this.props.block, i, true)}
+                        onMouseUp={()=>this.props.onMouseUp(this.props.block, i, true)}
                     />
                 ))}
             </React.Fragment>

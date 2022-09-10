@@ -1,8 +1,10 @@
 import {
     MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType, ResizedBlockActionType, AddEdgeActionType
 } from './actiontypes';
+
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D, DirectionType } from '@compx/common/Types';
-import {ActionPayloadType, ActionType} from "../types";
+import { ActionPayloadType, ActionType } from "../types";
 
 // Action to select a block
 export const SelectBlockAction: ActionType = (blockId: string, selectMultiple: boolean): ActionPayloadType => ({
@@ -32,7 +34,8 @@ export const ResizedBlocksAction: ActionType = (
 
 // Creates the payload to Add an Edge
 export const AddedEdgeAction: ActionType = (
-    output: {blockID: string, portID: string}, input: {blockID: string, portID: string}
+    output: {block: VisualBlockStorageType<any, any>, portInd: number},
+    input:  {block: VisualBlockStorageType<any, any>, portInd: number}
 ): ActionPayloadType => ({
     type: AddEdgeActionType,
     payload: { output: output, input: input }
