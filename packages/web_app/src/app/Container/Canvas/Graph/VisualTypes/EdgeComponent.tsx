@@ -23,27 +23,32 @@ type PropType = (MouseDraggingPortType | { edge: StaticEdgeBlockType }) & {
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D
 };
 
-const ShapeWrapperComponent = (props: {points: Vector2D[]}) => (
-    <Shape
-        sceneFunc={(ctx, shape) => {
-            ctx.beginPath();
-            ctx.moveTo(props.points[0].x, props.points[0].y);
-            for (let i = 1; i < props.points.length; i ++) {
-                ctx.lineTo(props.points[i].x, props.points[i].y);
-            }
-            ctx.fillStrokeShape(shape);
-        }}
-        stroke="white"
-        strokeWidth={2}
-    />
-)
+const ShapeWrapperComponent = (props: {points: Vector2D[]}) => {
+    if (props.points.length <= 2) return <React.Fragment/>
+
+    return (
+        <Shape
+            sceneFunc={(ctx, shape) => {
+                ctx.beginPath();
+                ctx.moveTo(props.points[0].x, props.points[0].y);
+                for (let i = 1; i < props.points.length; i++) {
+                    ctx.lineTo(props.points[i].x, props.points[i].y);
+                }
+                ctx.fillStrokeShape(shape);
+            }}
+            stroke="white"
+            strokeWidth={2}
+        />
+    )
+}
 
 export default (props: PropType) => {
-    const radius = 20 * props.canvasZoom;
+    let radius = 20 * props.canvasZoom;
 
     // @ts-ignore
     if (props.edge === undefined) {
         let points: Vector2D[];
+
         const portLoc = CalculatePortLocation(
             // @ts-ignore
             props.block, props.isOutput, props.portInd,
@@ -58,8 +63,12 @@ export default (props: PropType) => {
         if (props.isOutput) {
             points = [
                 portLoc,
-                Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
-                Vector2D.add(Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)), new Vector2D(0, gap.y)),
+                // @ts-ignore
+                Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius*props.portInd), 0)),
+                Vector2D.add(
+                    // @ts-ignore
+                    Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius*props.portInd), 0)),
+                    new Vector2D(0, gap.y)),
                 // @ts-ignore
                 props.mouseLoc
             ]
@@ -67,7 +76,10 @@ export default (props: PropType) => {
             points = [
                 portLoc,
                 Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
-                Vector2D.subtract(Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)), new Vector2D(0, gap.y)),
+                Vector2D.subtract(
+                    Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
+                    new Vector2D(0, gap.y)
+                ),
                 // @ts-ignore
                 props.mouseLoc
             ]
@@ -77,24 +89,52 @@ export default (props: PropType) => {
             <ShapeWrapperComponent points={points}/>
         )
     } else {
+        // @ts-ignore
+        const edge: StaticEdgeBlockType = props.edge;
         const outputPortLoc = CalculatePortLocation(
-            // @ts-ignore
-            props.edge.output.block, true, props.edge.output.portInd,
+            edge.output.block, true, edge.output.portInd,
             props.canvasTranslation, props.canvasZoom, props.screenSize
         )
         const inputPortLoc = CalculatePortLocation(
-            // @ts-ignore
-            props.edge.input.block, false, props.edge.input.portInd,
+            edge.input.block, false, edge.input.portInd,
             props.canvasTranslation, props.canvasZoom, props.screenSize
         )
 
-        if (outputPortLoc.block.size.x <= 25 || outputPortLoc.block.size.y <= 25 ||
-            inputPortLoc.block.size.x <= 25 || inputPortLoc.block.size.y <= 25)
+        if (outputPortLoc.block.size.x <= 25.0 || outputPortLoc.block.size.y <= 25.0 ||
+            inputPortLoc.block.size.x <= 25.0 || inputPortLoc.block.size.y <= 25.0)
             return <React.Fragment/>
 
-        const points: Vector2D[] = [
-            outputPortLoc.port, inputPortLoc.port
-        ];
+        const outputLead = radius * (edge.output.portInd+1); const inputLead = radius * (edge.input.portInd+1);
+        const gap = (inputPortLoc.port.x - inputLead) - (outputPortLoc.port.x + outputLead);
+        const outputLeadPos = Vector2D.add(
+            outputPortLoc.port, new Vector2D(Math.max(gap / 2.0, outputLead), 0.0)
+        );
+        const inputLeadPos = Vector2D.subtract(
+            inputPortLoc.port, new Vector2D(Math.max(gap / 2.0, inputLead), 0.0)
+        );
+
+        let points: Vector2D[];
+        if (inputPortLoc.port.x - inputLead > outputPortLoc.port.x + outputLead) {
+            points = [
+                outputPortLoc.port,
+                outputLeadPos,
+                new Vector2D(outputLeadPos.x, inputLeadPos.y),
+                inputLeadPos,
+                inputPortLoc.port
+            ];
+        } else {
+            const yGap = inputLeadPos.y - outputLeadPos.y
+            const pos1 = Vector2D.add(outputLeadPos, new Vector2D(0, yGap / 2.0));
+
+            points = [
+                outputPortLoc.port,
+                outputLeadPos,
+                pos1,
+                new Vector2D(inputLeadPos.x, pos1.y),
+                inputLeadPos,
+                inputPortLoc.port
+            ];
+        }
 
         return <ShapeWrapperComponent points={points}/>
     }

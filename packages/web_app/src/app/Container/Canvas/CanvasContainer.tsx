@@ -247,6 +247,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
                             return (
                                 <EdgeComponent
+                                    key={`edge-${e.id}`}
                                     edge={newEdge}
                                     canvasTranslation={this.props.canvasTranslation}
                                     canvasZoom={this.props.canvasZoom}

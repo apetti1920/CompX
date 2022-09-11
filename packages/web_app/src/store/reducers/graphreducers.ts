@@ -117,9 +117,11 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
                 return tempState;
 
             // Check if the edge already exists
+            // or if an edge already exists going to an input (1 edge per input)
             if (tempState.currentGraph.edges.find(e => (
-                e.output.blockID === outputBlock.id && e.output.portID === outputPort.id &&
-                e.input.blockID === inputBlock.id && e.input.portID === inputPort.id
+                (e.output.blockID === outputBlock.id && e.output.portID === outputPort.id &&
+                e.input.blockID === inputBlock.id && e.input.portID === inputPort.id) ||
+                (e.input.blockID === inputBlock.id && e.input.portID === inputPort.id)
             )) !== undefined)
                 return tempState
 
