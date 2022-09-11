@@ -21,14 +21,14 @@ export const CalculateScreenBlockSizeAndPosition = (
 export const CalculatePortLocation = (
     block: VisualBlockStorageType<any, any>, isOutput: boolean, portInd: number,
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D
-): Vector2D => {
+): {block: ReturnType<typeof CalculateScreenBlockSizeAndPosition>, port: Vector2D} => {
     const blockPos = CalculateScreenBlockSizeAndPosition(
         canvasTranslation, canvasZoom, screenSize, block.size, block.position
     );
     const vertDist = blockPos.size.y / ((isOutput?block.outputPorts.length:block.inputPorts.length) + 1);
     const x = blockPos.position.x + (isOutput?blockPos.size.x:0.0);
     const y = blockPos.position.y + (vertDist * (portInd+1));
-    return new Vector2D(x, y)
+    return { block: blockPos, port: new Vector2D(x, y) }
 }
 
 export const WheelHandler = (

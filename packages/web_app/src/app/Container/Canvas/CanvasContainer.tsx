@@ -16,7 +16,7 @@ import { DirectionType, Vector2D } from '@compx/common/Types';
 import { StateType as SaveState } from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
-import EdgeComponent from './Graph/VisualTypes/EdgeComponent';
+import EdgeComponent, {StaticEdgeBlockType} from './Graph/VisualTypes/EdgeComponent';
 import {CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
 import { ThemeType } from "../../../types";
 import {
@@ -228,47 +228,32 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                     screenSize={this.state.canvasSize}
                                 />
                         ) : <React.Fragment /> }
-                        {/*{this.props.edges.map(e => {*/}
-                        {/*    const outputBlock = this.props.blocks.find(b => b.id === e.output.blockID);*/}
-                        {/*    const inputBlock = this.props.blocks.find(b => b.id === e.input.blockID);*/}
-                        {/*    if (outputBlock === undefined || inputBlock === undefined)*/}
-                        {/*        return <React.Fragment key={`edge-${e.id}`}/>*/}
+                        {this.props.edges.map(e => {
+                            const outputBlock = this.props.blocks.find(b => b.id === e.output.blockID);
+                            const inputBlock = this.props.blocks.find(b => b.id === e.input.blockID);
+                            if (outputBlock === undefined || inputBlock === undefined)
+                                return <React.Fragment key={`edge-${e.id}`}/>
 
-                        {/*    const outputPortInd = outputBlock.outputPorts.findIndex(p => p.id === e.output.portID);*/}
-                        {/*    const inputPortInd = inputBlock.inputPorts.findIndex(p => p.id === e.input.portID);*/}
-                        {/*    if (outputPortInd === -1 || inputPortInd === -1)*/}
-                        {/*        return <React.Fragment key={`edge-${e.id}`}/>*/}
+                            const outputPortInd = outputBlock.outputPorts.findIndex(p => p.id === e.output.portID);
+                            const inputPortInd = inputBlock.inputPorts.findIndex(p => p.id === e.input.portID);
+                            if (outputPortInd === -1 || inputPortInd === -1)
+                                return <React.Fragment key={`edge-${e.id}`}/>
 
-                        {/*    const outputBlockShape = CalculateScreenBlockSizeAndPosition(*/}
-                        {/*        this.props.canvasTranslation, this.props.canvasZoom, this.state.canvasSize,*/}
-                        {/*        outputBlock.size, outputBlock.position*/}
-                        {/*    );*/}
-                        {/*    const inputBlockShape = CalculateScreenBlockSizeAndPosition(*/}
-                        {/*        this.props.canvasTranslation, this.props.canvasZoom, this.state.canvasSize,*/}
-                        {/*        inputBlock.size, inputBlock.position*/}
-                        {/*    );*/}
-                        {/*    if (outputBlockShape.size.x <= 25 || outputBlockShape.size.y <= 25 ||*/}
-                        {/*        inputBlockShape.size.x <= 25 || inputBlockShape.size.y <= 25)*/}
-                        {/*        return <React.Fragment key={`edge-${e.id}`}/>*/}
+                            const newEdge: StaticEdgeBlockType = {
+                                ...e,
+                                output: { block: outputBlock, portInd: outputPortInd},
+                                input:  { block: inputBlock, portInd: inputPortInd}
+                            }
 
-                        {/*    const vertDistOutput = outputBlockShape.size.y / (outputBlock.outputPorts.length + 1);*/}
-                        {/*    const vertDistInput = inputBlockShape.size.y / (inputBlock.inputPorts.length + 1);*/}
-
-                        {/*    const outputBlockPos = new Vector2D(*/}
-                        {/*        outputBlockShape.position.x+ outputBlockShape.size.x,*/}
-                        {/*        outputBlockShape.position.y + (vertDistOutput * (outputPortInd+1))*/}
-                        {/*    );*/}
-                        {/*    const inputBlockPos = new Vector2D(*/}
-                        {/*        inputBlockShape.position.x,*/}
-                        {/*        inputBlockShape.position.y + (vertDistInput * (inputPortInd+1))*/}
-                        {/*    );*/}
-
-                        {/*    return <EdgeComponent key={`edge-${e.id}`}*/}
-                        {/*                          outputPortLoc={outputBlockPos}*/}
-                        {/*                          inputPortLoc={inputBlockPos}*/}
-                        {/*                          zoomLevel={this.props.canvasZoom}*/}
-                        {/*    />*/}
-                        {/*})}*/}
+                            return (
+                                <EdgeComponent
+                                    edge={newEdge}
+                                    canvasTranslation={this.props.canvasTranslation}
+                                    canvasZoom={this.props.canvasZoom}
+                                    screenSize={this.state.canvasSize}
+                                />
+                            )
+                        })}
                     </Layer>
 
 

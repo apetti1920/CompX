@@ -21,9 +21,9 @@ function PortComponent(props: PortPropType): React.ReactElement {
 
     return (
         <React.Fragment>
-            <Circle x={portLocation.x} y={portLocation.y}
+            <Circle x={portLocation.port.x} y={portLocation.port.y}
                     radius={4} fill={hovering?"blue":"red"}/>
-            <Circle x={portLocation.x} y={portLocation.y}
+            <Circle x={portLocation.port.x} y={portLocation.port.y}
                     onMouseEnter={()=>setHovering(true)}
                     onMouseLeave={()=>setHovering(false)}
                     onMouseDown={(e)=> {

@@ -1,9 +1,10 @@
-import {Shape} from "react-konva";
+import { Shape } from "react-konva";
 
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
-import {CalculatePortLocation} from "../../utils";
+import { CalculatePortLocation } from "../../utils";
+import React from "react";
 
 
 type MouseDraggingPortType = {
@@ -13,86 +14,123 @@ type MouseDraggingPortType = {
     mouseLoc: Vector2D
 }
 
-type StaticEdgeBlockType = { edge: VisualEdgeStorageType<any> }
+export type StaticEdgeBlockType = Omit<VisualEdgeStorageType<any>, "input" | "output"> & {
+    input: { block: VisualBlockStorageType<any, any>, portInd: number },
+        output: { block: VisualBlockStorageType<any, any>, portInd: number }
+}
 
-type PropType = (MouseDraggingPortType | StaticEdgeBlockType) & {
+type PropType = (MouseDraggingPortType | { edge: StaticEdgeBlockType }) & {
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D
 };
 
+const ShapeWrapperComponent = (props: {points: Vector2D[]}) => (
+    <Shape
+        sceneFunc={(ctx, shape) => {
+            ctx.beginPath();
+            ctx.moveTo(props.points[0].x, props.points[0].y);
+            for (let i = 1; i < props.points.length; i ++) {
+                ctx.lineTo(props.points[i].x, props.points[i].y);
+            }
+            ctx.fillStrokeShape(shape);
+        }}
+        stroke="white"
+        strokeWidth={2}
+    />
+)
+
 export default (props: PropType) => {
-    return (
-        <Shape
-            sceneFunc={(ctx, shape) => {
-                let points: Vector2D[] = []
-                const radius = 20*props.canvasZoom;
+    const radius = 20 * props.canvasZoom;
 
+    // @ts-ignore
+    if (props.edge === undefined) {
+        let points: Vector2D[];
+        const portLoc = CalculatePortLocation(
+            // @ts-ignore
+            props.block, props.isOutput, props.portInd,
+            props.canvasTranslation, props.canvasZoom, props.screenSize
+        ).port;
+        const gap = Vector2D.subtract(
+            // @ts-ignore
+            props.isOutput ? props.mouseLoc : portLoc, props.isOutput ? portLoc : props.mouseLoc
+        );
+
+        // @ts-ignore
+        if (props.isOutput) {
+            points = [
+                portLoc,
+                Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
+                Vector2D.add(Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)), new Vector2D(0, gap.y)),
                 // @ts-ignore
-                if (props.edge === undefined) {
-                    const portLoc = CalculatePortLocation(
-                        // @ts-ignore
-                        props.block, props.isOutput, props.portInd,
-                        props.canvasTranslation, props.canvasZoom, props.screenSize
-                    )
-                    const gap = Vector2D.subtract(
-                        // @ts-ignore
-                        props.isOutput?props.mouseLoc:portLoc, props.isOutput?portLoc:props.mouseLoc
-                    );
+                props.mouseLoc
+            ]
+        } else {
+            points = [
+                portLoc,
+                Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
+                Vector2D.subtract(Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)), new Vector2D(0, gap.y)),
+                // @ts-ignore
+                props.mouseLoc
+            ]
+        }
 
-                    // @ts-ignore
-                    if (props.isOutput) {
-                        points = [
-                            portLoc,
-                            Vector2D.add(portLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
-                            Vector2D.add(Vector2D.add(portLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)), new Vector2D(0, gap.y)),
-                            // @ts-ignore
-                            props.mouseLoc
-                        ]
-                    } else {
-                        points = [
-                            portLoc,
-                            Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
-                            Vector2D.subtract(Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)), new Vector2D(0, gap.y)),
-                            // @ts-ignore
-                            props.mouseLoc
-                        ]
-                    }
-                }
+        return (
+            <ShapeWrapperComponent points={points}/>
+        )
+    } else {
+        const outputPortLoc = CalculatePortLocation(
+            // @ts-ignore
+            props.edge.output.block, true, props.edge.output.portInd,
+            props.canvasTranslation, props.canvasZoom, props.screenSize
+        )
+        const inputPortLoc = CalculatePortLocation(
+            // @ts-ignore
+            props.edge.input.block, false, props.edge.input.portInd,
+            props.canvasTranslation, props.canvasZoom, props.screenSize
+        )
 
-                ctx.beginPath();
-                ctx.moveTo(points[0].x, points[0].y);
-                for (let i = 1; i < points.length; i ++) {
-                    ctx.lineTo(points[i].x, points[i].y);
-                }
-                ctx.fillStrokeShape(shape);
+        if (outputPortLoc.block.size.x <= 25 || outputPortLoc.block.size.y <= 25 ||
+            inputPortLoc.block.size.x <= 25 || inputPortLoc.block.size.y <= 25)
+            return <React.Fragment/>
 
+        const points: Vector2D[] = [
+            outputPortLoc.port, inputPortLoc.port
+        ];
 
+        return <ShapeWrapperComponent points={points}/>
+    }
+}
 
 
-                //
-                //
-                // if (!isDragging) {
-                //     points = [
-                //         props.outputPortLoc,
-                //         Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
-                //         Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0.0)),
-                //         props.inputPortLoc
-                //     ]
-                // }
-                //
-                //
-                //
-                // let points: Vector2D[];
-                //  else {
-                //
-                // }
-                //
+    // } else {
 
-            }}
-            stroke="white"
-            strokeWidth={2}
-        />
-    );
-};
+    //
+    //  {
+    //     points = [];
+    //
+    // }
+    //
+    //     points = [ outputPortLoc, inputPortLoc ];
+    // }
+
+    //
+    //
+    // if (!isDragging) {
+    //     points = [
+    //         props.outputPortLoc,
+    //         Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
+    //         Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0.0)),
+    //         props.inputPortLoc
+    //     ]
+    // }
+    //
+    //
+    //
+    // let points: Vector2D[];
+    //  else {
+    //
+    // }
+    //
+// };
 
 
 // const width = props.points[props.points.length-1].x - props.points[0].x;
@@ -115,4 +153,3 @@ export default (props: PropType) => {
 // //     new Vector2D(props.points[0].x + width / 2, props.points[props.points.length-1].y),
 // //     5*props.zoomLevel, "white"
 // // )
-//
