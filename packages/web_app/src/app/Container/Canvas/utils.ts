@@ -52,3 +52,5 @@ type MouseOnBlockType = { mouseOn: "BLOCK" } |
     { mouseOn: "PORT", block: VisualBlockStorageType<any, any>, portInd: number, isOutput: boolean, mouseLocation?: Vector2D};
 type MouseOnObjects = MouseOnBlockType["mouseOn"];
 export type MouseOnBlockExtracted<T extends MouseOnObjects> = Extract<MouseOnBlockType, { mouseOn: T }>;
+
+export type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse";
