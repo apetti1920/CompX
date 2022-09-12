@@ -17,7 +17,7 @@ import {SelectedItemType, StateType as SaveState} from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
 import EdgeComponent, {StaticEdgeBlockType} from './Graph/VisualTypes/EdgeComponent';
-import {CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
+import {ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
 import { ThemeType } from "../../../types";
 import {
     AddedEdgeAction,
@@ -153,6 +153,13 @@ class CanvasContainer extends Component<PropsType, StateType> {
         this.props.onDeselectBlocks();
     }
 
+    onSetCursorStyle = (side?: ArrowDirectionType) => {
+        if (side !== undefined)
+            this.stageRef.current!.container().style.cursor = `${side}-resize`;
+        else
+            this.stageRef.current!.container().style.cursor = "default";
+    }
+
     BlockPortComponent = (props: { block: VisualBlockStorageType<any, any>, selected: boolean}) => {
         const blockShape = CalculateScreenBlockSizeAndPosition(
             this.props.canvasTranslation, this.props.canvasZoom, this.state.canvasSize,
@@ -177,7 +184,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                 {/*------------------------- Draw Blocks ------------------------------------------------------------*/}
                 <BlockComponent id={props.block.id} blockShape={blockShape}
                                 color={props.block.color??"green"} selected={props.selected}
-                                konvaStage={this.stageRef.current!}
+                                onSetCursorStyle={this.onSetCursorStyle}
                                 onMouseDown={this.onMouseDownBlock}
                                 screenSize={this.state.canvasSize}
                                 canvasTranslation={this.props.canvasTranslation}
@@ -246,6 +253,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                     canvasTranslation={this.props.canvasTranslation}
                                     canvasZoom={this.props.canvasZoom}
                                     screenSize={this.state.canvasSize}
+                                    SetCursorStyle={this.onSetCursorStyle}
                                 />
                         ) : <React.Fragment /> }
                         {this.props.edges.map(e => {
@@ -272,6 +280,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                     canvasTranslation={this.props.canvasTranslation}
                                     canvasZoom={this.props.canvasZoom}
                                     screenSize={this.state.canvasSize}
+                                    SetCursorStyle={this.onSetCursorStyle}
                                 />
                             )
                         })}

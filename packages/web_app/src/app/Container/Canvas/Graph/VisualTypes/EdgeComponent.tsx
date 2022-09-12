@@ -1,12 +1,12 @@
 import React from "react";
-import { Shape } from "react-konva";
+import { Line, Group } from "react-konva";
 
 import { LinearInterp } from '@compx/common/Helpers/Other'
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
 
-import { CalculatePortLocation } from "../../utils";
+import {ArrowDirectionType, CalculatePortLocation} from "../../utils";
 
 
 
@@ -23,25 +23,29 @@ export type StaticEdgeBlockType = Omit<VisualEdgeStorageType<any>, "input" | "ou
 }
 
 type PropType = (MouseDraggingPortType | { edge: StaticEdgeBlockType }) & {
-    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D
+    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
+    SetCursorStyle: (side?: ArrowDirectionType)=>void
 };
 
-const ShapeWrapperComponent = (props: {points: Vector2D[]}) => {
+const ShapeWrapperComponent = (props: {points: Vector2D[], SetCursorStyle: (side?: ArrowDirectionType)=>void}) => {
     if (props.points.length <= 2) return <React.Fragment/>
 
     return (
-        <Shape
-            sceneFunc={(ctx, shape) => {
-                ctx.beginPath();
-                ctx.moveTo(props.points[0].x, props.points[0].y);
-                for (let i = 1; i < props.points.length; i++) {
-                    ctx.lineTo(props.points[i].x, props.points[i].y);
-                }
-                ctx.fillStrokeShape(shape);
-            }}
-            stroke="white"
-            strokeWidth={2}
-        />
+        <Group>
+            <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()} stroke="white" strokeWidth={2}/>
+            {props.points.slice(1, props.points.length-2).map((p, i) => (
+                <Group key={`lineseg-${i}`} >
+                    <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
+                          stroke="white" strokeWidth={2}
+                    />
+                    <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
+                          stroke="transparent" strokeWidth={10} onMouseEnter={()=>props.SetCursorStyle(i%2===0?"ew":"ns")}
+                          onMouseLeave={()=>props.SetCursorStyle()}
+                    />
+                </Group>
+            ))}
+            <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()} stroke="white" strokeWidth={2}/>
+        </Group>
     )
 }
 
@@ -135,5 +139,5 @@ export default (props: PropType) => {
         }
     }
 
-    return <ShapeWrapperComponent points={points}/>
+    return <ShapeWrapperComponent points={points} SetCursorStyle={props.SetCursorStyle}/>
 }

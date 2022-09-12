@@ -5,15 +5,14 @@ type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
 
-import { WheelHandler, MouseOnBlockExtracted } from '../../utils';
+import { WheelHandler, MouseOnBlockExtracted, ArrowDirectionType } from '../../utils';
 
-type ArrowDirectionType = "ew" | "ns" | "nesw" | "nwse";
 const lineDict: Record<DirectionType, ArrowDirectionType> = {'n': 'ns', 's': 'ns', 'e': 'ew', 'w': 'ew', 'nw': 'nwse', 'se': 'nwse', 'ne': 'nesw', 'sw': 'nesw'}
 type PropType = {
     id: string,
-    konvaStage: Konva.Stage,
     onSelectBlock?: (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">)=>void,
     onMouseDown: ( on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">) => void,
+    onSetCursorStyle: (side?: ArrowDirectionType)=>void,
     screenSize: Vector2D,
     canvasTranslation: Vector2D,
     canvasZoom: number,
@@ -58,12 +57,13 @@ export default class BlockComponent extends Component<PropType, StateType> {
 
     onResizeHoverEnter = (e: KonvaEventObject<MouseEvent>, side: ArrowDirectionType) => {
         e.evt.stopPropagation();
-        this.props.konvaStage.container().style.cursor = `${side}-resize`;
+        this.props.onSetCursorStyle(side);
     }
 
     onResizeHoverLeave = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
-        this.props.konvaStage.container().style.cursor = 'default';
+        this.props.onSetCursorStyle();
+        // this.props.konvaStage.container().style.cursor = 'default';
     }
 
     onMouseDownBorderHandler = (e: KonvaEventObject<MouseEvent>, dir: DirectionType) => {
