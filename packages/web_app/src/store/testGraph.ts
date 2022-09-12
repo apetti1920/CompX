@@ -25,7 +25,7 @@ function CreateBlock(): VisualBlockStorageType<any, any> {
         inputPorts: Array(getRandom(0, 5)).fill(0).map(() => CreatePort()),
         outputPorts: Array(getRandom(0, 5)).fill(0).map(() => CreatePort()),
         callbackString: "",
-        tags: [], description: "", mirrored: false, selected: false,
+        tags: [], description: "", mirrored: false,
         position: new Vector2D(getRandom(-100.0, 100.0), getRandom(-100.0, 100.0)),
         size: new Vector2D(getRandom(50.0, 150.0), getRandom(50.0, 150.0)), shape: "rect",
         color: '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0')

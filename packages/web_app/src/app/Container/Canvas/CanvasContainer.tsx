@@ -13,7 +13,7 @@ import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/B
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { DirectionType, Vector2D } from '@compx/common/Types';
 
-import { StateType as SaveState } from "../../../store/types";
+import {SelectedItemType, StateType as SaveState} from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
 import EdgeComponent, {StaticEdgeBlockType} from './Graph/VisualTypes/EdgeComponent';
@@ -33,6 +33,7 @@ import PortList from "./Graph/VisualTypes/PortList";
 type GlobalProps = {
     canvasZoom: number,
     canvasTranslation: Vector2D,
+    selected: SelectedItemType[],
     blocks:  VisualBlockStorageType<PortStringListType, PortStringListType>[]
     edges: VisualEdgeStorageType<keyof PortTypes>[]
     theme: ThemeType
@@ -59,6 +60,16 @@ class CanvasContainer extends Component<PropsType, StateType> {
     // Initialize some class variables
     private readonly wrapperRef: React.MutableRefObject<HTMLDivElement | null>;
     private readonly stageRef: React.MutableRefObject<Konva.Stage | null>;
+    private readonly ThrottledSetWindowSize = throttle(() => requestAnimationFrame(this.SetWindowSize), 180)
+    private readonly SetWindowSize = () => {
+        // Check if the refs are present
+        if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
+
+        const canvasSize = new Vector2D(this.wrapperRef.current.clientWidth, this.wrapperRef.current.clientHeight)
+        this.setState({
+            canvasSize: canvasSize
+        });
+    };
 
     // Create the Component
     constructor(props: PropsType) {
@@ -76,21 +87,26 @@ class CanvasContainer extends Component<PropsType, StateType> {
         }
     }
 
+    onKeyPressed = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        console.log("key presed", e.key);
+        if (e.key === "Delete" || e.key === "Backspace") {
+            console.log("Deleted!!!")
+        }
+        e.stopPropagation();
+    }
+
     componentDidMount() {
         // --------------------------------- State Setting -------------------------------------------------------------
-        const SetWindowSize = () => {
-            // Check if the refs are present
-            if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
-
-            const canvasSize = new Vector2D(this.wrapperRef.current.clientWidth, this.wrapperRef.current.clientHeight)
-            this.setState({
-                canvasSize: canvasSize
-            });
-        };
-        SetWindowSize();
+        this.SetWindowSize();
+        this.wrapperRef.current?.focus();
 
         // ----------------------------- Resize Event ------------------------------------------------------------------
-        window.addEventListener('resize', throttle(() => requestAnimationFrame(SetWindowSize), 180));
+        window.addEventListener('resize', this.ThrottledSetWindowSize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.ThrottledSetWindowSize);
     }
 
     // -------------------------------------- Block Events -------------------------------------------------------------
@@ -137,7 +153,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
         this.props.onDeselectBlocks();
     }
 
-    BlockPortComponent = (props: { block: VisualBlockStorageType<any, any> }) => {
+    BlockPortComponent = (props: { block: VisualBlockStorageType<any, any>, selected: boolean}) => {
         const blockShape = CalculateScreenBlockSizeAndPosition(
             this.props.canvasTranslation, this.props.canvasZoom, this.state.canvasSize,
             props.block.size, props.block.position
@@ -160,7 +176,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
             <React.Fragment key={`block-${props.block.id}`}>
                 {/*------------------------- Draw Blocks ------------------------------------------------------------*/}
                 <BlockComponent id={props.block.id} blockShape={blockShape}
-                                color={props.block.color??"green"} selected={props.block.selected}
+                                color={props.block.color??"green"} selected={props.selected}
                                 konvaStage={this.stageRef.current!}
                                 onMouseDown={this.onMouseDownBlock}
                                 screenSize={this.state.canvasSize}
@@ -184,15 +200,19 @@ class CanvasContainer extends Component<PropsType, StateType> {
         // Do this so selected blocks are not placed above the active port drag layer
         let notSelectedBlocks: VisualBlockStorageType<any,any>[]; let selectedBlocks: VisualBlockStorageType<any,any>[];
         if (this.state.mouseDown?.mouseOn !== "PORT") {
-            notSelectedBlocks = this.props.blocks.filter(b => !b.selected);
-            selectedBlocks = this.props.blocks.filter(b => b.selected);
+            notSelectedBlocks = this.props.blocks.filter(
+                b => !this.props.selected.filter(s => s.itemType === "BLOCK").map(s => s.id).includes(b.id));
+            selectedBlocks = this.props.blocks.filter(
+                b => this.props.selected.filter(s => s.itemType === "BLOCK").map(s => s.id).includes(b.id));
         } else {
             notSelectedBlocks = this.props.blocks;
             selectedBlocks = [];
         }
 
         return (
-            <div ref={this.wrapperRef} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}>
+            <div ref={this.wrapperRef} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}
+                 onKeyDown={this.onKeyPressed}
+            >
                 <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
                     {/* ------------------------------------ Background ---------------------------------------------*/}
                     <Layer id='static'>
@@ -262,14 +282,15 @@ class CanvasContainer extends Component<PropsType, StateType> {
                     <Layer id='static-block'>
                         {/*--------------------------- Draw Static Blocks -------------------------------------------*/}
                         {this.stageRef.current !== null ? notSelectedBlocks.map(block => (
-                            <this.BlockPortComponent key={`non_selected_block_${block.id}`} block={block} />
+                            <this.BlockPortComponent key={`non_selected_block_${block.id}`}
+                                                     block={block} selected={false} />
                         )):<React.Fragment/>}
                     </Layer>
 
                     {/*---------------------------- Block Selection Layer -------------------------------------------*/}
                     <Layer id='selected-block'>
                         {this.stageRef.current !== null ? selectedBlocks.map(block => (
-                            <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} />
+                            <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected={true}/>
                         )) : <React.Fragment/>}
 
                         {/* ---------- Used to create a transparent full screen rect to move mouse over ------------*/}
@@ -305,8 +326,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
 // Creates a function to map the redux state to the redux props
 function mapStateToProps(state: SaveState): GlobalProps {
     return {
-        blocks: state.currentGraph.blocks,
-        edges: state.currentGraph.edges,
+        selected: state.currentGraph.selected,
+        blocks: state.currentGraph.graph.blocks,
+        edges: state.currentGraph.graph.edges,
         canvasZoom: state.userStorage.canvas.zoom,
         canvasTranslation: state.userStorage.canvas.translation,
         theme: state.userStorage.theme

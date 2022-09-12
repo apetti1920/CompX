@@ -61,7 +61,6 @@ export interface VisualBlockStorageType<Inputs extends PortStringListType, Outpu
         visualName: string,
         position: Vector2D,
         size: Vector2D,
-        selected: boolean,
         mirrored: boolean,
         shape: "rect" | "circ" | "tri",
         color?: string,

@@ -1,10 +1,13 @@
+import React from "react";
 import { Shape } from "react-konva";
 
+import { LinearInterp } from '@compx/common/Helpers/Other'
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
+
 import { CalculatePortLocation } from "../../utils";
-import React from "react";
+
 
 
 type MouseDraggingPortType = {
@@ -42,52 +45,57 @@ const ShapeWrapperComponent = (props: {points: Vector2D[]}) => {
     )
 }
 
+const CalculateMidPoints = (
+    start: Vector2D, end: Vector2D, percentages: number[]
+): Vector2D[] => {
+    const points = [start];
+    let gap = Vector2D.subtract(end, start);
+    percentages.forEach((p, i) => {
+        if (p !== 0.0) {
+            points.push(new Vector2D(
+                i%2==0?(p*gap.x)+start.x:points[points.length-1].x,
+                i%2==0?points[points.length-1].y:(p*gap.y)+start.y
+            ));
+        }
+    });
+    points.push(new Vector2D(points[points.length-1].x, end.y))
+    points.push(end);
+    return points;
+}
+
+const CalculateMidPercent = (
+    outputNumPorts: number, outputPortInd: number, inputNumPorts: number, inputPortInd: number, dir1: boolean
+): number => {
+    const tmpMidPercent = 0.5 * (((outputPortInd+1) / outputNumPorts) + ((inputPortInd+1) / inputNumPorts));
+    return LinearInterp(tmpMidPercent, 0, 1, dir1?0.75:0.25, dir1?0.25:0.75)
+}
+
 export default (props: PropType) => {
     let radius = 20 * props.canvasZoom;
+    let points: Vector2D[];
 
     // @ts-ignore
     if (props.edge === undefined) {
-        let points: Vector2D[];
-
         const portLoc = CalculatePortLocation(
             // @ts-ignore
             props.block, props.isOutput, props.portInd,
             props.canvasTranslation, props.canvasZoom, props.screenSize
         ).port;
-        const gap = Vector2D.subtract(
-            // @ts-ignore
-            props.isOutput ? props.mouseLoc : portLoc, props.isOutput ? portLoc : props.mouseLoc
-        );
 
         // @ts-ignore
-        if (props.isOutput) {
-            points = [
-                portLoc,
-                // @ts-ignore
-                Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius*props.portInd), 0)),
-                Vector2D.add(
-                    // @ts-ignore
-                    Vector2D.add(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius*props.portInd), 0)),
-                    new Vector2D(0, gap.y)),
-                // @ts-ignore
-                props.mouseLoc
-            ]
+        const startPos = props.isOutput ? portLoc : props.mouseLoc;
+        // @ts-ignore
+        const endPos = props.isOutput ? props.mouseLoc : portLoc
+
+        if (endPos.x >= startPos.x + radius) {
+            points = CalculateMidPoints(startPos, endPos, [0.5]);
         } else {
+            const p1 = Vector2D.add(startPos, new Vector2D(radius, 0.0));
             points = [
-                portLoc,
-                Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
-                Vector2D.subtract(
-                    Vector2D.subtract(portLoc, new Vector2D(Math.max(gap.x / 2.0, radius), 0)),
-                    new Vector2D(0, gap.y)
-                ),
-                // @ts-ignore
-                props.mouseLoc
+                startPos,
+                ...CalculateMidPoints(p1, endPos, [])
             ]
         }
-
-        return (
-            <ShapeWrapperComponent points={points}/>
-        )
     } else {
         // @ts-ignore
         const edge: StaticEdgeBlockType = props.edge;
@@ -104,92 +112,28 @@ export default (props: PropType) => {
             inputPortLoc.block.size.x <= 25.0 || inputPortLoc.block.size.y <= 25.0)
             return <React.Fragment/>
 
-        const outputLead = radius * (edge.output.portInd+1); const inputLead = radius * (edge.input.portInd+1);
-        const gap = (inputPortLoc.port.x - inputLead) - (outputPortLoc.port.x + outputLead);
-        const outputLeadPos = Vector2D.add(
-            outputPortLoc.port, new Vector2D(Math.max(gap / 2.0, outputLead), 0.0)
-        );
-        const inputLeadPos = Vector2D.subtract(
-            inputPortLoc.port, new Vector2D(Math.max(gap / 2.0, inputLead), 0.0)
-        );
-
-        let points: Vector2D[];
-        if (inputPortLoc.port.x - inputLead > outputPortLoc.port.x + outputLead) {
-            points = [
-                outputPortLoc.port,
-                outputLeadPos,
-                new Vector2D(outputLeadPos.x, inputLeadPos.y),
-                inputLeadPos,
-                inputPortLoc.port
-            ];
+        if (edge.midPoints.length > 0) {
+            points = CalculateMidPoints(outputPortLoc.port, inputPortLoc.port, edge.midPoints);
         } else {
-            const yGap = inputLeadPos.y - outputLeadPos.y
-            const pos1 = Vector2D.add(outputLeadPos, new Vector2D(0, yGap / 2.0));
-
-            points = [
-                outputPortLoc.port,
-                outputLeadPos,
-                pos1,
-                new Vector2D(inputLeadPos.x, pos1.y),
-                inputLeadPos,
-                inputPortLoc.port
-            ];
+            const midPercent = CalculateMidPercent(
+                edge.output.block.outputPorts.length, edge.output.portInd,
+                edge.input.block.inputPorts.length, edge.input.portInd,
+                inputPortLoc.port.y >= outputPortLoc.port.y
+            )
+            const newRadius = radius*(1+midPercent)**2;
+            if (inputPortLoc.port.x - newRadius >= outputPortLoc.port.x + newRadius) {
+                points = CalculateMidPoints(outputPortLoc.port, inputPortLoc.port, [midPercent]);
+            } else {
+                const p1 = Vector2D.add(outputPortLoc.port, new Vector2D(newRadius, 0.0));
+                const p2 = Vector2D.subtract(inputPortLoc.port, new Vector2D((radius*50/newRadius), 0.0));
+                points = [
+                    outputPortLoc.port,
+                    ...CalculateMidPoints(p1, p2, [0.0, midPercent, 1.0]),
+                    inputPortLoc.port
+                ]
+            }
         }
-
-        return <ShapeWrapperComponent points={points}/>
     }
+
+    return <ShapeWrapperComponent points={points}/>
 }
-
-
-    // } else {
-
-    //
-    //  {
-    //     points = [];
-    //
-    // }
-    //
-    //     points = [ outputPortLoc, inputPortLoc ];
-    // }
-
-    //
-    //
-    // if (!isDragging) {
-    //     points = [
-    //         props.outputPortLoc,
-    //         Vector2D.add(props.outputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0)),
-    //         Vector2D.subtract(props.inputPortLoc, new Vector2D(Math.max(gap.x/2.0, radius), 0.0)),
-    //         props.inputPortLoc
-    //     ]
-    // }
-    //
-    //
-    //
-    // let points: Vector2D[];
-    //  else {
-    //
-    // }
-    //
-// };
-
-
-// const width = props.points[props.points.length-1].x - props.points[0].x;
-// const height = props.points[props.points.length-1].y - props.points[0].y;
-// const arrowSize = 5/props.zoomLevel;
-// const dir = Math.sign(height);
-// const radius = Math.min(RADIUS, Math.abs(height / 2), Math.abs(width / 2));
-//
-//
-//
-// DrawArrow(
-//     context._context,
-//     new Vector2D(props.points[0].x + width / 2 - RADIUS, props.points[0].y),
-//     props.points[0], 5*props.zoomLevel, "white"
-// )
-
-// // DrawArrow(
-// //     context._context,
-// //     props.points[props.points.length-1],
-// //     new Vector2D(props.points[0].x + width / 2, props.points[props.points.length-1].y),
-// //     5*props.zoomLevel, "white"
-// // )

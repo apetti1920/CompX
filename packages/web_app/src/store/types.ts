@@ -4,8 +4,12 @@ import {ThemeType} from "../types";
 import DarkTheme from "../theme/DarkTheme";
 import {MakeVisualGraph} from "./testGraph";
 
+export type SelectedItemType = { itemType: "BLOCK" | "EDGE", id: string };
 export type StateType = {
-    currentGraph: VisualGraphStorageType,
+    currentGraph: {
+        graph: VisualGraphStorageType,
+        selected: SelectedItemType[]
+    },
     userStorage: {
         theme: ThemeType,
         canvas: {
@@ -16,7 +20,10 @@ export type StateType = {
 };
 
 export const defaultState: StateType = {
-    currentGraph: MakeVisualGraph(3),
+    currentGraph: {
+        graph: MakeVisualGraph(3),
+        selected: []
+    },
     userStorage: {
         theme:  DarkTheme,
         canvas: {
