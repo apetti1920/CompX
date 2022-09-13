@@ -47,7 +47,7 @@ export const WheelHandler = (
     e.cancelBubble = true;
 }
 
-type MouseOnBlockType = { mouseOn: "BLOCK" } |
+type MouseOnBlockType = { mouseOn: "BLOCK" } | { mouseOn: "EDGE" } |
     { mouseOn: "BLOCK_EDGE", direction: DirectionType } |
     { mouseOn: "PORT", block: VisualBlockStorageType<any, any>, portInd: number, isOutput: boolean, mouseLocation?: Vector2D};
 type MouseOnObjects = MouseOnBlockType["mouseOn"];

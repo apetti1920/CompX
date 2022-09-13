@@ -13,10 +13,10 @@ import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/B
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { DirectionType, Vector2D } from '@compx/common/Types';
 
-import {SelectedItemType, StateType as SaveState} from "../../../store/types";
+import { StateType as SaveState } from "../../../store/types";
 import {TranslatedCanvasAction, ZoomedCanvasAction} from "../../../store/actions/canvasactions";
 import Grid from "./Grid/Grid";
-import EdgeComponent, {StaticEdgeBlockType} from './Graph/VisualTypes/EdgeComponent';
+import EdgeComponent, {EdgeComponentPropType, StaticEdgeBlockType} from './Graph/VisualTypes/EdgeComponent';
 import {ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
 import { ThemeType } from "../../../types";
 import {
@@ -30,10 +30,43 @@ import BlockComponent from "./Graph/VisualTypes/BlockComponent";
 import PortList from "./Graph/VisualTypes/PortList";
 
 
+const EdgeWrapperComponent = (props: {
+    blocks: VisualBlockStorageType<any, any>[], edge: VisualEdgeStorageType<any>
+} & Omit<EdgeComponentPropType, "mouse" | "edge">) => {
+    const outputBlock = props.blocks.find(b => b.id === props.edge.output.blockID);
+    const inputBlock = props.blocks.find(b => b.id === props.edge.input.blockID);
+    if (outputBlock === undefined || inputBlock === undefined)
+        return <React.Fragment />
+
+    const outputPortInd = outputBlock.outputPorts.findIndex(p => p.id === props.edge.output.portID);
+    const inputPortInd = inputBlock.inputPorts.findIndex(p => p.id === props.edge.input.portID);
+    if (outputPortInd === -1 || inputPortInd === -1)
+        return <React.Fragment />
+
+    const newEdge: StaticEdgeBlockType = {
+        ...props.edge,
+        output: { block: outputBlock, portInd: outputPortInd},
+        input:  { block: inputBlock, portInd: inputPortInd}
+    }
+
+    return (
+        <EdgeComponent
+            edge={newEdge}
+            canvasTranslation={props.canvasTranslation}
+            canvasZoom={props.canvasZoom}
+            screenSize={props.screenSize}
+            onSetCursorStyle={props.onSetCursorStyle}
+            selected={props.selected}
+            onSelectComponent={props.onSelectComponent}
+        />
+    )
+}
+
 type GlobalProps = {
     canvasZoom: number,
     canvasTranslation: Vector2D,
-    selected: SelectedItemType[],
+    selectedBlocks: string[],
+    selectedEdges: string[],
     blocks:  VisualBlockStorageType<PortStringListType, PortStringListType>[]
     edges: VisualEdgeStorageType<keyof PortTypes>[]
     theme: ThemeType
@@ -53,14 +86,14 @@ type PropsType = GlobalProps & DispatchProps & ComponentProps
 type StateType = {
     canvasSize: Vector2D,
     dragging: boolean,
-    mouseDown?: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">
+    mouseDown?: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT" | "EDGE">
 };
 
 class CanvasContainer extends Component<PropsType, StateType> {
     // Initialize some class variables
     private readonly wrapperRef: React.MutableRefObject<HTMLDivElement | null>;
     private readonly stageRef: React.MutableRefObject<Konva.Stage | null>;
-    private readonly ThrottledSetWindowSize = throttle(() => requestAnimationFrame(this.SetWindowSize), 180)
+    private readonly ThrottledSetWindowSize = throttle(() => requestAnimationFrame(this.SetWindowSize), 60)
     private readonly SetWindowSize = () => {
         // Check if the refs are present
         if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
@@ -109,22 +142,21 @@ class CanvasContainer extends Component<PropsType, StateType> {
         window.removeEventListener('resize', this.ThrottledSetWindowSize);
     }
 
-    // -------------------------------------- Block Events -------------------------------------------------------------
-    onMouseDownBlock = (on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT">) => this.setState({mouseDown: on});
-    onMouseUpBlock = (on?: MouseOnBlockExtracted<"PORT">) => {
-        if (on !== undefined && this.state.mouseDown?.mouseOn === "PORT") {
-            const mouseDownBlock = { block: this.state.mouseDown.block, portInd: this.state.mouseDown.portInd };
-            const mouseUpBlock   = { block: on.block, portInd: on.portInd };
-
-            this.props.onAddEdge(
-                this.state.mouseDown.isOutput?mouseDownBlock:mouseUpBlock,
-                this.state.mouseDown.isOutput?mouseUpBlock:mouseDownBlock
-            )
-        }
-
-        this.setState({mouseDown: undefined});
+    // -------------------------------------- Events -------------------------------------------------------------------
+    mouseDownHandler = (on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT" | "EDGE">) =>
+        this.setState({mouseDown: on});
+    deselectAllHandler = () => {
+        this.props.onDeselectBlocks();
     }
-    onMouseMoveBlock = (e: KonvaEventObject<MouseEvent>) => {
+
+    // -------------------------------------- Block Events -------------------------------------------------------------
+    selectBlockHandler = (
+        blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">
+    ) => {
+        this.props.onSelectBlock(blockId, selectMultiple);
+        this.setState({mouseDown: selectedOn});
+    }
+    mouseMoveBlockHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
         if (this.state.mouseDown === undefined) return;
 
@@ -137,20 +169,31 @@ class CanvasContainer extends Component<PropsType, StateType> {
         }
     }
 
+
+    // -------------------------------------- Port Events --------------------------------------------------------------
     onMouseMovePort = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
         if (this.state.mouseDown === undefined || this.state.mouseDown.mouseOn !== "PORT") return;
 
         this.setState({mouseDown: {...this.state.mouseDown, mouseLocation: new Vector2D(e.evt.x, e.evt.y)}});
     }
+    mouseUpHandler = (on?: MouseOnBlockExtracted<"PORT">) => {
+        if (on !== undefined && this.state.mouseDown?.mouseOn === "PORT") {
+            const mouseDownBlock = { block: this.state.mouseDown.block, portInd: this.state.mouseDown.portInd };
+            const mouseUpBlock   = { block: on.block, portInd: on.portInd };
 
-    onSelectBlock = (blockId: string, selectMultiple: boolean, selectedOn: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE">) => {
-        this.props.onSelectBlock(blockId, selectMultiple);
-        this.setState({mouseDown: selectedOn});
+            this.props.onAddEdge(
+                this.state.mouseDown.isOutput?mouseDownBlock:mouseUpBlock,
+                this.state.mouseDown.isOutput?mouseUpBlock:mouseDownBlock
+            )
+        }
+
+        this.setState({mouseDown: undefined});
     }
 
-    onDeselectBlocks = () => {
-        this.props.onDeselectBlocks();
+    // -------------------------------------- Edge Events --------------------------------------------------------------
+    selectEdgeHandler = (edgeId: string) => {
+        this.setState({mouseDown: {mouseOn: "EDGE"}});
     }
 
     onSetCursorStyle = (side?: ArrowDirectionType) => {
@@ -172,9 +215,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
                 canvasTranslation={this.props.canvasTranslation} canvasZoom={this.props.canvasZoom}
                 screenSize={this.state.canvasSize}
                 onMouseUp={(block, portInd, isOutput) =>
-                    this.onMouseUpBlock({ mouseOn: "PORT", block: block, portInd: portInd, isOutput: isOutput })}
+                    this.mouseUpHandler({ mouseOn: "PORT", block: block, portInd: portInd, isOutput: isOutput })}
                 onMouseDown={(block, portInd, isOutput)=>
-                    this.onMouseDownBlock({mouseOn: "PORT", block: block, portInd: portInd, isOutput: isOutput })}
+                    this.mouseDownHandler({mouseOn: "PORT", block: block, portInd: portInd, isOutput: isOutput })}
               block={props.block}
             />
         )
@@ -185,11 +228,11 @@ class CanvasContainer extends Component<PropsType, StateType> {
                 <BlockComponent id={props.block.id} blockShape={blockShape}
                                 color={props.block.color??"green"} selected={props.selected}
                                 onSetCursorStyle={this.onSetCursorStyle}
-                                onMouseDown={this.onMouseDownBlock}
+                                onMouseDown={this.mouseDownHandler}
                                 screenSize={this.state.canvasSize}
                                 canvasTranslation={this.props.canvasTranslation}
                                 canvasZoom={this.props.canvasZoom}
-                                onSelectBlock={this.onSelectBlock}
+                                onSelectBlock={this.selectBlockHandler}
                                 onZoom={this.props.onZoom}
                 />
 
@@ -207,10 +250,8 @@ class CanvasContainer extends Component<PropsType, StateType> {
         // Do this so selected blocks are not placed above the active port drag layer
         let notSelectedBlocks: VisualBlockStorageType<any,any>[]; let selectedBlocks: VisualBlockStorageType<any,any>[];
         if (this.state.mouseDown?.mouseOn !== "PORT") {
-            notSelectedBlocks = this.props.blocks.filter(
-                b => !this.props.selected.filter(s => s.itemType === "BLOCK").map(s => s.id).includes(b.id));
-            selectedBlocks = this.props.blocks.filter(
-                b => this.props.selected.filter(s => s.itemType === "BLOCK").map(s => s.id).includes(b.id));
+            notSelectedBlocks = this.props.blocks.filter(b => !this.props.selectedBlocks.includes(b.id));
+            selectedBlocks = this.props.blocks.filter(b => this.props.selectedBlocks.includes(b.id));
         } else {
             notSelectedBlocks = this.props.blocks;
             selectedBlocks = [];
@@ -237,7 +278,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                               onTranslate={this.props.onTranslate}
                               canvasZoom={this.props.canvasZoom}
                               onZoom={this.props.onZoom}
-                              theme={this.props.theme} onClick={this.onDeselectBlocks}
+                              theme={this.props.theme} onClick={this.deselectAllHandler}
                         />
                     </Layer>
 
@@ -246,46 +287,27 @@ class CanvasContainer extends Component<PropsType, StateType> {
                         { this.state.mouseDown?.mouseOn === "PORT" &&
                             this.state.mouseDown.mouseLocation !== undefined ? (
                                 <EdgeComponent
-                                    block={this.state.mouseDown.block}
-                                    isOutput={this.state.mouseDown.isOutput}
-                                    portInd={this.state.mouseDown.portInd}
-                                    mouseLoc={this.state.mouseDown.mouseLocation}
+                                    mouse={{
+                                        block: this.state.mouseDown.block,
+                                        isOutput: this.state.mouseDown.isOutput,
+                                        portInd: this.state.mouseDown.portInd,
+                                        mouseLoc: this.state.mouseDown.mouseLocation
+                                    }}
                                     canvasTranslation={this.props.canvasTranslation}
                                     canvasZoom={this.props.canvasZoom}
                                     screenSize={this.state.canvasSize}
-                                    SetCursorStyle={this.onSetCursorStyle}
                                 />
                         ) : <React.Fragment /> }
-                        {this.props.edges.map(e => {
-                            const outputBlock = this.props.blocks.find(b => b.id === e.output.blockID);
-                            const inputBlock = this.props.blocks.find(b => b.id === e.input.blockID);
-                            if (outputBlock === undefined || inputBlock === undefined)
-                                return <React.Fragment key={`edge-${e.id}`}/>
-
-                            const outputPortInd = outputBlock.outputPorts.findIndex(p => p.id === e.output.portID);
-                            const inputPortInd = inputBlock.inputPorts.findIndex(p => p.id === e.input.portID);
-                            if (outputPortInd === -1 || inputPortInd === -1)
-                                return <React.Fragment key={`edge-${e.id}`}/>
-
-                            const newEdge: StaticEdgeBlockType = {
-                                ...e,
-                                output: { block: outputBlock, portInd: outputPortInd},
-                                input:  { block: inputBlock, portInd: inputPortInd}
-                            }
-
-                            return (
-                                <EdgeComponent
-                                    key={`edge-${e.id}`}
-                                    edge={newEdge}
-                                    canvasTranslation={this.props.canvasTranslation}
-                                    canvasZoom={this.props.canvasZoom}
-                                    screenSize={this.state.canvasSize}
-                                    SetCursorStyle={this.onSetCursorStyle}
-                                />
-                            )
-                        })}
+                        {this.props.edges.filter(e => !this.props.selectedEdges.includes(e.id)).map(e => (
+                            <EdgeWrapperComponent
+                                key={`edge-${e.id}`}
+                                edge={e} blocks={this.props.blocks} canvasTranslation={this.props.canvasTranslation}
+                                canvasZoom={this.props.canvasZoom} screenSize={this.state.canvasSize}
+                                onSetCursorStyle={this.onSetCursorStyle}
+                                onSelectComponent={this.selectEdgeHandler}
+                            />
+                        ))}
                     </Layer>
-
 
                     {/* ------------------------------- Static Block Layer ------------------------------------------*/}
                     <Layer id='static-block'>
@@ -298,6 +320,17 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
                     {/*---------------------------- Block Selection Layer -------------------------------------------*/}
                     <Layer id='selected-block'>
+                        {/* ------------------------------ Selected Edges ------------------------------------------*/}
+                        {this.props.edges.filter(e => this.props.selectedEdges.includes(e.id)).map(e => (
+                            <EdgeWrapperComponent
+                                key={`edge-${e.id}`}
+                                edge={e} blocks={this.props.blocks} canvasTranslation={this.props.canvasTranslation}
+                                canvasZoom={this.props.canvasZoom} screenSize={this.state.canvasSize}
+                                onSetCursorStyle={this.onSetCursorStyle} selected
+                            />
+                        ))}
+
+                        {/* ------------------------------ Selected Blocks ------------------------------------------*/}
                         {this.stageRef.current !== null ? selectedBlocks.map(block => (
                             <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected={true}/>
                         )) : <React.Fragment/>}
@@ -313,8 +346,8 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                       this.state.mouseDown?.mouseOn === "BLOCK" ||
                                       this.state.mouseDown?.mouseOn === "BLOCK_EDGE"
                                   }
-                                  onMouseUp={()=>this.onMouseUpBlock()}
-                                  onMouseMove={this.onMouseMoveBlock}
+                                  onMouseUp={()=>this.mouseUpHandler()}
+                                  onMouseMove={this.mouseMoveBlockHandler}
                             />
                         ):<React.Fragment/>}
 
@@ -335,7 +368,8 @@ class CanvasContainer extends Component<PropsType, StateType> {
 // Creates a function to map the redux state to the redux props
 function mapStateToProps(state: SaveState): GlobalProps {
     return {
-        selected: state.currentGraph.selected,
+        selectedBlocks: state.currentGraph.selected.filter(s => s.itemType == "BLOCK").map(s => s.id),
+        selectedEdges: state.currentGraph.selected.filter(s => s.itemType == "EDGE").map(s => s.id),
         blocks: state.currentGraph.graph.blocks,
         edges: state.currentGraph.graph.edges,
         canvasZoom: state.userStorage.canvas.zoom,

@@ -16,7 +16,7 @@ const sketch = (p: p5) => {
     let flowField: Vector[]; let count = 0;
 
     p.setup = function() {
-        p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
+        p.createCanvas(window.innerWidth, window.innerHeight);
         p.pixelDensity(1);
         p.background(0);
 

@@ -22,29 +22,48 @@ export type StaticEdgeBlockType = Omit<VisualEdgeStorageType<any>, "input" | "ou
         output: { block: VisualBlockStorageType<any, any>, portInd: number }
 }
 
-type PropType = (MouseDraggingPortType | { edge: StaticEdgeBlockType }) & {
-    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
-    SetCursorStyle: (side?: ArrowDirectionType)=>void
-};
-
-const ShapeWrapperComponent = (props: {points: Vector2D[], SetCursorStyle: (side?: ArrowDirectionType)=>void}) => {
+const ShapeWrapperComponent = (props: {
+    points: Vector2D[], setCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
+    onSelectComponent: ()=>void
+}) => {
     if (props.points.length <= 2) return <React.Fragment/>
+    const color = props.selected ? "red" : "white";
+    const strokeWidth = props.selected ? 2 : 3;
+
+    const mouseDownHandler = () => {
+        props.onSelectComponent();
+    }
 
     return (
         <Group>
-            <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()} stroke="white" strokeWidth={2}/>
+            <Group>
+                <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()} stroke={color}
+                      strokeWidth={strokeWidth} onMouseDown={props.onSelectComponent}/>
+                <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()}
+                      stroke="transparent" strokeWidth={10}
+                      onMouseDown={mouseDownHandler}
+                />
+            </Group>
             {props.points.slice(1, props.points.length-2).map((p, i) => (
                 <Group key={`lineseg-${i}`} >
                     <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
-                          stroke="white" strokeWidth={2}
+                          stroke={color} strokeWidth={strokeWidth}
                     />
                     <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
-                          stroke="transparent" strokeWidth={10} onMouseEnter={()=>props.SetCursorStyle(i%2===0?"ew":"ns")}
-                          onMouseLeave={()=>props.SetCursorStyle()}
+                          stroke="transparent" strokeWidth={10}
+                          onMouseEnter={()=>props.setCursorStyle?.(i%2===0?"ew":"ns")}
+                          onMouseLeave={()=>props.setCursorStyle?.()} onMouseDown={mouseDownHandler}
                     />
                 </Group>
             ))}
-            <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()} stroke="white" strokeWidth={2}/>
+            <Group>
+                <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()}
+                      stroke={color} strokeWidth={strokeWidth} onMouseDown={props.onSelectComponent}/>
+                <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()}
+                      stroke="transparent" strokeWidth={10}
+                      onMouseDown={mouseDownHandler}
+                />
+            </Group>
         </Group>
     )
 }
@@ -74,22 +93,28 @@ const CalculateMidPercent = (
     return LinearInterp(tmpMidPercent, 0, 1, dir1?0.75:0.25, dir1?0.25:0.75)
 }
 
-export default (props: PropType) => {
+export type EdgeComponentPropType = ({mouse: MouseDraggingPortType} | {edge: StaticEdgeBlockType}) & {
+    canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
+    onSetCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
+    onSelectComponent?: (edgeId: string)=>void
+};
+
+export default (props: EdgeComponentPropType) => {
     let radius = 20 * props.canvasZoom;
-    let points: Vector2D[];
+    let points: Vector2D[]; let selectedHandler = () => {};
 
     // @ts-ignore
     if (props.edge === undefined) {
         const portLoc = CalculatePortLocation(
             // @ts-ignore
-            props.block, props.isOutput, props.portInd,
+            props.mouse.block, props.mouse.isOutput, props.mouse.portInd,
             props.canvasTranslation, props.canvasZoom, props.screenSize
         ).port;
 
         // @ts-ignore
-        const startPos = props.isOutput ? portLoc : props.mouseLoc;
+        const startPos = props.mouse.isOutput ? portLoc : props.mouse.mouseLoc;
         // @ts-ignore
-        const endPos = props.isOutput ? props.mouseLoc : portLoc
+        const endPos = props.mouse.isOutput ? props.mouse.mouseLoc : portLoc;
 
         if (endPos.x >= startPos.x + radius) {
             points = CalculateMidPoints(startPos, endPos, [0.5]);
@@ -103,6 +128,10 @@ export default (props: PropType) => {
     } else {
         // @ts-ignore
         const edge: StaticEdgeBlockType = props.edge;
+        if (props.onSelectComponent !== undefined) {
+            // @ts-ignore
+            selectedHandler = () => props.onSelectComponent(edge.id);
+        }
         const outputPortLoc = CalculatePortLocation(
             edge.output.block, true, edge.output.portInd,
             props.canvasTranslation, props.canvasZoom, props.screenSize
@@ -139,5 +168,7 @@ export default (props: PropType) => {
         }
     }
 
-    return <ShapeWrapperComponent points={points} SetCursorStyle={props.SetCursorStyle}/>
+    return <ShapeWrapperComponent points={points} setCursorStyle={props.onSetCursorStyle}
+                                  selected={props.selected} onSelectComponent={selectedHandler}
+    />
 }
