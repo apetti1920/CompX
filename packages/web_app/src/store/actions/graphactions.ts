@@ -1,20 +1,28 @@
 import {
-    MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType, ResizedBlockActionType, AddEdgeActionType
+    MovedBlockActionType,
+    SelectedObjectActionType,
+    DeselectedObjectActionType,
+    ResizedBlockActionType,
+    AddEdgeActionType,
+    MovedEdgeActionType
 } from './actiontypes';
 
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D, DirectionType } from '@compx/common/Types';
-import { ActionPayloadType, ActionType } from "../types";
+import {ActionPayloadType, ActionType, SelectableItemTypes} from "../types";
 
 // Action to select a block
-export const SelectBlockAction: ActionType = (blockId: string, selectMultiple: boolean): ActionPayloadType => ({
-    type: SelectedBlockActionType,
-    payload: {blockId: blockId, selectMultiple: selectMultiple}
+export const SelectObjectAction: ActionType = (
+    objectId: string, objectType: SelectableItemTypes,
+    selectMultiple: boolean
+): ActionPayloadType => ({
+    type: SelectedObjectActionType,
+    payload: {objectId: objectId, objectType: objectType, selectMultiple: selectMultiple}
 });
 
 // Action to deselect a block
-export const DeselectBlockAction: ActionType = (): ActionPayloadType => ({
-    type: DeselectedBlockActionType,
+export const DeselectObjectsAction: ActionType = (): ActionPayloadType => ({
+    type: DeselectedObjectActionType,
     payload: {}
 });
 
@@ -39,5 +47,11 @@ export const AddedEdgeAction: ActionType = (
 ): ActionPayloadType => ({
     type: AddEdgeActionType,
     payload: { output: output, input: input }
+});
+
+// Creates the Payload type and action to move am edge in a graph
+export const MovedEdgeAction: ActionType = (edgePieceInd: number, delta: number): ActionPayloadType => ({
+    type: MovedEdgeActionType,
+    payload: {edgePieceInd: edgePieceInd, delta: delta}
 });
 

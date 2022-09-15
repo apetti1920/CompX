@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {ActionPayloadType, StateType} from "../types";
 import {
-    MovedBlockActionType, SelectedBlockActionType, DeselectedBlockActionType,
-    ResizedBlockActionType, AddEdgeActionType
+    MovedBlockActionType, SelectedObjectActionType, DeselectedObjectActionType,
+    ResizedBlockActionType, AddEdgeActionType, MovedEdgeActionType
 } from "../actions/actiontypes";
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
@@ -85,19 +85,20 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
                 Vector2D.add(tempState.currentGraph.graph.blocks[blockInd].size, delta);
 
             return tempState;
-        } case (SelectedBlockActionType): {
+        } case (SelectedObjectActionType): {
             let tempState  = _.cloneDeep(state);
-            const blockId = action.payload['blockId'];
+            const objectId = action.payload['objectId'];
+            const objectType = action.payload['objectType'];
             const selectMultiple = action.payload['selectMultiple'];
 
-            const block = tempState.currentGraph.graph.blocks.find(block => block.id === blockId);
-            if (block === undefined) return tempState;
-
             if (!selectMultiple) tempState.currentGraph.selected = [];
-            tempState.currentGraph.selected.push({itemType: "BLOCK", id: blockId});
+            if (objectType === "BLOCK")
+                tempState.currentGraph.selected.push({itemType: "BLOCK", id: objectId});
+            else if (objectType === "EDGE")
+                tempState.currentGraph.selected.push({itemType: "EDGE", id: objectId});
 
             return tempState;
-        } case (DeselectedBlockActionType): {
+        } case (DeselectedObjectActionType): {
             const tempState  = _.cloneDeep(state);
             tempState.currentGraph.selected = [];
             return tempState;
@@ -141,6 +142,25 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             }
             tempState.currentGraph.graph.edges.push(edge);
 
+            return tempState;
+        } case (MovedEdgeActionType): {
+            const tempState  = _.cloneDeep(state);
+            const edgePieceInd: number = action.payload['edgePieceInd'];
+            const delta: number = action.payload['delta'];
+
+            // Find the selected edgeId
+            const selectedEdgeIds = tempState.currentGraph.selected.filter(s => s.itemType === 'EDGE').map(s => s.id);
+            if (selectedEdgeIds.length !== 1) return tempState;
+
+            // Find the edge index
+            const selectedEdgeInd = tempState.currentGraph.graph.edges.findIndex(edge => edge.id === selectedEdgeIds[0]);
+            if (selectedEdgeInd === -1) return tempState;
+            if (tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length === 0)
+                tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.push(0.5);
+            if (edgePieceInd < 0 || edgePieceInd >= tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length)
+                return tempState;
+
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints[edgePieceInd] += delta;
             return tempState;
         } default: {
                 return state

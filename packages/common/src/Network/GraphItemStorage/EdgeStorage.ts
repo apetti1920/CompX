@@ -40,5 +40,5 @@ export function isEdgeStorageType<U extends keyof PortTypes>(obj: any): obj is E
 export interface VisualEdgeStorageType<U extends keyof PortTypes> extends
     EdgeStorageType<U> {
     visualName?: string
-    midPoints: []
+    midPoints: number[]
 }

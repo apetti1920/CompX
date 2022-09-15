@@ -1,13 +1,12 @@
 import React from "react";
-import { Line, Group } from "react-konva";
 
 import { LinearInterp } from '@compx/common/Helpers/Other'
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
 
-import {ArrowDirectionType, CalculatePortLocation} from "../../utils";
-
+import EdgeWrapperComponent from "./EdgeWrapperComponent";
+import {ArrowDirectionType, CalculatePortLocation, MouseOnBlockExtracted} from "../../../utils";
 
 
 type MouseDraggingPortType = {
@@ -20,52 +19,6 @@ type MouseDraggingPortType = {
 export type StaticEdgeBlockType = Omit<VisualEdgeStorageType<any>, "input" | "output"> & {
     input: { block: VisualBlockStorageType<any, any>, portInd: number },
         output: { block: VisualBlockStorageType<any, any>, portInd: number }
-}
-
-const ShapeWrapperComponent = (props: {
-    points: Vector2D[], setCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
-    onSelectComponent: ()=>void
-}) => {
-    if (props.points.length <= 2) return <React.Fragment/>
-    const color = props.selected ? "red" : "white";
-    const strokeWidth = props.selected ? 2 : 3;
-
-    const mouseDownHandler = () => {
-        props.onSelectComponent();
-    }
-
-    return (
-        <Group>
-            <Group>
-                <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()} stroke={color}
-                      strokeWidth={strokeWidth} onMouseDown={props.onSelectComponent}/>
-                <Line points={props.points.slice(0, 2).map(p => [p.x, p.y]).flat()}
-                      stroke="transparent" strokeWidth={10}
-                      onMouseDown={mouseDownHandler}
-                />
-            </Group>
-            {props.points.slice(1, props.points.length-2).map((p, i) => (
-                <Group key={`lineseg-${i}`} >
-                    <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
-                          stroke={color} strokeWidth={strokeWidth}
-                    />
-                    <Line points={[p.x, p.y, props.points[i+2].x, props.points[i+2].y]}
-                          stroke="transparent" strokeWidth={10}
-                          onMouseEnter={()=>props.setCursorStyle?.(i%2===0?"ew":"ns")}
-                          onMouseLeave={()=>props.setCursorStyle?.()} onMouseDown={mouseDownHandler}
-                    />
-                </Group>
-            ))}
-            <Group>
-                <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()}
-                      stroke={color} strokeWidth={strokeWidth} onMouseDown={props.onSelectComponent}/>
-                <Line points={props.points.slice(props.points.length-2, props.points.length).map(p => [p.x, p.y]).flat()}
-                      stroke="transparent" strokeWidth={10}
-                      onMouseDown={mouseDownHandler}
-                />
-            </Group>
-        </Group>
-    )
 }
 
 const CalculateMidPoints = (
@@ -96,7 +49,7 @@ const CalculateMidPercent = (
 export type EdgeComponentPropType = ({mouse: MouseDraggingPortType} | {edge: StaticEdgeBlockType}) & {
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
     onSetCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
-    onSelectComponent?: (edgeId: string)=>void
+    onSelectComponent?: (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean)=>void
 };
 
 export default (props: EdgeComponentPropType) => {
@@ -130,7 +83,7 @@ export default (props: EdgeComponentPropType) => {
         const edge: StaticEdgeBlockType = props.edge;
         if (props.onSelectComponent !== undefined) {
             // @ts-ignore
-            selectedHandler = () => props.onSelectComponent(edge.id);
+            selectedHandler = (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) =>  props.onSelectComponent(on, selectMultiple);
         }
         const outputPortLoc = CalculatePortLocation(
             edge.output.block, true, edge.output.portInd,
@@ -168,7 +121,7 @@ export default (props: EdgeComponentPropType) => {
         }
     }
 
-    return <ShapeWrapperComponent points={points} setCursorStyle={props.onSetCursorStyle}
+    return <EdgeWrapperComponent points={points} setCursorStyle={props.onSetCursorStyle}
                                   selected={props.selected} onSelectComponent={selectedHandler}
     />
 }
