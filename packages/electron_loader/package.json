@@ -1,0 +1,25 @@
+{
+  "name": "@compx/electron_loader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf dist && webpack --config webpack/webpack.config.js --env env=prod",
+    "start": "webpack serve --config webpack/webpack.config.js --env env=dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/p5": "^1.4.2",
+    "html-webpack-plugin": "^5.5.0",
+    "ts-loader": "^9.3.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.10.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "p5": "^1.4.2",
+    "simplex-noise": "^4.0.0"
+  }
+}
