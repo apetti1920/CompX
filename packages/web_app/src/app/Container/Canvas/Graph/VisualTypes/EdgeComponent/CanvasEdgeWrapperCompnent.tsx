@@ -25,15 +25,9 @@ export default (props: {
         input:  { block: inputBlock, portInd: inputPortInd}
     }
 
+    const EdgeComponentWrapper = () => EdgeComponent({...props, edge: newEdge});
+
     return (
-        <EdgeComponent
-            edge={newEdge}
-            canvasTranslation={props.canvasTranslation}
-            canvasZoom={props.canvasZoom}
-            screenSize={props.screenSize}
-            onSetCursorStyle={props.onSetCursorStyle}
-            selected={props.selected}
-            onSelectComponent={props.onSelectComponent}
-        />
+        <EdgeComponentWrapper />
     )
 }

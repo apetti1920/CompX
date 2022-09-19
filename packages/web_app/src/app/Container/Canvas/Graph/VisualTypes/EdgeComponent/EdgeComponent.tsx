@@ -1,6 +1,5 @@
 import React from "react";
 
-import { LinearInterp } from '@compx/common/Helpers/Other'
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
@@ -39,22 +38,18 @@ const CalculateMidPoints = (
     return points;
 }
 
-const CalculateMidPercent = (
-    outputNumPorts: number, outputPortInd: number, inputNumPorts: number, inputPortInd: number, dir1: boolean
-): number => {
-    const tmpMidPercent = 0.5 * (((outputPortInd+1) / outputNumPorts) + ((inputPortInd+1) / inputNumPorts));
-    return LinearInterp(tmpMidPercent, 0, 1, dir1?0.75:0.25, dir1?0.25:0.75)
-}
-
 export type EdgeComponentPropType = ({mouse: MouseDraggingPortType} | {edge: StaticEdgeBlockType}) & {
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D,
     onSetCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
-    onSelectComponent?: (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean)=>void
+    onSelectComponent?: (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean)=>void,
+    onAddEdgeSplit?: (splitInd: number)=>void, onDeleteEdgeSplit?: (splitInd: number)=>void
 };
 
 export default (props: EdgeComponentPropType) => {
     let radius = 20 * props.canvasZoom;
-    let points: Vector2D[]; let selectedHandler = () => {};
+    let points: Vector2D[]; let selectedHandler = (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) => {};
+    let addEdgeSplitHandler = (on: MouseOnBlockExtracted<"EDGE">) => {};
+    let deleteEdgeSplitHandler = (on: MouseOnBlockExtracted<"EDGE">) => {};
 
     // @ts-ignore
     if (props.edge === undefined) {
@@ -83,7 +78,22 @@ export default (props: EdgeComponentPropType) => {
         const edge: StaticEdgeBlockType = props.edge;
         if (props.onSelectComponent !== undefined) {
             // @ts-ignore
-            selectedHandler = (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) =>  props.onSelectComponent(on, selectMultiple);
+            selectedHandler = (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) => props.onSelectComponent(on, selectMultiple);
+
+            if (props.onAddEdgeSplit !== undefined && props.onDeleteEdgeSplit !== undefined) {
+                addEdgeSplitHandler = (on: MouseOnBlockExtracted<"EDGE">) => {
+                    if (on.moveInfo !== undefined) {
+                        // @ts-ignore
+                        props.onAddEdgeSplit(on.moveInfo.edgePieceInd);
+                    }
+                }
+                deleteEdgeSplitHandler = (on: MouseOnBlockExtracted<"EDGE">) => {
+                    if (on.moveInfo !== undefined) {
+                        // @ts-ignore
+                        props.onDeleteEdgeSplit(on.moveInfo.edgePieceInd);
+                    }
+                }
+            }
         }
         const outputPortLoc = CalculatePortLocation(
             edge.output.block, true, edge.output.portInd,
@@ -98,30 +108,11 @@ export default (props: EdgeComponentPropType) => {
             inputPortLoc.block.size.x <= 25.0 || inputPortLoc.block.size.y <= 25.0)
             return <React.Fragment/>
 
-        if (edge.midPoints.length > 0) {
-            points = CalculateMidPoints(outputPortLoc.port, inputPortLoc.port, edge.midPoints);
-        } else {
-            const midPercent = CalculateMidPercent(
-                edge.output.block.outputPorts.length, edge.output.portInd,
-                edge.input.block.inputPorts.length, edge.input.portInd,
-                inputPortLoc.port.y >= outputPortLoc.port.y
-            )
-            const newRadius = radius*(1+midPercent)**2;
-            if (inputPortLoc.port.x - newRadius >= outputPortLoc.port.x + newRadius) {
-                points = CalculateMidPoints(outputPortLoc.port, inputPortLoc.port, [midPercent]);
-            } else {
-                const p1 = Vector2D.add(outputPortLoc.port, new Vector2D(newRadius, 0.0));
-                const p2 = Vector2D.subtract(inputPortLoc.port, new Vector2D((radius*50/newRadius), 0.0));
-                points = [
-                    outputPortLoc.port,
-                    ...CalculateMidPoints(p1, p2, [0.0, midPercent, 1.0]),
-                    inputPortLoc.port
-                ]
-            }
-        }
+        points = CalculateMidPoints(outputPortLoc.port, inputPortLoc.port, edge.midPoints);
     }
 
     return <EdgeWrapperComponent points={points} setCursorStyle={props.onSetCursorStyle}
                                   selected={props.selected} onSelectComponent={selectedHandler}
+                                 onAddEdgeSplit={addEdgeSplitHandler} onDeleteEdgeSplit={deleteEdgeSplitHandler}
     />
 }

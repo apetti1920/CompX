@@ -21,9 +21,9 @@ import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/Canvas
 import {ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
 import { ThemeType } from "../../../types";
 import {
-    AddedEdgeAction,
+    AddedEdgeAction, AddEdgeSplitAction,
     DeselectObjectsAction,
-    MovedBlocksAction, MovedEdgeAction,
+    MovedBlocksAction, MovedEdgeAction, RemoveEdgeSplitAction,
     ResizedBlocksAction,
     SelectObjectAction
 } from "../../../store/actions/graphactions";
@@ -48,6 +48,8 @@ type DispatchProps = {
     onAddEdge: (output: {block: VisualBlockStorageType<any, any>, portInd: number},
                 input:  {block: VisualBlockStorageType<any, any>, portInd: number})=>void,
     onMoveEdge: (edgePieceInd: number, delta: number) => void,
+    onAddEdgeSplit: (afterEdgePieceInd: number) => void,
+    onDeleteEdgeSplit: (edgePieceInd: number) => void,
     onZoom: (delta: number, around: Vector2D) => void,
     onTranslate: (point: Vector2D) => void
 }
@@ -106,6 +108,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
         // ----------------------------- Resize Event ------------------------------------------------------------------
         window.addEventListener('resize', this.ThrottledSetWindowSize);
+        this.stageRef.current!.on('contextmenu', (e: KonvaEventObject<MouseEvent>)=>e.evt.preventDefault());
     }
 
     componentWillUnmount() {
@@ -118,7 +121,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     deselectAllHandler = () => {
         this.props.onDeselectBlocks();
     }
-    mouseMoveBlockHandler = (e: KonvaEventObject<MouseEvent>) => {
+    mouseMoveHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
         if (this.state.mouseDown === undefined) return;
 
@@ -130,9 +133,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
             this.props.onResizeBlock(this.state.mouseDown.direction, delta);
         } else if (this.state.mouseDown.mouseOn === "EDGE" && this.state.mouseDown.moveInfo !== undefined) {
             const delta = new Vector2D(e.evt.movementX/this.props.canvasZoom, -e.evt.movementY/this.props.canvasZoom);
-            const deltaD = this.state.mouseDown.moveInfo.edgePieceInd%2===0?delta.x:delta.y;
+            const deltaD = this.state.mouseDown.moveInfo.edgePieceInd%2===0?delta.x:-delta.y;
 
-            const denom = (this.state.mouseDown.moveInfo.inputPortLoc - this.state.mouseDown.moveInfo.outputPortInd);
+            const denom = (this.state.mouseDown.moveInfo.inputPortLoc - this.state.mouseDown.moveInfo.outputPortInd)/this.props.canvasZoom;
             if (denom === 0) return;
             const deltaM = deltaD / denom;
 
@@ -286,6 +289,8 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                 onSetCursorStyle={this.onSetCursorStyle}
                                 onSelectComponent={(on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) =>
                                     this.selectEdgeHandler(e.id, on, selectMultiple)}
+                                onAddEdgeSplit={(splitInd: number) => this.props.onAddEdgeSplit(splitInd)}
+                                onDeleteEdgeSplit={(splitInd: number) => this.props.onDeleteEdgeSplit(splitInd)}
                             />
                         ))}
                     </Layer>
@@ -293,10 +298,10 @@ class CanvasContainer extends Component<PropsType, StateType> {
                     {/* ------------------------------- Static Block Layer ------------------------------------------*/}
                     <Layer id='static-block'>
                         {/*--------------------------- Draw Static Blocks -------------------------------------------*/}
-                        {this.stageRef.current !== null ? notSelectedBlocks.map(block => (
+                        {notSelectedBlocks.map(block => (
                             <this.BlockPortComponent key={`non_selected_block_${block.id}`}
                                                      block={block} selected={false} />
-                        )):<React.Fragment/>}
+                        ))}
                     </Layer>
 
                     {/*---------------------------- Block Selection Layer -------------------------------------------*/}
@@ -308,13 +313,17 @@ class CanvasContainer extends Component<PropsType, StateType> {
                                 edge={e} blocks={this.props.blocks} canvasTranslation={this.props.canvasTranslation}
                                 canvasZoom={this.props.canvasZoom} screenSize={this.state.canvasSize}
                                 onSetCursorStyle={this.onSetCursorStyle} selected
+                                onSelectComponent={(on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean) =>
+                                    this.selectEdgeHandler(e.id, on, selectMultiple)}
+                                onAddEdgeSplit={(splitInd: number) => this.props.onAddEdgeSplit(splitInd)}
+                                onDeleteEdgeSplit={(splitInd: number) => this.props.onDeleteEdgeSplit(splitInd)}
                             />
                         ))}
 
                         {/* ------------------------------ Selected Blocks ------------------------------------------*/}
-                        {this.stageRef.current !== null ? selectedBlocks.map(block => (
+                        {selectedBlocks.map(block => (
                             <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected={true}/>
-                        )) : <React.Fragment/>}
+                        ))}
 
                         {/* ---------- Used to create a transparent full screen rect to move mouse over ------------*/}
                         {(
@@ -326,14 +335,14 @@ class CanvasContainer extends Component<PropsType, StateType> {
                             <Rect x={0} y={0}
                                   width={this.state.canvasSize.x}
                                   height={this.state.canvasSize.y}
-                                  fill="blue"  opacity={0.5}
+                                  fill="transparent"
                                   listening={
                                       this.state.mouseDown?.mouseOn === "BLOCK" ||
                                       this.state.mouseDown?.mouseOn === "BLOCK_EDGE" ||
                                       this.state.mouseDown?.mouseOn === "EDGE"
                                   }
                                   onMouseUp={()=>this.mouseUpHandler()}
-                                  onMouseMove={this.mouseMoveBlockHandler}
+                                  onMouseMove={this.mouseMoveHandler}
                             />
                         ):<React.Fragment/>}
 
@@ -374,6 +383,8 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         onResizeBlock: ResizedBlocksAction,
         onAddEdge: AddedEdgeAction,
         onMoveEdge: MovedEdgeAction,
+        onAddEdgeSplit: AddEdgeSplitAction,
+        onDeleteEdgeSplit: RemoveEdgeSplitAction,
         onTranslate: TranslatedCanvasAction,
         onZoom: ZoomedCanvasAction
     }, dispatch)

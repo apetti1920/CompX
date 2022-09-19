@@ -23,7 +23,7 @@ export default function (state: StateType, action: ActionPayloadType): StateType
             // Calculate the zoom and ultimate scale change
             // Have to recalculate delta becuase clamping may limit delta
             // TODO: Set this to some env variable
-            const clampedZoom = Clamp(state.userStorage.canvas.zoom + delta, 0.5, 10);
+            const clampedZoom = Clamp(state.userStorage.canvas.zoom + delta, 1, 10);
             const scaleChange = clampedZoom - state.userStorage.canvas.zoom;
 
             // Calculate the translation to keep the center of the zoom around the mouse

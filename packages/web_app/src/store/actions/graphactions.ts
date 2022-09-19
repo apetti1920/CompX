@@ -4,7 +4,7 @@ import {
     DeselectedObjectActionType,
     ResizedBlockActionType,
     AddEdgeActionType,
-    MovedEdgeActionType
+    MovedEdgeActionType, AddEdgeSplitActionType, RemoveEdgeSplitActionType
 } from './actiontypes';
 
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
@@ -53,5 +53,15 @@ export const AddedEdgeAction: ActionType = (
 export const MovedEdgeAction: ActionType = (edgePieceInd: number, delta: number): ActionPayloadType => ({
     type: MovedEdgeActionType,
     payload: {edgePieceInd: edgePieceInd, delta: delta}
+});
+
+export const AddEdgeSplitAction: ActionType = (afterEdgePieceInd: number): ActionPayloadType => ({
+    type: AddEdgeSplitActionType,
+    payload: {afterEdgePieceInd: afterEdgePieceInd}
+});
+
+export const RemoveEdgeSplitAction: ActionType = (edgePieceInd: number): ActionPayloadType => ({
+    type: RemoveEdgeSplitActionType,
+    payload: {edgePieceInd: edgePieceInd}
 });
 

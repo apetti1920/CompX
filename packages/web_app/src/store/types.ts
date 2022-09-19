@@ -28,7 +28,7 @@ export const defaultState: StateType = {
     userStorage: {
         theme:  DarkTheme,
         canvas: {
-            zoom: 1, // 4.8
+            zoom: 5.6,
             translation: new Vector2D()
         }
     }

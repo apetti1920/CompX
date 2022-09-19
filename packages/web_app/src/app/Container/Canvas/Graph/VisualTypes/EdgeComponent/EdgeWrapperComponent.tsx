@@ -8,7 +8,9 @@ import {ArrowDirectionType, MouseOnBlockExtracted} from "../../../utils";
 
 export default (props: {
     points: Vector2D[], setCursorStyle?: (side?: ArrowDirectionType)=>void, selected?: boolean,
-    onSelectComponent: (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean)=>void
+    onSelectComponent: (on: MouseOnBlockExtracted<"EDGE">, selectMultiple: boolean)=>void,
+    onAddEdgeSplit: (on: MouseOnBlockExtracted<"EDGE">) => void,
+    onDeleteEdgeSplit: (on: MouseOnBlockExtracted<"EDGE">)=>void
 }) => {
     if (props.points.length <= 2) return <React.Fragment/>
     const color = props.selected ? "red" : "white";
@@ -17,7 +19,13 @@ export default (props: {
     const mouseDownHandler = (e: KonvaEventObject<MouseEvent>, on: MouseOnBlockExtracted<"EDGE">) => {
         e.evt.stopPropagation();
 
-        if (e.evt.shiftKey) {
+        if (e.evt.button === 2) {
+            props.onSelectComponent(on, false);
+            props.onDeleteEdgeSplit(on);
+        } if ((e.evt.ctrlKey || e.evt.metaKey) && e.evt.button === 0) {
+            props.onSelectComponent(on, false);
+            props.onAddEdgeSplit(on);
+        } else if (e.evt.shiftKey && e.evt.button === 0) {
             props.onSelectComponent(on, true);
         } else if (e.evt.button === 0) {
             props.onSelectComponent(on, false);

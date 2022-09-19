@@ -4,13 +4,15 @@ import { v4 as uuidv4 } from 'uuid';
 import {ActionPayloadType, StateType} from "../types";
 import {
     MovedBlockActionType, SelectedObjectActionType, DeselectedObjectActionType,
-    ResizedBlockActionType, AddEdgeActionType, MovedEdgeActionType
+    ResizedBlockActionType, AddEdgeActionType, MovedEdgeActionType, AddEdgeSplitActionType, RemoveEdgeSplitActionType
 } from "../actions/actiontypes";
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
+import { LinearInterp } from '@compx/common/Helpers/Other'
 import { PortTypes } from '@compx/common/Graph/Port';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage'
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import {CalculatePortLocation} from "../../app/Container/Canvas/utils";
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
     switch (action.type) {
@@ -133,12 +135,35 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             )) !== undefined)
                 return tempState
 
+            const outputPortLoc = CalculatePortLocation(
+                outputBlock, true, outputPortInd,
+                tempState.userStorage.canvas.translation, tempState.userStorage.canvas.zoom, new Vector2D(900, 900)
+            )
+            const inputPortLoc = CalculatePortLocation(
+                inputBlock, false, inputPortInd,
+                tempState.userStorage.canvas.translation, tempState.userStorage.canvas.zoom, new Vector2D(900, 900)
+            )
+
+            const dir1 = inputPortLoc.port.y >= outputPortLoc.port.y;
+            const tmpMidPercent = 0.5 * (((outputPortInd+1) / outputBlock.outputPorts.length) +
+                ((inputPortInd+1) / inputBlock.inputPorts.length));
+            const midPercentTmp = LinearInterp(tmpMidPercent, 0, 1, dir1?0.75:0.25, dir1?0.25:0.75)
+
+            const newRadius = 20*(1+midPercentTmp)**2; let midPercent: number[]
+            if (inputPortLoc.port.x - newRadius >= outputPortLoc.port.x + newRadius) {
+                midPercent = [midPercentTmp];
+            } else {
+                midPercent = [0.0, midPercentTmp, 1.0]
+            }
+
+
+
             // Create the edge
             const edge: VisualEdgeStorageType<keyof PortTypes> = {
                 visualName: "", type: outputPort.type, id: uuidv4(),
                 output: { blockID: outputBlock.id, portID: outputPort.id },
                 input:  { blockID: inputBlock.id, portID: inputPort.id },
-                midPoints: []
+                midPoints: midPercent
             }
             tempState.currentGraph.graph.edges.push(edge);
 
@@ -161,6 +186,46 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
                 return tempState;
 
             tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints[edgePieceInd] += delta;
+            return tempState;
+        } case (AddEdgeSplitActionType): {
+            const tempState  = _.cloneDeep(state);
+            const afterEdgePieceInd: number = action.payload['afterEdgePieceInd'];
+
+            // Find the selected edgeId
+            const selectedEdgeIds = tempState.currentGraph.selected.filter(s => s.itemType === 'EDGE').map(s => s.id);
+            if (selectedEdgeIds.length !== 1) return tempState;
+
+            // Find the edge index
+            const selectedEdgeInd = tempState.currentGraph.graph.edges.findIndex(edge => edge.id === selectedEdgeIds[0]);
+            if (selectedEdgeInd === -1) return tempState;
+            if (tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length === 0)
+                tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.push(0.5);
+            if (afterEdgePieceInd < 0 || afterEdgePieceInd >= tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length)
+                return tempState;
+
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd, 0, 0.5);
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd, 0, 0.5);
+            return tempState;
+        } case (RemoveEdgeSplitActionType): {
+            const tempState  = _.cloneDeep(state);
+            const edgePieceInd: number = action.payload['edgePieceInd'];
+
+            // Find the selected edgeId
+            const selectedEdgeIds = tempState.currentGraph.selected.filter(s => s.itemType === 'EDGE').map(s => s.id);
+            if (selectedEdgeIds.length !== 1) return tempState;
+
+            // Find the edge index
+            const selectedEdgeInd = tempState.currentGraph.graph.edges.findIndex(edge => edge.id === selectedEdgeIds[0]);
+            if (selectedEdgeInd === -1) return tempState;
+            if (tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length === 0)
+                tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.push(0.5);
+            if (edgePieceInd < 0 ||
+                edgePieceInd >= tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length ||
+                tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length < 3
+            )
+                return tempState;
+
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(edgePieceInd, 2);
             return tempState;
         } default: {
                 return state
