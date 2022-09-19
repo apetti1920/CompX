@@ -4,11 +4,11 @@ export function SetOpacityHex(color: string, opacity: number): string {
     if (opacity < 0.0) opacity = 0.0;
     if (opacity > 1.0) opacity = 1.0;
 
-    let _opacity = Math.round(Math.min(Math.max(opacity, 0), 1) * 255);
+    const _opacity = Math.round(Math.min(Math.max(opacity, 0), 1) * 255);
     return '#' + (color.substring(1) + _opacity.toString(16).toUpperCase() + (_opacity === 0.0 ? "0" : "")).padStart(8, '0');
 }
 
-export function HexToRgbA(hex: string, opacity: number = 1.0) {
+export function HexToRgbA(hex: string, opacity = 1.0) {
     if (hex.substring(1).length === 3) hex=`#${hex.substring(1).padStart(6, '0')}`;
 
     const rx = /^#([A-Fa-f0-9]{6})([A-Fa-f0-9]{2})?$/;

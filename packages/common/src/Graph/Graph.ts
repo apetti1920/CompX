@@ -133,8 +133,9 @@ export class Graph implements GraphStorageType, GraphObject<Graph> {
         const visited: boolean[] = Array(this.blocks.length);
 
         //Create an anonomous function which traverses the graph in a depth wise recursive mannor
-        let dfsutil: { (arg0: string, arg1: boolean[]): string[]; (blockId: string, tempVisited: boolean[]): string[]; };
-        dfsutil = (blockId: string, tempVisited: boolean[]): string[] => {
+        const dfsutil: {
+            (arg0: string, arg1: boolean[]): string[]; (blockId: string, tempVisited: boolean[]): string[];
+        } = (blockId: string, tempVisited: boolean[]): string[] => {
             // on the current block, mark the index in visited as visited
             tempVisited[this.blocks.findIndex(b => b.id === blockId)] = true;
 
@@ -170,8 +171,7 @@ export class Graph implements GraphStorageType, GraphObject<Graph> {
         let t = 0;
 
         // Create a recursive function to track the completion of each block
-        let dfsVisit: { (arg0: number): void; (index: number): void; };
-        dfsVisit = (index: number) => {
+        const dfsVisit: { (arg0: number): void; (index: number): void; } = (index: number) => {
             // Set the nodeCompletion as started (GRAY)
             dfsBlocks[index].nodeCompletion = "GRAY";
 

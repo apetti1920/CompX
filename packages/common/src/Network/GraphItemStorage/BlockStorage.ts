@@ -15,10 +15,7 @@ export type BlockStorageType<
     callbackString: string
 }
 
-export function isBlockStorageType<
-    Inputs extends PortStringListType,
-    Outputs extends PortStringListType
->(obj: any): obj is BlockStorageType<PortStringListType, PortStringListType> {
+export function isBlockStorageType(obj: any): obj is BlockStorageType<PortStringListType, PortStringListType> {
     if (typeof obj !== 'object' || Array.isArray(obj)) return false;
 
     const requiredKeys = ["name", "description", "tags", "inputPorts", "outputPorts", "callbackString"];

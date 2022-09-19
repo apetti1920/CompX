@@ -36,7 +36,7 @@ export const WheelHandler = (
     canvasTranslation: Vector2D, canvasZoom: number, screenSize: Vector2D
 ) => {
     e.evt.preventDefault();
-    let delta = LinearInterp(-e.evt.deltaY, -100, 100, -0.2, 0.2);
+    const delta = LinearInterp(-e.evt.deltaY, -100, 100, -0.2, 0.2);
 
     const zoomAround =  ScreenToWorld(
         new Vector2D(e.evt.offsetX, e.evt.offsetY),

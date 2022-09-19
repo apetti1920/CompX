@@ -29,7 +29,7 @@ class Vector2D {
         return vector1.x === vector2.x && vector1.y === vector2.y
     }
 
-    public static equalsRounded(vector1: Vector2D, vector2: Vector2D, roundingFactor: number = 12): boolean {
+    public static equalsRounded(vector1: Vector2D, vector2: Vector2D, roundingFactor = 12): boolean {
         const vector = Vector2D.abs(Vector2D.subtract(vector1, vector2))
         return vector.x < roundingFactor && vector.y < roundingFactor;
     }

@@ -19,7 +19,7 @@ import { LinearInterp } from '@compx/common/Helpers/Other'
 import { PortTypes } from '@compx/common/Graph/Port';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage'
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import {CalculatePortLocation} from "../../app/Container/Canvas/utils";
+import { CalculatePortLocation } from "../../app/Container/Canvas/utils";
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
     switch (action.type) {
@@ -40,7 +40,7 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
 
             return tempState;
         } case (ResizedBlockActionType): {
-            let tempState  = _.cloneDeep(state);
+            const tempState  = _.cloneDeep(state);
             const resizeDirection: DirectionType = action.payload['resizeDirection'];
             let delta: Vector2D = action.payload['delta'];
 
@@ -95,7 +95,7 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
 
             return tempState;
         } case (SelectedObjectActionType): {
-            let tempState  = _.cloneDeep(state);
+            const tempState  = _.cloneDeep(state);
             const objectId = action.payload['objectId'];
             const objectType = action.payload['objectType'];
             const selectMultiple = action.payload['selectMultiple'];

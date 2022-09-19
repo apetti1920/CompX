@@ -149,7 +149,7 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
 
     public SetCallback(callbackStr: string): void | never {
         if (callbackStr !== "") {
-            let [convertCallback, isPseudoSource] = this.ConvertCallback(callbackStr);
+            const [convertCallback, isPseudoSource] = this.ConvertCallback(callbackStr);
             this._callback = convertCallback;
             this.callbackString = callbackStr;
             this._isPseudoSource = isPseudoSource;

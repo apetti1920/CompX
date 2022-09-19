@@ -29,19 +29,19 @@ describe("Edge Tests", () => {
         });
 
         test("Is not edge storage", () => {
-            let t1 = {...testEdgeStorage} as any;
+            const t1 = {...testEdgeStorage} as any;
             expect(isEdgeStorageType(1)).not.toBeTruthy();
             expect(isEdgeStorageType([])).not.toBeTruthy();
 
-            let t2 = {...t1};
+            const t2 = {...t1};
             delete t2['type']
             expect(isEdgeStorageType(t2)).not.toBeTruthy();
 
-            let t3 = {...t1};
+            const t3 = {...t1};
             t3['type'] = "TEST"
             expect(isEdgeStorageType(t3)).not.toBeTruthy();
 
-            let t4 = {...t1};
+            const t4 = {...t1};
             delete t4['input']['blockID']
             expect(isEdgeStorageType(t4)).not.toBeTruthy();
         });

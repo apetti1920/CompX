@@ -32,7 +32,7 @@ function CreateBlock(): VisualBlockStorageType<any, any> {
     }
 }
 
-export function MakeVisualGraph(numBlocks: number = 1): VisualGraphStorageType {
+export function MakeVisualGraph(numBlocks = 1): VisualGraphStorageType {
     const blocks = Array(numBlocks).fill(0).map(() => CreateBlock());
 
     return {

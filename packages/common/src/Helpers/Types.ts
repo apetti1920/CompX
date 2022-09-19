@@ -1,4 +1,4 @@
-export interface WithID { id: string }
+export type WithID = { id: string }
 
 // Conditionals
 export type True = '1';
@@ -36,8 +36,8 @@ type TakeFirst<T extends any[], N extends number> =
 type SkipFirst<T extends any[], N extends number> =
     TupleSplit<T, N>[1];
 
-export type ReplaceInTuple<T extends any[], B extends number, R extends any> = NumberEqual<B, 0> extends True ?
+export type ReplaceInTuple<T extends any[], B extends number, R> = NumberEqual<B, 0> extends True ?
     [R, ...DropFirstInTuple<T>] : ReplaceInTuple2<T, B, TakeFirst<T, 1>, R, SkipFirst<T, 1>>;
-type ReplaceInTuple2<T extends any[], B extends number, C extends any[], R extends any, D extends any[]> =
+type ReplaceInTuple2<T extends any[], B extends number, C extends any[], R, D extends any[]> =
     NumberEqual<B, LengthOfTuple<C>> extends True ? [...C, R, ...DropFirstInTuple<D>] :
         ReplaceInTuple2<T, B, TakeFirst<T, Add<LengthOfTuple<C>,1>>, R, SkipFirst<T, Add<LengthOfTuple<C>,1>>>

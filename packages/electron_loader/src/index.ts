@@ -33,7 +33,7 @@ const sketch = (p: p5) => {
             for (let x=0; x<cols; x++) {
                 const index = x + y * cols;
                 const angle = noise(xoff, yoff, zoff) * p.TWO_PI * 4;
-                let v = Vector.fromAngle(angle);
+                const v = Vector.fromAngle(angle);
                 v.setMag(2);
 
                 flowField[index] = v;

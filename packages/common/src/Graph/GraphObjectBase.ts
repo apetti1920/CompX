@@ -23,6 +23,6 @@ type StorageWithIDSelect<T> = T extends Port<infer V> ? PortStorageWithIDType<V>
 )
 
 export abstract class GraphObject<T> {
-    public static InitializeFromStorage<U>(storage: StorageSelect<U>): U | void { }
+    public static InitializeFromStorage<U>(storage: StorageSelect<U>): U | void { console.log(storage); }
     public abstract ToStorage(): StorageWithIDSelect<T>
 }

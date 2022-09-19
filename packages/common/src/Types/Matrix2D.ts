@@ -42,7 +42,7 @@ class Matrix2D {
     }
 
     public static add(matrix1: Matrix2D, matrix2: Matrix2D): Matrix2D {
-        var result = Matrix2D.empty
+        const result = Matrix2D.empty;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 result[i][j] = matrix1.m[i][j] + matrix2.m[i][j]
@@ -52,7 +52,7 @@ class Matrix2D {
     }
 
     public static subtract(matrix1: Matrix2D, matrix2: Matrix2D): Matrix2D {
-        var result = Matrix2D.empty
+        const result = Matrix2D.empty;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 result[i][j] = matrix1.m[i][j] - matrix2.m[i][j]
@@ -62,7 +62,7 @@ class Matrix2D {
     }
 
     public static multiply(matrix1: Matrix2D, matrix2: Matrix2D): Matrix2D {
-        var result = Matrix2D.empty
+        const result = Matrix2D.empty;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 result[i][j] = 0;
@@ -75,7 +75,7 @@ class Matrix2D {
     }
 
     public static multiplyByValue(matrix: Matrix2D, value: number): Matrix2D {
-        var result = Matrix2D.empty
+        const result = Matrix2D.empty
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 result[i][j] = matrix.m[i][j] * value
