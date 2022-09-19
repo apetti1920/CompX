@@ -1,6 +1,6 @@
-import {BlockStorageWithIDType, isBlockStorageWithIDType, VisualBlockStorageType} from "./BlockStorage";
-import {EdgeStorageType, isEdgeStorageType} from "./EdgeStorage";
-import {PortStringListType} from "../../Graph/Port";
+import { BlockStorageWithIDType, isBlockStorageWithIDType, VisualBlockStorageType } from "./BlockStorage";
+import { EdgeStorageType, isEdgeStorageType, VisualEdgeStorageType } from "./EdgeStorage";
+import { PortStringListType, PortTypes } from "../../Graph/Port";
 
 export interface GraphStorageType {
     blocks: BlockStorageWithIDType<PortStringListType, PortStringListType>[],
@@ -20,5 +20,6 @@ export function isGraphStorageType(obj: any): obj is GraphStorageType {
 }
 
 export interface VisualGraphStorageType {
-    blocks: VisualBlockStorageType<PortStringListType, PortStringListType>[]
+    blocks: VisualBlockStorageType<PortStringListType, PortStringListType>[],
+    edges: VisualEdgeStorageType<keyof PortTypes>[]
 }

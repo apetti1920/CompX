@@ -4,16 +4,27 @@
   "description": "Electron",
   "main": "./dist/main/index.js",
   "scripts": {
-    "build": "rimraf dist && mkdir dist && (pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer && popd) && tsc",
-    "start": "npm run build && electron ."
+    "build:loader": "pushd ../electron_loader && npm run build && cp -R dist ../electron_app/dist/renderer/loader && popd",
+    "build:app": "pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer/app && popd",
+    "build:deps": "npm run build:loader && npm run build:app",
+    "build": "rimraf dist && mkdir -p dist/renderer && npm run build:deps && tsc",
+    "start": "npm run build && electron .",
+    "dist": "electron-builder && npm run postinstall",
+    "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "appId": "com.electron.electron-with-create-react-app",
-    "win": {
-      "iconUrl": "https://cdn2.iconfinder.com/data/icons/designer-skills/128/react-256.png"
+    "appId": "com.inflow.compx",
+    "productName": "CompX",
+    "nsis": {
+      "artifactName": "CompX.setup.${version}.${ext}",
+      "uninstallDisplayName": "CompX"
     },
-    "directories": {
-      "buildResources": "public"
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dmg"
     }
   },
   "keywords": [],
@@ -23,5 +34,10 @@
     "@types/electron": "^1.6.10",
     "electron": "^19.0.10",
     "electron-builder": "^23.3.3"
+  },
+  "dependencies": {
+    "@types/tmp": "^0.2.3",
+    "tmp": "^0.2.1",
+    "uuid": "^8.3.2"
   }
 }

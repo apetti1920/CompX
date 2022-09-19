@@ -1,5 +1,5 @@
-import {PortTypes, PortTypesStringList} from "../../Graph/Port";
-import {WithID} from "../../Helpers/Types";
+import { PortTypes, PortTypesStringList } from "../../Graph/Port";
+import { WithID } from "../../Helpers/Types";
 
 export type EdgePointType = { blockID: string; portID: string; };
 function isEdgePointType(obj: any): obj is EdgePointType {
@@ -35,4 +35,10 @@ export function isEdgeStorageType<U extends keyof PortTypes>(obj: any): obj is E
     if (!isEdgePointType(obj['output'])) return false;
 
     return true;
+}
+
+export interface VisualEdgeStorageType<U extends keyof PortTypes> extends
+    EdgeStorageType<U> {
+    visualName?: string
+    midPoints: number[]
 }
