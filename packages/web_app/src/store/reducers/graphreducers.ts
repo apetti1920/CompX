@@ -3,8 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {ActionPayloadType, StateType} from "../types";
 import {
-    MovedBlockActionType, SelectedObjectActionType, DeselectedObjectActionType,
-    ResizedBlockActionType, AddEdgeActionType, MovedEdgeActionType, AddEdgeSplitActionType, RemoveEdgeSplitActionType
+    MovedBlockActionType,
+    SelectedObjectActionType,
+    DeselectedObjectActionType,
+    ResizedBlockActionType,
+    AddEdgeActionType,
+    MovedEdgeActionType,
+    AddEdgeSplitActionType,
+    RemoveEdgeSplitActionType,
+    DeletedObjectActionType
 } from "../actions/actiontypes";
 
 import { Vector2D, DirectionType } from '@compx/common/Types';
@@ -103,6 +110,21 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
         } case (DeselectedObjectActionType): {
             const tempState  = _.cloneDeep(state);
             tempState.currentGraph.selected = [];
+            return tempState;
+        } case (DeletedObjectActionType): {
+            const tempState  = _.cloneDeep(state);
+
+            const selectedBlocks = tempState.currentGraph.selected.filter(s => s.itemType === "BLOCK").map(s => s.id);
+            const selectedEdges = tempState.currentGraph.selected.filter(s => s.itemType === "EDGE").map(s => s.id);
+
+            tempState.currentGraph.graph.edges = tempState.currentGraph.graph.edges.filter(e =>
+                !selectedEdges.includes(e.id) &&
+                !selectedBlocks.includes(e.output.blockID) &&
+                !selectedBlocks.includes(e.input.blockID)
+            );
+            tempState.currentGraph.graph.blocks = tempState.currentGraph.graph.blocks.filter(b => !selectedBlocks.includes(b.id));
+            tempState.currentGraph.selected = [];
+
             return tempState;
         } case (AddEdgeActionType): {
             const tempState  = _.cloneDeep(state);

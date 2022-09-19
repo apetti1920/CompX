@@ -21,7 +21,7 @@ import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/Canvas
 import {ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted} from './utils'
 import { ThemeType } from "../../../types";
 import {
-    AddedEdgeAction, AddEdgeSplitAction,
+    AddedEdgeAction, AddEdgeSplitAction, DeletedObjectsAction,
     DeselectObjectsAction,
     MovedBlocksAction, MovedEdgeAction, RemoveEdgeSplitAction,
     ResizedBlocksAction,
@@ -42,7 +42,8 @@ type GlobalProps = {
 }
 type DispatchProps = {
     onSelectObject: (objectId: string, objectType: SelectableItemTypes, selectMultiple: boolean) => void,
-    onDeselectBlocks: () => void
+    onDeselectObjects: () => void,
+    onDeleteObjects: ()=>void,
     onMoveBlocks: (delta: Vector2D) => void,
     onResizeBlock: (resizeDirection: DirectionType, delta: Vector2D)=>void,
     onAddEdge: (output: {block: VisualBlockStorageType<any, any>, portInd: number},
@@ -92,23 +93,21 @@ class CanvasContainer extends Component<PropsType, StateType> {
         }
     }
 
-    onKeyPressed = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        console.log("key presed", e.key);
-        if (e.key === "Delete" || e.key === "Backspace") {
-            console.log("Deleted!!!")
-        }
-        e.stopPropagation();
-    }
-
     componentDidMount() {
         // --------------------------------- State Setting -------------------------------------------------------------
         this.SetWindowSize();
         this.wrapperRef.current?.focus();
+        this.wrapperRef.current!.addEventListener('keydown', (e)=> {
+            if (e.key === "Delete" || e.key === "Backspace") {
+                if (this.props.selectedEdgeIds.length > 0 || this.props.selectedBlockIds.length> 0)
+                    this.props.onDeleteObjects();
+            }
+            e.stopPropagation();
+        });
+        this.stageRef.current!.on('contextmenu', (e: KonvaEventObject<MouseEvent>)=>e.evt.preventDefault());
 
         // ----------------------------- Resize Event ------------------------------------------------------------------
         window.addEventListener('resize', this.ThrottledSetWindowSize);
-        this.stageRef.current!.on('contextmenu', (e: KonvaEventObject<MouseEvent>)=>e.evt.preventDefault());
     }
 
     componentWillUnmount() {
@@ -119,7 +118,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     mouseDownHandler = (on: MouseOnBlockExtracted<"BLOCK" | "BLOCK_EDGE" | "PORT" | "EDGE">) =>
         this.setState({mouseDown: on});
     deselectAllHandler = () => {
-        this.props.onDeselectBlocks();
+        this.props.onDeselectObjects();
     }
     mouseMoveHandler = (e: KonvaEventObject<MouseEvent>) => {
         e.evt.stopPropagation();
@@ -242,7 +241,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
         return (
             <div ref={this.wrapperRef} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}
-                 onKeyDown={this.onKeyPressed}
+                 tabIndex={1}
             >
                 <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
                     {/* ------------------------------------ Background ---------------------------------------------*/}
@@ -378,7 +377,8 @@ function mapStateToProps(state: SaveState): GlobalProps {
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     return bindActionCreators({
         onSelectObject: SelectObjectAction,
-        onDeselectBlocks: DeselectObjectsAction,
+        onDeselectObjects: DeselectObjectsAction,
+        onDeleteObjects: DeletedObjectsAction,
         onMoveBlocks: MovedBlocksAction,
         onResizeBlock: ResizedBlocksAction,
         onAddEdge: AddedEdgeAction,

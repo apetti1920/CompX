@@ -4,7 +4,7 @@ import {
     DeselectedObjectActionType,
     ResizedBlockActionType,
     AddEdgeActionType,
-    MovedEdgeActionType, AddEdgeSplitActionType, RemoveEdgeSplitActionType
+    MovedEdgeActionType, AddEdgeSplitActionType, RemoveEdgeSplitActionType, DeletedObjectActionType
 } from './actiontypes';
 
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
@@ -23,6 +23,12 @@ export const SelectObjectAction: ActionType = (
 // Action to deselect a block
 export const DeselectObjectsAction: ActionType = (): ActionPayloadType => ({
     type: DeselectedObjectActionType,
+    payload: {}
+});
+
+// Action to delete an object
+export const DeletedObjectsAction: ActionType = (): ActionPayloadType => ({
+    type: DeletedObjectActionType,
     payload: {}
 });
 
