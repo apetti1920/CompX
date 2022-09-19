@@ -175,10 +175,8 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             if (inputPortLoc.port.x - newRadius >= outputPortLoc.port.x + newRadius) {
                 midPercent = [midPercentTmp];
             } else {
-                midPercent = [0.0, midPercentTmp, 1.0]
+                midPercent = [-0.25, midPercentTmp, 1.25]
             }
-
-
 
             // Create the edge
             const edge: VisualEdgeStorageType<keyof PortTypes> = {
@@ -225,8 +223,27 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
             if (afterEdgePieceInd < 0 || afterEdgePieceInd >= tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.length)
                 return tempState;
 
-            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd, 0, 0.5);
-            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd, 0, 0.5);
+            const tempPoints = tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints;
+
+            let next1: number; let next2: number;
+            if (tempPoints.length === 1) {
+                console.log("case 1");
+                next1 = 0.5; next2 = (tempPoints[0]+1.0) / 2.0;
+            } else if (afterEdgePieceInd+2 < tempPoints.length) {
+                console.log("case 2");
+                next1 = ((afterEdgePieceInd-1>=0?tempPoints[afterEdgePieceInd-1]:0.0) + tempPoints[afterEdgePieceInd+1]) / 2.0;
+                next2 = (tempPoints[afterEdgePieceInd] + tempPoints[afterEdgePieceInd+2]) / 2.0;
+            } else if (afterEdgePieceInd-2 >= 0) {
+                console.log("case 3");
+                next1 = ((afterEdgePieceInd+1<tempPoints.length?tempPoints[afterEdgePieceInd+1]:1.0) + tempPoints[afterEdgePieceInd-1]) / 2.0;
+                next2 = (tempPoints[afterEdgePieceInd] + tempPoints[afterEdgePieceInd-2]) / 2.0;
+            } else {
+                console.log("case 4");
+                next1 = 0.5; next2 = 0.5;
+            }
+
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd+1, 0, next2);
+            tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(afterEdgePieceInd+1, 0, next1);
             return tempState;
         } case (RemoveEdgeSplitActionType): {
             const tempState  = _.cloneDeep(state);
