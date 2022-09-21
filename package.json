@@ -9,7 +9,8 @@
     "build": "npx lerna run build",
     "start:electron": "npx lerna run --scope=@compx/electron_app build && npx lerna run start --scope=@compx/electron_app",
     "test": "jest",
-    "pretest:pretty": "npx prettier --write --ignore-path .gitignore $(git diff --name-only HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs)"
+    "pretest:pretty": "npx prettier --write --ignore-path .gitignore $(git diff --name-only HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs)",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "Aidan Petti",
@@ -43,16 +44,5 @@
   },
   "dependencies": {
     "lodash": "^4.17.21"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "**/*.{ts,js,tsx,jsx}": [
-      "eslint --ignore-path .gitignore --cache",
-      "git add"
-    ]
   }
 }
