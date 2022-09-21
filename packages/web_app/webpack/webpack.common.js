@@ -1,8 +1,8 @@
-
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 module.exports = {
   entry: path.resolve(__dirname, '..', 'src/index.tsx'),
   resolve: {
