@@ -1,99 +1,157 @@
 {
   "blocks": [
-    { "id": "1", "name": "step", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "1oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "1",
+      "name": "step",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "1oa", "type": "NUMBER" }],
       "inputPorts": [],
       "callbackString": "return [t<1.0?0.0:1.0]"
     },
-    { "id": "2", "name": "sum1", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "2oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "2",
+      "name": "sum1",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "2oa", "type": "NUMBER" }],
       "inputPorts": [
-        {"id": "1", "name": "2ia", "type": "NUMBER"},
-        {"id": "2", "name": "2ib", "type": "NUMBER"}
+        { "id": "1", "name": "2ia", "type": "NUMBER" },
+        { "id": "2", "name": "2ib", "type": "NUMBER" }
       ],
       "callbackString": "return [inputPort[2ia] + inputPort[2ib]]"
     },
-    { "id": "3", "name": "integrator1", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "3oa", "type": "NUMBER", "initialValue": 0 }
-      ],
-      "inputPorts": [
-        { "id": "1", "name": "3ia", "type": "NUMBER"}
-      ],
+    {
+      "id": "3",
+      "name": "integrator1",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "3oa", "type": "NUMBER", "initialValue": 0 }],
+      "inputPorts": [{ "id": "1", "name": "3ia", "type": "NUMBER" }],
       "callbackString": "return [t===0.0?initialCondition[3oa]:(prevOutput[3oa] + (dt * (prevInput[3ia] + inputPort[3ia]) / 2.0))]"
     },
-    { "id": "4", "name": "integrator2", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "4oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        { "id": "1", "name": "4ia", "type": "NUMBER", "initialValue": 0 }
-      ],
+    {
+      "id": "4",
+      "name": "integrator2",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "4oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "4ia", "type": "NUMBER", "initialValue": 0 }],
       "callbackString": "return [t===0.0?initialCondition[4oa]:(prevOutput[4oa] + (dt * (prevInput[4ia] + inputPort[4ia]) / 2.0))]"
     },
-    { "id": "5", "name": "gain1", "description": "", "tags": [],
+    {
+      "id": "5",
+      "name": "gain1",
+      "description": "",
+      "tags": [],
 
-      "outputPorts": [
-        {"id": "1", "name": "5oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        {"id": "1", "name": "5ia", "type": "NUMBER"}
-      ],
+      "outputPorts": [{ "id": "1", "name": "5oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "5ia", "type": "NUMBER" }],
       "callbackString": "return [inputPort[5ia] * 2.0]"
     },
-    { "id": "6", "name": "gain2", "description": "", "tags": [],
+    {
+      "id": "6",
+      "name": "gain2",
+      "description": "",
+      "tags": [],
 
-      "outputPorts": [
-        {"id": "1", "name": "6oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        {"id": "1", "name": "6ia", "type": "NUMBER"}
-      ],
+      "outputPorts": [{ "id": "1", "name": "6oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "6ia", "type": "NUMBER" }],
       "callbackString": "return [inputPort[6ia] * 5.0]"
     },
-    { "id": "7", "name": "gain3", "description": "", "tags": [],
+    {
+      "id": "7",
+      "name": "gain3",
+      "description": "",
+      "tags": [],
 
-      "outputPorts": [
-        {"id": "1", "name": "7oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        {"id": "1", "name": "7ia", "type": "NUMBER"}
-      ],
+      "outputPorts": [{ "id": "1", "name": "7oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "7ia", "type": "NUMBER" }],
       "callbackString": "return [inputPort[7ia] * 0.1]"
     },
-    { "id": "8", "name": "scope", "description": "", "tags": [],
+    {
+      "id": "8",
+      "name": "scope",
+      "description": "",
+      "tags": [],
 
       "outputPorts": [],
-      "inputPorts": [
-        {"id": "1", "name": "8ia", "type": "NUMBER"}
-      ],
+      "inputPorts": [{ "id": "1", "name": "8ia", "type": "NUMBER" }],
       "callbackString": "return [/*console.log(inputPort[8ia])*/]"
     },
-    { "id": "9", "name": "sub1", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "9oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "9",
+      "name": "sub1",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "9oa", "type": "NUMBER" }],
       "inputPorts": [
-        {"id": "1", "name": "9ia", "type": "NUMBER"},
-        {"id": "2", "name": "9ib", "type": "NUMBER"}
+        { "id": "1", "name": "9ia", "type": "NUMBER" },
+        { "id": "2", "name": "9ib", "type": "NUMBER" }
       ],
       "callbackString": "return [inputPort[9ia] - inputPort[9ib]]"
     }
   ],
   "edges": [
-    {"id": "1", "type": "NUMBER", "output": {"blockID": "1", "portID": "1oa"}, "input": {"blockID": "9", "portID": "9ia"}},
-    {"id": "2", "type": "NUMBER", "output": {"blockID": "9", "portID": "9oa"}, "input": {"blockID": "7", "portID": "7ia"}},
-    {"id": "3", "type": "NUMBER", "output": {"blockID": "7", "portID": "7oa"}, "input": {"blockID": "3", "portID": "3ia"}},
-    {"id": "4", "type": "NUMBER", "output": {"blockID": "3", "portID": "3oa"}, "input": {"blockID": "4", "portID": "4ia"}},
-    {"id": "5", "type": "NUMBER", "output": {"blockID": "4", "portID": "4oa"}, "input": {"blockID": "8", "portID": "8ia"}},
-    {"id": "6", "type": "NUMBER", "output": {"blockID": "3", "portID": "3oa"}, "input": {"blockID": "5", "portID": "5ia"}},
-    {"id": "7", "type": "NUMBER", "output": {"blockID": "4", "portID": "4oa"}, "input": {"blockID": "6", "portID": "6ia"}},
-    {"id": "8", "type": "NUMBER", "output": {"blockID": "5", "portID": "5oa"}, "input": {"blockID": "2", "portID": "2ia"}},
-    {"id": "9", "type": "NUMBER", "output": {"blockID": "6", "portID": "6oa"}, "input": {"blockID": "2", "portID": "2ib"}},
-    {"id": "10", "type": "NUMBER", "output": {"blockID": "2", "portID": "2oa"}, "input": {"blockID": "9", "portID": "9ib"}}
+    {
+      "id": "1",
+      "type": "NUMBER",
+      "output": { "blockID": "1", "portID": "1oa" },
+      "input": { "blockID": "9", "portID": "9ia" }
+    },
+    {
+      "id": "2",
+      "type": "NUMBER",
+      "output": { "blockID": "9", "portID": "9oa" },
+      "input": { "blockID": "7", "portID": "7ia" }
+    },
+    {
+      "id": "3",
+      "type": "NUMBER",
+      "output": { "blockID": "7", "portID": "7oa" },
+      "input": { "blockID": "3", "portID": "3ia" }
+    },
+    {
+      "id": "4",
+      "type": "NUMBER",
+      "output": { "blockID": "3", "portID": "3oa" },
+      "input": { "blockID": "4", "portID": "4ia" }
+    },
+    {
+      "id": "5",
+      "type": "NUMBER",
+      "output": { "blockID": "4", "portID": "4oa" },
+      "input": { "blockID": "8", "portID": "8ia" }
+    },
+    {
+      "id": "6",
+      "type": "NUMBER",
+      "output": { "blockID": "3", "portID": "3oa" },
+      "input": { "blockID": "5", "portID": "5ia" }
+    },
+    {
+      "id": "7",
+      "type": "NUMBER",
+      "output": { "blockID": "4", "portID": "4oa" },
+      "input": { "blockID": "6", "portID": "6ia" }
+    },
+    {
+      "id": "8",
+      "type": "NUMBER",
+      "output": { "blockID": "5", "portID": "5oa" },
+      "input": { "blockID": "2", "portID": "2ia" }
+    },
+    {
+      "id": "9",
+      "type": "NUMBER",
+      "output": { "blockID": "6", "portID": "6oa" },
+      "input": { "blockID": "2", "portID": "2ib" }
+    },
+    {
+      "id": "10",
+      "type": "NUMBER",
+      "output": { "blockID": "2", "portID": "2oa" },
+      "input": { "blockID": "9", "portID": "9ib" }
+    }
   ]
 }

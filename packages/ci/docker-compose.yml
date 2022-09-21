@@ -1,16 +1,16 @@
-version: "3.9"
+version: '3.9'
 services:
-#  build_server:
-#    image: docker:stable-dind
-#    container_name: build_server
-#    privileged: true
-#    expose:
-#      - 2375
-#    environment:
-#      DOCKER_TLS_CERTDIR: ""
-#    networks:
-#      - docker_build_net
-#    restart: always
+  #  build_server:
+  #    image: docker:stable-dind
+  #    container_name: build_server
+  #    privileged: true
+  #    expose:
+  #      - 2375
+  #    environment:
+  #      DOCKER_TLS_CERTDIR: ""
+  #    networks:
+  #      - docker_build_net
+  #    restart: always
   test_server:
     image: docker:stable-dind
     container_name: test_server
@@ -18,7 +18,7 @@ services:
     expose:
       - 2375
     environment:
-      DOCKER_TLS_CERTDIR: ""
+      DOCKER_TLS_CERTDIR: ''
     networks:
       - docker_test_net
     restart: always
@@ -27,12 +27,12 @@ services:
     container_name: jenkins
     user: root
     volumes:
-      - "jenkins_home:/var/jenkins_home"
-      - "/Users/apettti1920/Documents/GitHub/CompX2/CompX:/mnt/repo_data"
+      - 'jenkins_home:/var/jenkins_home'
+      - '/Users/apettti1920/Documents/GitHub/CompX2/CompX:/mnt/repo_data'
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
-      DOCKER_HOST: "test_server:2375"
+      DOCKER_HOST: 'test_server:2375'
     depends_on:
       - test_server
     links:

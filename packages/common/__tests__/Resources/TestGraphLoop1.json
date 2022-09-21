@@ -1,55 +1,86 @@
 {
   "blocks": [
-    { "id": "1", "name": "signal", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "1oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "1",
+      "name": "signal",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "1oa", "type": "NUMBER" }],
       "inputPorts": [],
       "callbackString": "return [5]"
     },
-    { "id": "2", "name": "sum", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "2oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "2",
+      "name": "sum",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "2oa", "type": "NUMBER" }],
       "inputPorts": [
-        {"id": "1", "name": "2ia", "type": "NUMBER"},
-        {"id": "2", "name": "2ib", "type": "NUMBER"}
+        { "id": "1", "name": "2ia", "type": "NUMBER" },
+        { "id": "2", "name": "2ib", "type": "NUMBER" }
       ],
       "callbackString": "return [inputPort[2ia] + inputPort[2ib]]"
     },
-    { "id": "3", "name": "integrator", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "3oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        { "id": "1", "name": "3ia", "type": "NUMBER", "initialValue": 0 }
-      ],
+    {
+      "id": "3",
+      "name": "integrator",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "3oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "3ia", "type": "NUMBER", "initialValue": 0 }],
       "callbackString": "return [dt*(prevInput[3ia] + inputPort[3ia])/2]"
     },
-    { "id": "4", "name": "gain1", "description": "", "tags": [],
+    {
+      "id": "4",
+      "name": "gain1",
+      "description": "",
+      "tags": [],
 
-      "outputPorts": [
-        {"id": "1", "name": "4oa", "type": "NUMBER"}
-      ],
-      "inputPorts": [
-        {"id": "1", "name": "4ia", "type": "NUMBER"}
-      ],
+      "outputPorts": [{ "id": "1", "name": "4oa", "type": "NUMBER" }],
+      "inputPorts": [{ "id": "1", "name": "4ia", "type": "NUMBER" }],
       "callbackString": "return [inputPort[4ia] * 0.75]"
     },
-    { "id": "5", "name": "scope", "description": "", "tags": [],
+    {
+      "id": "5",
+      "name": "scope",
+      "description": "",
+      "tags": [],
 
       "outputPorts": [],
-      "inputPorts": [
-        {"id": "1", "name": "5ia", "type": "NUMBER"}
-      ],
+      "inputPorts": [{ "id": "1", "name": "5ia", "type": "NUMBER" }],
       "callbackString": "return [console.log(inputPort[5ia])]"
     }
   ],
   "edges": [
-    {"id": "1", "type": "NUMBER", "output": {"blockID": "1", "portID": "1oa"}, "input": {"blockID": "2", "portID": "2ia"}},
-    {"id": "2", "type": "NUMBER", "output": {"blockID": "2", "portID": "2oa"}, "input": {"blockID": "3", "portID": "3ia"}},
-    {"id": "3", "type": "NUMBER", "output": {"blockID": "3", "portID": "3oa"}, "input": {"blockID": "4", "portID": "4ia"}},
-    {"id": "4", "type": "NUMBER", "output": {"blockID": "4", "portID": "4oa"}, "input": {"blockID": "2", "portID": "2ib"}},
-    {"id": "5", "type": "NUMBER", "output": {"blockID": "3", "portID": "3oa"}, "input": {"blockID": "5", "portID": "5ia"}}
+    {
+      "id": "1",
+      "type": "NUMBER",
+      "output": { "blockID": "1", "portID": "1oa" },
+      "input": { "blockID": "2", "portID": "2ia" }
+    },
+    {
+      "id": "2",
+      "type": "NUMBER",
+      "output": { "blockID": "2", "portID": "2oa" },
+      "input": { "blockID": "3", "portID": "3ia" }
+    },
+    {
+      "id": "3",
+      "type": "NUMBER",
+      "output": { "blockID": "3", "portID": "3oa" },
+      "input": { "blockID": "4", "portID": "4ia" }
+    },
+    {
+      "id": "4",
+      "type": "NUMBER",
+      "output": { "blockID": "4", "portID": "4oa" },
+      "input": { "blockID": "2", "portID": "2ib" }
+    },
+    {
+      "id": "5",
+      "type": "NUMBER",
+      "output": { "blockID": "3", "portID": "3oa" },
+      "input": { "blockID": "5", "portID": "5ia" }
+    }
   ]
 }

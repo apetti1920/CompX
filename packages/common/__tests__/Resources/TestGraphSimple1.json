@@ -1,41 +1,64 @@
 {
   "blocks": [
-    { "id": "1", "name": "constant", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "1oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "1",
+      "name": "constant",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "1oa", "type": "NUMBER" }],
       "inputPorts": [],
       "callbackString": "return [5]"
     },
-    { "id": "2", "name": "constant2", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "2oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "2",
+      "name": "constant2",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "2oa", "type": "NUMBER" }],
       "inputPorts": [],
       "callbackString": "return [4]"
     },
-    { "id": "3", "name": "sum", "description": "", "tags": [],
-      "outputPorts": [
-        {"id": "1", "name": "3oa", "type": "NUMBER"}
-      ],
+    {
+      "id": "3",
+      "name": "sum",
+      "description": "",
+      "tags": [],
+      "outputPorts": [{ "id": "1", "name": "3oa", "type": "NUMBER" }],
       "inputPorts": [
-        {"id": "1", "name": "3ia", "type": "NUMBER"},
-        {"id": "2", "name": "3ib", "type": "NUMBER"}
+        { "id": "1", "name": "3ia", "type": "NUMBER" },
+        { "id": "2", "name": "3ib", "type": "NUMBER" }
       ],
       "callbackString": "return [inputPort[3ia] + inputPort[3ib]]"
     },
-    { "id": "4", "name": "scope", "description": "", "tags": [],
+    {
+      "id": "4",
+      "name": "scope",
+      "description": "",
+      "tags": [],
 
       "outputPorts": [],
-      "inputPorts": [
-        {"id": "1", "name": "4ia", "type": "NUMBER"}
-      ],
+      "inputPorts": [{ "id": "1", "name": "4ia", "type": "NUMBER" }],
       "callbackString": "return [console.log(inputPort[4ia])]"
     }
   ],
   "edges": [
-    {"id": "1", "type": "NUMBER", "output": {"blockID": "1", "portID": "1oa"}, "input": {"blockID": "3", "portID": "3ia"}},
-    {"id": "2", "type": "NUMBER", "output": {"blockID": "2", "portID": "2oa"}, "input": {"blockID": "3", "portID": "3ib"}},
-    {"id": "3", "type": "NUMBER", "output": {"blockID": "3", "portID": "3oa"}, "input": {"blockID": "4", "portID": "4ia"}}
+    {
+      "id": "1",
+      "type": "NUMBER",
+      "output": { "blockID": "1", "portID": "1oa" },
+      "input": { "blockID": "3", "portID": "3ia" }
+    },
+    {
+      "id": "2",
+      "type": "NUMBER",
+      "output": { "blockID": "2", "portID": "2oa" },
+      "input": { "blockID": "3", "portID": "3ib" }
+    },
+    {
+      "id": "3",
+      "type": "NUMBER",
+      "output": { "blockID": "3", "portID": "3oa" },
+      "input": { "blockID": "4", "portID": "4ia" }
+    }
   ]
 }
