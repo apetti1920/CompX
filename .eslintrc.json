@@ -1,39 +1,54 @@
 {
   "env": {
     "browser": true,
-    "commonjs": true,
-    "es6": true,
-    "jest": true
+    "es2021": true,
+    "node": true
   },
+  "extends": [
+    "airbnb",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:react/recommended"
+  ],
+  "overrides": [],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
-    "no-const-assign": "warn",
-    "no-this-before-super": "warn",
-    "no-undef": "warn",
-    "no-continue": "off",
-    "no-unreachable": "warn",
-    "no-unused-vars": "warn",
-    "constructor-super": "warn",
-    "valid-typeof": "warn",
-    "quotes": [
-      2,
-      "single"
-    ],
-    "semi": [
+    "prettier/prettier": "error",
+    "dot-notation": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": "error",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error", { "builtinGlobals": true, "allow": ["U"] }],
+    "prefer-regex-literals": "off",
+    "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+    "no-underscore-dangle": "off",
+    "object-shorthand": ["error", "consistent"],
+    "prefer-destructuring": "off",
+    "func-names": "error",
+    "import/no-dynamic-require": "warn",
+    "no-bitwise": "off",
+    "import/no-cycle": "off",
+    "import/extensions": [
       "error",
-      "never"
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
     ]
   },
-  "parser": "babel-eslint",
-  "extends": "airbnb",
-  "plugins": [
-    "react",
-    "jsx-a11y",
-    "import"
-  ]
+  "settings": {
+    "react": {
+      "version": "18.0.16"
+    }
+  }
 }
