@@ -1,22 +1,76 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 
+import { StateType as SaveState } from '../../store/types';
+import { ThemeType } from '../../types';
 import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
+import SideBar from './Overlay/Tabs/SideTab';
 
-type PropType = {};
-type StateType = {};
+type GlobalProps = {
+  theme: ThemeType;
+};
+type DispatchProps = Record<string, never>;
+type ComponentProps = Record<string, never>;
+type PropsType = GlobalProps & DispatchProps & ComponentProps;
 
-export default class Container extends Component<PropType, StateType> {
-  constructor(props: PropType) {
+type StateType = {
+  sideBarForm: 'closed' | 'open';
+};
+
+class Container extends React.Component<PropsType, StateType> {
+  constructor(props: PropsType) {
     super(props);
+
+    this.state = {
+      sideBarForm: 'closed'
+    };
   }
 
   render() {
+    const sideBarWidth = this.state.sideBarForm === 'closed' ? '75px' : '350px';
+
     return (
-      <div id="main-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
-        <CanvasContainer />
-        <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
+      <div
+        id="overlay"
+        style={{
+          display: 'flex',
+          flexFlow: 'row nowrap',
+          width: '100%',
+          height: '100%',
+          background: this.props.theme.palette.text
+        }}
+      >
+        <div style={{ height: '100%', width: sideBarWidth }}>
+          <SideBar />
+        </div>
+        <div
+          id="main-container"
+          style={{
+            width: `calc( 100% - ${sideBarWidth} )`,
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: '35px 0px 0px 35px',
+            boxShadow: '-15px 8px 5px rgba(0,0,0, 0.05)'
+          }}
+        >
+          <CanvasContainer />
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/* @ts-ignore */}
+          <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
+        </div>
       </div>
     );
   }
 }
+
+// Creates a function to map the redux state to the redux props
+function mapStateToProps(state: SaveState): GlobalProps {
+  return {
+    theme: state.userStorage.theme
+  };
+}
+
+// Exports the redux connected component
+export default connect(mapStateToProps)(Container);

@@ -1,9 +1,15 @@
 import React from 'react';
 
-export default function (props: { color: string; size: string }) {
+export default function Logo(props: { style?: React.CSSProperties }) {
   return (
-    <svg width={props.size} height={props.size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g stroke={props.color}>
+    <svg
+      width={props.style?.width}
+      height={props.style?.height}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      style={props.style}
+    >
+      <g stroke={props.style?.color}>
         <g id="outside-ring" strokeWidth="0.5" strokeLinecap="round" strokeOpacity="0.7">
           <line x1="85.0" y1="50.0" x2="86.5" y2="50.0" />
           <line x1="84.93093549498951" y1="52.19766818352597" x2="86.42797558763192" y2="52.291853962819935" />
