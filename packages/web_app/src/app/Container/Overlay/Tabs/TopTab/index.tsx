@@ -20,23 +20,6 @@ export default function TopTab(props: PropsType) {
         pointerEvents: 'auto'
       }}
     >
-      {/* <Container fluid style={{ height: '50px', padding: topPadding }}> */}
-      {/*  <Navbar style={{ height: '100%' }}> */}
-      {/*    <Container fluid> */}
-      {/*      <Navbar.Brand */}
-      {/*        style={{ */}
-      {/*          userSelect: 'none', */}
-      {/*          color: props.theme.palette.text */}
-      {/*        }} */}
-      {/*      > */}
-      {/*        <Logo color={props.theme.palette.text} size="30" /> CompX */}
-      {/*      </Navbar.Brand> */}
-      {/*      <Navbar.Collapse className="justify-content-end"> */}
-      {/*        <User stroke={props.theme.palette.text} /> */}
-      {/*      </Navbar.Collapse> */}
-      {/*    </Container> */}
-      {/*  </Navbar> */}
-      {/* </Container> */}
       <Container fluid style={{ height: '40px', margin: '24px', padding: '0px 40px 0px 0px' }}>
         <div
           style={{
@@ -72,11 +55,11 @@ export default function TopTab(props: PropsType) {
           >
             <Play stroke={props.theme.palette.shadow} fill={SetOpacityHex(props.theme.palette.shadow, 0.5)} />
             <style>{`
-                                    #simTimeInput::placeholder {
-                                      color: ${props.theme.palette.text};
-                                      opacity: 0.4;
-                                    }
-                              `}</style>
+                  #simTimeInput::placeholder {
+                    color: ${props.theme.palette.text};
+                    opacity: 0.4;
+                  }
+            `}</style>
             <Form.Control
               id="simTimeInput"
               type="text"

@@ -5,7 +5,7 @@ import { StateType as SaveState } from '../../store/types';
 import { ThemeType } from '../../types';
 import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
-import SideBar from './Overlay/Tabs/SideTab';
+import SideBar, { IconsType } from './Overlay/Tabs/SideTab';
 
 type GlobalProps = {
   theme: ThemeType;
@@ -15,20 +15,27 @@ type ComponentProps = Record<string, never>;
 type PropsType = GlobalProps & DispatchProps & ComponentProps;
 
 type StateType = {
-  sideBarForm: 'closed' | 'open';
+  sidebarTabSelected?: IconsType;
 };
 
 class Container extends React.Component<PropsType, StateType> {
+  private readonly minimizedSidebarWidth = '75px';
+
   constructor(props: PropsType) {
     super(props);
 
     this.state = {
-      sideBarForm: 'closed'
+      sidebarTabSelected: undefined
     };
   }
 
+  tabSelectedHandler = (tab?: IconsType) => {
+    if (tab !== undefined && tab === this.state.sidebarTabSelected) this.setState({ sidebarTabSelected: undefined });
+    else this.setState({ sidebarTabSelected: tab });
+  };
+
   render() {
-    const sideBarWidth = this.state.sideBarForm === 'closed' ? '75px' : '350px';
+    const sideBarWidth = this.state.sidebarTabSelected !== undefined ? '350px' : this.minimizedSidebarWidth;
 
     return (
       <div
@@ -42,12 +49,17 @@ class Container extends React.Component<PropsType, StateType> {
         }}
       >
         <div style={{ height: '100%', width: sideBarWidth }}>
-          <SideBar />
+          <SideBar
+            theme={this.props.theme}
+            sidebarTabSelected={this.state.sidebarTabSelected}
+            sidebarWidth={this.minimizedSidebarWidth}
+            onSelectedTab={this.tabSelectedHandler}
+          />
         </div>
         <div
           id="main-container"
           style={{
-            width: `calc( 100% - ${sideBarWidth} )`,
+            width: `calc(100% - ${sideBarWidth})`,
             height: '100%',
             position: 'relative',
             overflow: 'hidden',
