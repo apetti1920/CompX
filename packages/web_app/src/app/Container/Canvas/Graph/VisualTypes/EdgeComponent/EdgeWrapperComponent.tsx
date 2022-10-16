@@ -1,19 +1,20 @@
+import { Vector2D } from '@compx/common/Types';
+import Konva from 'konva';
 import React from 'react';
 import { Group, Line } from 'react-konva';
-import Konva from 'konva';
-import KonvaEventObject = Konva.KonvaEventObject;
 
-import { Vector2D } from '@compx/common/Types';
 import { ArrowDirectionType, MouseOnBlockExtracted } from '../../../utils';
 
-export default (props: {
+import KonvaEventObject = Konva.KonvaEventObject;
+
+export default function EdgeWrapperComponent(props: {
   points: Vector2D[];
   setCursorStyle?: (side?: ArrowDirectionType) => void;
   selected?: boolean;
   onSelectComponent: (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) => void;
   onAddEdgeSplit: (on: MouseOnBlockExtracted<'EDGE'>) => void;
   onDeleteEdgeSplit: (on: MouseOnBlockExtracted<'EDGE'>) => void;
-}) => {
+}) {
   if (props.points.length <= 2) return <React.Fragment />;
   const color = props.selected ? 'red' : 'white';
   const strokeWidth = props.selected ? 2 : 3;
@@ -104,4 +105,4 @@ export default (props: {
       </Group>
     </Group>
   );
-};
+}

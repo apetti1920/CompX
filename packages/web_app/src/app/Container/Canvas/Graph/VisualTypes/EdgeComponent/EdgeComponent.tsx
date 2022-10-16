@@ -1,11 +1,10 @@
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
+import { Vector2D } from '@compx/common/Types';
 import React from 'react';
 
-import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { Vector2D } from '@compx/common/Types';
-
-import EdgeWrapperComponent from './EdgeWrapperComponent';
 import { ArrowDirectionType, CalculatePortLocation, MouseOnBlockExtracted } from '../../../utils';
+import EdgeWrapperComponent from './EdgeWrapperComponent';
 
 type MouseDraggingPortType = {
   block: VisualBlockStorageType<any, any>;
@@ -21,13 +20,13 @@ export type StaticEdgeBlockType = Omit<VisualEdgeStorageType<any>, 'input' | 'ou
 
 const CalculateMidPoints = (start: Vector2D, end: Vector2D, percentages: number[]): Vector2D[] => {
   const points = [start];
-  let gap = Vector2D.subtract(end, start);
+  const gap = Vector2D.subtract(end, start);
   percentages.forEach((p, i) => {
     if (p !== 0.0) {
       points.push(
         new Vector2D(
-          i % 2 == 0 ? p * gap.x + start.x : points[points.length - 1].x,
-          i % 2 == 0 ? points[points.length - 1].y : p * gap.y + start.y
+          i % 2 === 0 ? p * gap.x + start.x : points[points.length - 1].x,
+          i % 2 === 0 ? points[points.length - 1].y : p * gap.y + start.y
         )
       );
     }
@@ -48,20 +47,28 @@ export type EdgeComponentPropType = ({ mouse: MouseDraggingPortType } | { edge: 
   onDeleteEdgeSplit?: (splitInd: number) => void;
 };
 
-export default (props: EdgeComponentPropType) => {
-  let radius = 20 * props.canvasZoom;
+export default function EdgeComponent(props: EdgeComponentPropType): React.ReactElement {
+  const radius = 20 * props.canvasZoom;
   let points: Vector2D[];
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let selectedHandler = (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let addEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let deleteEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {};
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   if (props.edge === undefined) {
     const portLoc = CalculatePortLocation(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       props.mouse.block,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       props.mouse.isOutput,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       props.mouse.portInd,
       props.canvasTranslation,
@@ -69,8 +76,10 @@ export default (props: EdgeComponentPropType) => {
       props.screenSize
     ).port;
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const startPos = props.mouse.isOutput ? portLoc : props.mouse.mouseLoc;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const endPos = props.mouse.isOutput ? props.mouse.mouseLoc : portLoc;
 
@@ -81,22 +90,26 @@ export default (props: EdgeComponentPropType) => {
       points = [startPos, ...CalculateMidPoints(p1, endPos, [])];
     }
   } else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const edge: StaticEdgeBlockType = props.edge;
     if (props.onSelectComponent !== undefined) {
       selectedHandler = (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         props.onSelectComponent(on, selectMultiple);
 
       if (props.onAddEdgeSplit !== undefined && props.onDeleteEdgeSplit !== undefined) {
         addEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {
           if (on.moveInfo !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             props.onAddEdgeSplit(on.moveInfo.edgePieceInd);
           }
         };
         deleteEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {
           if (on.moveInfo !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             props.onDeleteEdgeSplit(on.moveInfo.edgePieceInd);
           }
@@ -141,4 +154,4 @@ export default (props: EdgeComponentPropType) => {
       onDeleteEdgeSplit={deleteEdgeSplitHandler}
     />
   );
-};
+}

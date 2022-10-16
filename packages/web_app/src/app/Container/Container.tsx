@@ -5,7 +5,7 @@ import { StateType as SaveState } from '../../store/types';
 import { ThemeType } from '../../types';
 import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
-import SideBar2 from './Overlay/Tabs/SideTab/SideBar2';
+import SideBar from './Overlay/Tabs/SideTab/SideBar';
 
 type GlobalProps = {
   theme: ThemeType;
@@ -33,7 +33,7 @@ class Container extends React.Component<PropsType, StateType> {
         }}
       >
         <div style={{ height: '100%' }}>
-          <SideBar2 />
+          <SideBar />
         </div>
         <div
           id="main-container"

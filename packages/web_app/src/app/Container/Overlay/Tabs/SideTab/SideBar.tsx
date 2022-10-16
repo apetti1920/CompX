@@ -8,7 +8,7 @@ type StateType = {
   selected?: string;
 };
 
-export default class SideBar2 extends Component<PropsType, StateType> {
+export default class SideBar extends Component<PropsType, StateType> {
   private readonly Nav1: NavbarType[];
   private readonly Nav2: NavbarType[];
   private readonly minimizedWidth: string = '75px';

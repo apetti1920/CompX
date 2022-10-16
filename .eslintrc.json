@@ -87,7 +87,9 @@
     "react/jsx-max-props-per-line": [2, { "maximum": 1, "when": "multiline" }],
     "react/jsx-indent-props": [2, 2],
     "react/jsx-closing-bracket-location": [2, "tag-aligned"],
-    "react/no-array-index-key": "off"
+    "react/no-array-index-key": "off",
+    "jsx-a11y/tabindex-no-positive": "warn",
+    "jsx-a11y/no-noninteractive-tabindex": "warn"
   },
   "settings": {
     "react": {
