@@ -5,7 +5,7 @@ import { StateType as SaveState } from '../../store/types';
 import { ThemeType } from '../../types';
 import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
-import SideBar, { IconsType } from './Overlay/Tabs/SideTab';
+import SideBar2 from './Overlay/Tabs/SideTab/SideBar2';
 
 type GlobalProps = {
   theme: ThemeType;
@@ -14,29 +14,13 @@ type DispatchProps = Record<string, never>;
 type ComponentProps = Record<string, never>;
 type PropsType = GlobalProps & DispatchProps & ComponentProps;
 
-type StateType = {
-  sidebarTabSelected?: IconsType;
-};
+type StateType = Record<string, never>;
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Container extends React.Component<PropsType, StateType> {
-  private readonly minimizedSidebarWidth = '75px';
-
-  constructor(props: PropsType) {
-    super(props);
-
-    this.state = {
-      sidebarTabSelected: undefined
-    };
-  }
-
-  tabSelectedHandler = (tab?: IconsType) => {
-    if (tab !== undefined && tab === this.state.sidebarTabSelected) this.setState({ sidebarTabSelected: undefined });
-    else this.setState({ sidebarTabSelected: tab });
-  };
+  // private readonly minimizedSidebarWidth = '75px';
 
   render() {
-    const sideBarWidth = this.state.sidebarTabSelected !== undefined ? '350px' : this.minimizedSidebarWidth;
-
     return (
       <div
         id="overlay"
@@ -48,18 +32,13 @@ class Container extends React.Component<PropsType, StateType> {
           background: this.props.theme.palette.text
         }}
       >
-        <div style={{ height: '100%', width: sideBarWidth }}>
-          <SideBar
-            theme={this.props.theme}
-            sidebarTabSelected={this.state.sidebarTabSelected}
-            sidebarWidth={this.minimizedSidebarWidth}
-            onSelectedTab={this.tabSelectedHandler}
-          />
+        <div style={{ height: '100%' }}>
+          <SideBar2 />
         </div>
         <div
           id="main-container"
           style={{
-            width: `calc(100% - ${sideBarWidth})`,
+            width: '100%',
             height: '100%',
             position: 'relative',
             overflow: 'hidden',
