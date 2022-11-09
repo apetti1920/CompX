@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
 
 import App from './app/app.web';
 import store from './store';
 
-import { Provider } from 'react-redux';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const el = document.getElementById('app-root');

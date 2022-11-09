@@ -1,17 +1,18 @@
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { Vector2D, DirectionType } from '@compx/common/Types';
+import { DirectionType, Vector2D } from '@compx/common/Types';
 
 import { ActionPayloadType, ActionType, SelectableItemTypes } from '../types';
 import {
-  MovedBlockActionType,
-  SelectedObjectActionType,
-  DeselectedObjectActionType,
-  ResizedBlockActionType,
   AddEdgeActionType,
-  MovedEdgeActionType,
   AddEdgeSplitActionType,
+  DeletedObjectActionType,
+  DeselectedObjectActionType,
+  MovedBlockActionType,
+  MovedEdgeActionType,
   RemoveEdgeSplitActionType,
-  DeletedObjectActionType
+  ResizedBlockActionType,
+  SelectedObjectActionType,
+  UpdateLibraryActionType
 } from './actiontypes';
 
 // Action to select a block
@@ -78,4 +79,9 @@ export const AddEdgeSplitAction: ActionType = (afterEdgePieceInd: number): Actio
 export const RemoveEdgeSplitAction: ActionType = (edgePieceInd: number): ActionPayloadType => ({
   type: RemoveEdgeSplitActionType,
   payload: { edgePieceInd: edgePieceInd }
+});
+
+export const UpdateLibrary: ActionType = (): ActionPayloadType => ({
+  type: UpdateLibraryActionType,
+  payload: {}
 });

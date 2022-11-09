@@ -7,6 +7,8 @@ import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
 import SideBar from './Overlay/Tabs/SideTab/SideBar';
 
+import './titlebar.css';
+
 type GlobalProps = {
   theme: ThemeType;
 };

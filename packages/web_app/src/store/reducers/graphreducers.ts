@@ -1,25 +1,25 @@
+import { PortTypes } from '@compx/common/Graph/Port';
+import { LinearInterp } from '@compx/common/Helpers/Other';
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
+import { DirectionType, Vector2D } from '@compx/common/Types';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Vector2D, DirectionType } from '@compx/common/Types';
-import { LinearInterp } from '@compx/common/Helpers/Other';
-import { PortTypes } from '@compx/common/Graph/Port';
-import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-
 import { CalculatePortLocation } from '../../app/Container/Canvas/utils';
-import { ActionPayloadType, StateType } from '../types';
 import {
-  MovedBlockActionType,
-  SelectedObjectActionType,
-  DeselectedObjectActionType,
-  ResizedBlockActionType,
   AddEdgeActionType,
-  MovedEdgeActionType,
   AddEdgeSplitActionType,
+  DeletedObjectActionType,
+  DeselectedObjectActionType,
+  MovedBlockActionType,
+  MovedEdgeActionType,
   RemoveEdgeSplitActionType,
-  DeletedObjectActionType
+  ResizedBlockActionType,
+  SelectedObjectActionType,
+  UpdateLibraryActionType
 } from '../actions/actiontypes';
+import { ActionPayloadType, StateType } from '../types';
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
   switch (action.type) {
@@ -314,6 +314,9 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
 
       tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(edgePieceInd, 2);
       return tempState;
+    }
+    case UpdateLibraryActionType: {
+      return state;
     }
     default: {
       return state;

@@ -89,7 +89,8 @@
     "react/jsx-closing-bracket-location": [2, "tag-aligned"],
     "react/no-array-index-key": "off",
     "jsx-a11y/tabindex-no-positive": "warn",
-    "jsx-a11y/no-noninteractive-tabindex": "warn"
+    "jsx-a11y/no-noninteractive-tabindex": "warn",
+    "class-methods-use-this": "warn"
   },
   "settings": {
     "react": {

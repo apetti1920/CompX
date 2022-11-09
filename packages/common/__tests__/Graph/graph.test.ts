@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { GraphStorageType, isGraphStorageType } from '../../src/Network/GraphItemStorage/GraphStorage';
 import Graph from '../../src/Graph/Graph';
+import { GraphStorageType, isGraphStorageType } from '../../src/Network/GraphItemStorage/GraphStorage';
 
 describe('Graph Tests', () => {
-  let json: any;
+  let json: unknown;
   let graphStorage: GraphStorageType;
   beforeAll(() => {
     json = JSON.parse(
@@ -17,7 +17,7 @@ describe('Graph Tests', () => {
     test('Graph storage is valid', () => {
       expect(isGraphStorageType(json)).toBeTruthy();
 
-      graphStorage = json;
+      graphStorage = <GraphStorageType>json;
     });
 
     test('Graph storage is not valid', () => {

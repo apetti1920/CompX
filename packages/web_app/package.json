@@ -4,8 +4,9 @@
   "description": "web front for compx",
   "main": "dist/main.js",
   "scripts": {
-    "build": "rimraf dist && webpack --config webpack/webpack.config.js --env env=prod",
-    "start": "webpack serve --config webpack/webpack.config.js --env env=dev"
+    "prebuild": "rimraf dist",
+    "build": "cross-env-shell \"echo \\\"Building for ${BUILD_TYPE}\\\" && echo $(webpack --config webpack/webpack.config.js --progress --env ENV=prod --env BUILD_TYPE=$BUILD_TYPE)\"",
+    "start": "webpack serve --config webpack/webpack.config.js --env ENV=dev --progress"
   },
   "keywords": [],
   "author": "",
@@ -45,6 +46,7 @@
     "bootstrap": "^5.2.0",
     "feather-icons": "^4.29.0",
     "konva": "^8.3.10",
+    "loglevel": "^1.8.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.4.0",
     "react-dom": "^18.2.0",

@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "loglevel": "^1.8.0",
     "p5": "^1.4.2",
     "simplex-noise": "^4.0.0"
   }

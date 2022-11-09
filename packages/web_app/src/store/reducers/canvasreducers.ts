@@ -1,9 +1,9 @@
-import _ from 'lodash';
-
 import { Clamp } from '@compx/common/Helpers/Other';
 import { Vector2D } from '@compx/common/Types';
-import { ActionPayloadType, StateType } from '../types';
+import _ from 'lodash';
+
 import { TranslatedCanvasActionType, ZoomedCanvasActionType } from '../actions/actiontypes';
+import { ActionPayloadType, StateType } from '../types';
 
 export default (state: StateType, action: ActionPayloadType): StateType => {
   switch (action.type) {
