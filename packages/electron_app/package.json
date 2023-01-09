@@ -5,10 +5,10 @@
   "main": "./dist/main/index.js",
   "scripts": {
     "build:loader": "pushd ../electron_loader && npm run build && cp -R dist ../electron_app/dist/renderer/loader && popd",
-    "build:app": "pushd ../web_app && npm run build && cp -R dist ../electron_app/dist/renderer/app && popd",
-    "build:deps": "npm run build:loader && npm run build:app",
+    "build:app": "cross-env-shell \"pushd ../web_app && pwd && npm run build && ls && cp -R dist ../electron_app/dist/renderer/app && popd\"",
+    "build:deps": "cross-env-shell \"npm run build:loader && npm run build:app\"",
     "prebuild": "rimraf dist && mkdir -p dist/renderer",
-    "build": "npm run build:deps && tsc",
+    "build": "cross-env-shell \"npm run build:deps && tsc\"",
     "start": "npm run build && electron .",
     "builder": "electron-builder",
     "postbuilder": "electron-builder install-app-deps"

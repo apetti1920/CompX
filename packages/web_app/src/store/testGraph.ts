@@ -1,11 +1,29 @@
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { PortTypes } from 'compx_common/Graph/Port';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { VisualBlockStorageType } from 'compx_common/Network/GraphItemStorage/BlockStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line import/no-unresolved
+import { VisualEdgeStorageType } from 'compx_common/Network/GraphItemStorage/EdgeStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { VisualGraphStorageType } from 'compx_common/Network/GraphItemStorage/GraphStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { PortStorageWithIDType } from 'compx_common/Network/GraphItemStorage/PortStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { Vector2D } from 'compx_common/Types';
 import { v4 as uuidv4 } from 'uuid';
-
-import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage';
-import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { PortStorageWithIDType } from '@compx/common/Network/GraphItemStorage/PortStorage';
-import { PortTypes } from '@compx/common/Graph/Port';
-import { Vector2D } from '@compx/common/Types';
 
 function getRandom(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);

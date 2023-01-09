@@ -3,7 +3,7 @@ import { Rect, Line } from 'react-konva';
 import Konva from 'konva';
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
-import { Vector2D, DirectionType } from '@compx/common/Types';
+import { Vector2D, DirectionType } from 'compx_common/Types';
 
 import { WheelHandler, MouseOnBlockExtracted, ArrowDirectionType } from '../../utils';
 

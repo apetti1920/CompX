@@ -1,5 +1,11 @@
-import { Clamp } from '@compx/common/Helpers/Other';
-import { Vector2D } from '@compx/common/Types';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { Clamp } from 'compx_common/Helpers/Other';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { Vector2D } from 'compx_common/Types';
 import _ from 'lodash';
 
 import { TranslatedCanvasActionType, ZoomedCanvasActionType } from '../actions/actiontypes';

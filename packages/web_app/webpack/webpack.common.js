@@ -7,13 +7,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = (envVars) => {
-  const { BUILD_TYPE } = envVars;
-  console.log(`echo "${BUILD_TYPE}"`);
+  const { BUILD_TYPE, ENV } = envVars;
+  const tmpBuild = `HERE_${BUILD_TYPE}`;
 
   return {
     entry: path.resolve(__dirname, '..', 'src/index.tsx'),
     resolve: {
-      extensions: ['.tsx', '.ts', '.js']
+      extensions: ['.tsx', '.ts', '.js', '.jsx']
     },
     module: {
       rules: [
@@ -25,7 +25,14 @@ module.exports = (envVars) => {
         {
           test: /\.(ts)x?$/,
           exclude: /node_modules/,
-          use: ['ts-loader']
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                transpileOnly: true
+              }
+            }
+          ]
         },
         {
           test: /\.css$/,
@@ -49,8 +56,9 @@ module.exports = (envVars) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, '..', 'index.html')
       }),
-      new webpack.DefinePlugin({
-        'process.env.BUILD_TYPE': JSON.stringify(BUILD_TYPE)
+      new webpack.EnvironmentPlugin({
+        ENV_TYPE: ENV,
+        BUILD_TYPE: tmpBuild
       })
     ],
     stats: 'errors-only'

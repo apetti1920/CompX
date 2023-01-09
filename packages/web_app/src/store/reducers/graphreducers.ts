@@ -1,8 +1,23 @@
-import { PortTypes } from '@compx/common/Graph/Port';
-import { LinearInterp } from '@compx/common/Helpers/Other';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import { DirectionType, Vector2D } from '@compx/common/Types';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { PortTypes } from 'compx_common/Graph/Port';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { LinearInterp } from 'compx_common/Helpers/Other';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { VisualBlockStorageType } from 'compx_common/Network/GraphItemStorage/BlockStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { VisualEdgeStorageType } from 'compx_common/Network/GraphItemStorage/EdgeStorage';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { DirectionType, Vector2D } from 'compx_common/Types';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 

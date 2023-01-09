@@ -1,14 +1,20 @@
-import React, { Component } from 'react';
-
-import { Rect, Line, Shape } from 'react-konva';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved,max-classes-per-file
+import { Clamp, LinearInterp } from 'compx_common/Helpers/Other';
+// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { Vector2D } from 'compx_common/Types';
 import Konva from 'konva';
-type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
+import React, { Component } from 'react';
+import { Line, Rect, Shape } from 'react-konva';
 
-import { Vector2D } from '@compx/common/Types';
-import { Clamp, LinearInterp } from '@compx/common/Helpers/Other';
-import { WheelHandler } from '../utils';
-import { ThemeType } from '../../../../types';
 import { HexToRgbA, SetOpacityHex } from '../../../../theme/helpers';
+import { ThemeType } from '../../../../types';
+import { WheelHandler } from '../utils';
+
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 // ----------------------------------- Grid Helpers --------------------------------------------------------------------
 const TWO_PI = 2 * Math.PI;

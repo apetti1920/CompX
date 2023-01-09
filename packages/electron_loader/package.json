@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist && webpack --config webpack/webpack.config.js --env env=prod",
+    "prebuild": "rimraf dist",
+    "build": "webpack --config webpack/webpack.config.js --env env=prod",
     "start": "webpack serve --config webpack/webpack.config.js --env env=dev"
   },
   "keywords": [],
