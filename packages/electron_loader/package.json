@@ -2,9 +2,13 @@
   "name": "@compx/electron_loader",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/main.js",
+  "publishConfig": {
+    "directory": "dist"
+  },
   "scripts": {
-    "build": "rimraf dist && webpack --config webpack/webpack.config.js --env env=prod",
+    "prebuild": "rimraf dist",
+    "build": "webpack --config webpack/webpack.config.js --env env=prod",
     "start": "webpack serve --config webpack/webpack.config.js --env env=dev"
   },
   "keywords": [],
@@ -19,6 +23,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "loglevel": "^1.8.0",
     "p5": "^1.4.2",
     "simplex-noise": "^4.0.0"
   }

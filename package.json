@@ -6,8 +6,17 @@
     "assets/*": "assets/*"
   },
   "scripts": {
-    "build": "npx lerna run build",
-    "start:electron": "npx lerna run --scope=@compx/electron_app build && npx lerna run start --scope=@compx/electron_app",
+    "clean": "npx lerna clean -y && npx lerna exec -- \"tsc --build --clean && rimraf dist package-lock.json\"",
+    "bootstrap": "npx lerna bootstrap && npx lerna link",
+    "loader:start": "npx lerna run --scope=@compx/electron_loader start --stream",
+    "loader:build": "npx lerna run --scope=@compx/electron_loader build",
+    "web:start": "npx lerna run --scope=@compx/web_app start --stream",
+    "web:build": "BUILD_TYPE=\"${BUILD_TYPE:-web}\" npx lerna run --scope=@compx/web_app build",
+    "electron:build:deps": "BUILD_TYPE=\"electron\" npx lerna run --scope=@compx/electron_loader --scope=@compx/web_app --parallel build",
+    "postelectron:build:deps": "npx lerna exec --scope=@compx/electron_app -- \"mkdir -p dist/renderer/loader && mkdir -p dist/renderer/app\" && npx lerna exec --scope=@compx/electron_loader -- \"cp -R dist/ ../electron_app/dist/renderer/loader/\" && npx lerna exec --scope=@compx/web_app -- \"cp -R dist/ ../electron_app/dist/renderer/app/\"",
+    "electron:build": "npm run electron:build:deps && npx lerna run --scope=@compx/electron_app build",
+    "electron:start": "npm run electron:build && npx lerna run --scope=@compx/electron_app start --stream",
+
     "test": "jest",
     "pretest:pretty": "npx prettier --write --ignore-path .gitignore $(git diff --name-only HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs)",
     "prepare": "husky install"
@@ -21,10 +30,13 @@
     "@types/node": "^18.7.18",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
+    "cross-env": "^7.0.3",
+    "dotenv-webpack": "^8.0.1",
     "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-node": "^4.1.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-node": "^11.1.0",
@@ -33,8 +45,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^8.0.1",
     "jest": "^29.0.3",
-    "lerna": "^5.5.1",
+    "lerna": "^6.4.1",
     "lint-staged": "^13.0.3",
+    "ncp": "^2.0.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
@@ -44,5 +57,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.21"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

@@ -1,16 +1,15 @@
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import React from 'react';
 
-import EdgeComponent, { StaticEdgeBlockType, EdgeComponentPropType } from './EdgeComponent';
+import EdgeComponent, { EdgeComponentPropType, StaticEdgeBlockType } from './EdgeComponent';
 
-import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
-
-export default (
+export default function CanvasEdgeWrapperComponent(
   props: {
     blocks: VisualBlockStorageType<any, any>[];
     edge: VisualEdgeStorageType<any>;
   } & Omit<EdgeComponentPropType, 'mouse' | 'edge'>
-) => {
+): JSX.Element {
   const outputBlock = props.blocks.find((b) => b.id === props.edge.output.blockID);
   const inputBlock = props.blocks.find((b) => b.id === props.edge.input.blockID);
   if (outputBlock === undefined || inputBlock === undefined) return <React.Fragment />;
@@ -28,4 +27,4 @@ export default (
   const EdgeComponentWrapper = () => EdgeComponent({ ...props, edge: newEdge });
 
   return <EdgeComponentWrapper />;
-};
+}

@@ -1,8 +1,8 @@
-import { isPortStorageType, isPortStorageWithIDType } from './PortStorage';
-import { PortStringListType } from '../../Graph/Port';
 import { MapStringsToPortStoragesType, MapStringsToPortStoragesWithIDType } from '../../Graph/Block';
+import { PortStringListType } from '../../Graph/Port';
 import { WithID } from '../../Helpers/Types';
 import { Vector2D } from '../../Types';
+import { isPortStorageType, isPortStorageWithIDType } from './PortStorage';
 
 export type BlockStorageType<Inputs extends PortStringListType, Outputs extends PortStringListType> = {
   name: string;

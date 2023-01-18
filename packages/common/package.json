@@ -7,14 +7,15 @@
     "directory": "src"
   },
   "scripts": {
-    "build": "npx rimraf dist && npx tsc",
     "test": "((npx jest --config='__tests__/jest.config.ts' --ci --runInBand --bail --colors --detectOpenHandles --silent --forceExit --coverage --errorOnDeprecated 2>&1) && echo 'PASS') || echo 'FAIL'"
   },
   "dependencies": {
+    "loglevel": "^1.8.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.16.0",
-    "@types/uuid": "^8.3.3"
+    "@types/uuid": "^8.3.3",
+    "copyfiles": "^2.4.1"
   }
 }

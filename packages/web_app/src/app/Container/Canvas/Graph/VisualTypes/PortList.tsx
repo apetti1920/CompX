@@ -1,8 +1,8 @@
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import { Vector2D } from '@compx/common/Types';
 import React, { Component, useState } from 'react';
 import { Circle } from 'react-konva';
 
-import { Vector2D } from '@compx/common/Types';
-import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { CalculatePortLocation } from '../../utils';
 
 type PortPropType = {

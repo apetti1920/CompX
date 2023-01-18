@@ -1,15 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
+
 import Container from './Container/Container';
 
-type PropType = {};
-type StateType = {};
-
-export default class App extends Component<PropType, StateType> {
-  constructor(props: PropType) {
-    super(props);
-  }
-
-  render() {
-    return <Container />;
-  }
+export default function App(): React.ReactElement {
+  console.log(`HEEEEEERE ${process.env.ENV_TYPE} ${process.env.BUILD_TYPE}`);
+  return <Container />;
 }

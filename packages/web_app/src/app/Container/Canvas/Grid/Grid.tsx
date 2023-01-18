@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-
-import { Rect, Line, Shape } from 'react-konva';
-import Konva from 'konva';
-type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
-
-import { Vector2D } from '@compx/common/Types';
 import { Clamp, LinearInterp } from '@compx/common/Helpers/Other';
-import { WheelHandler } from '../utils';
-import { ThemeType } from '../../../../types';
+import { Vector2D } from '@compx/common/Types';
+import Konva from 'konva';
+import React, { Component } from 'react';
+import { Line, Rect, Shape } from 'react-konva';
+
 import { HexToRgbA, SetOpacityHex } from '../../../../theme/helpers';
+import { ThemeType } from '../../../../types';
+import { WheelHandler } from '../utils';
+
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 // ----------------------------------- Grid Helpers --------------------------------------------------------------------
 const TWO_PI = 2 * Math.PI;
@@ -96,12 +96,8 @@ type DrawGridArgType = {
   CircleGridBind: (spacing: number, radius: number, color: string) => React.ReactElement;
   rgba1: string;
 };
-class GridInt extends Component<GridPropType, {}> {
+class GridInt extends Component<GridPropType, never> {
   private readonly zoomInterval: number = 8;
-
-  constructor(props: GridPropType) {
-    super(props);
-  }
 
   DrawGrid1 = (props: DrawGridArgType): React.ReactElement => {
     if (props.pct >= 0.0 && props.pct < 2 / 5) {

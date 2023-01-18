@@ -1,28 +1,19 @@
-import React, { Component } from 'react';
-
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { throttle } from 'lodash';
-import Konva from 'konva';
-type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
-import { Stage, Layer, Rect } from 'react-konva';
-import { Portal } from 'react-konva-utils';
-
 import { PortStringListType, PortTypes } from '@compx/common/Graph/Port';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { DirectionType, Vector2D } from '@compx/common/Types';
+import Konva from 'konva';
+import { throttle } from 'lodash';
+import React, { Component } from 'react';
+import { Layer, Rect, Stage } from 'react-konva';
+import { Portal } from 'react-konva-utils';
+import { connect } from 'react-redux';
+import { Dispatch, bindActionCreators } from 'redux';
 
-import { SelectableItemTypes, StateType as SaveState } from '../../../store/types';
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
-import Grid from './Grid/Grid';
-import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
-import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperCompnent';
-import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
-import { ThemeType } from '../../../types';
 import {
-  AddedEdgeAction,
   AddEdgeSplitAction,
+  AddedEdgeAction,
   DeletedObjectsAction,
   DeselectObjectsAction,
   MovedBlocksAction,
@@ -31,8 +22,16 @@ import {
   ResizedBlocksAction,
   SelectObjectAction
 } from '../../../store/actions/graphactions';
+import { StateType as SaveState, SelectableItemTypes } from '../../../store/types';
+import { ThemeType } from '../../../types';
 import BlockComponent from './Graph/VisualTypes/BlockComponent';
+import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
+import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
 import PortList from './Graph/VisualTypes/PortList';
+import Grid from './Grid/Grid';
+import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
+
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 type GlobalProps = {
   canvasZoom: number;
@@ -59,11 +58,10 @@ type DispatchProps = {
   onZoom: (delta: number, around: Vector2D) => void;
   onTranslate: (point: Vector2D) => void;
 };
-type ComponentProps = {};
+type ComponentProps = Record<string, never>;
 type PropsType = GlobalProps & DispatchProps & ComponentProps;
 type StateType = {
   canvasSize: Vector2D;
-  dragging: boolean;
   mouseDown?: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE' | 'PORT' | 'EDGE'>;
 };
 
@@ -72,15 +70,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
   private readonly wrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   private readonly stageRef: React.MutableRefObject<Konva.Stage | null>;
   private readonly ThrottledSetWindowSize = throttle(() => requestAnimationFrame(this.SetWindowSize), 60);
-  private readonly SetWindowSize = () => {
-    // Check if the refs are present
-    if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
-
-    const canvasSize = new Vector2D(this.wrapperRef.current.clientWidth, this.wrapperRef.current.clientHeight);
-    this.setState({
-      canvasSize: canvasSize
-    });
-  };
 
   // Create the Component
   constructor(props: PropsType) {
@@ -93,7 +82,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
     this.state = {
       canvasSize: new Vector2D(),
-      dragging: false,
       mouseDown: undefined
     };
   }
@@ -119,12 +107,24 @@ class CanvasContainer extends Component<PropsType, StateType> {
     window.removeEventListener('resize', this.ThrottledSetWindowSize);
   }
 
+  private readonly SetWindowSize = () => {
+    // Check if the refs are present
+    if (this.wrapperRef.current === null || this.wrapperRef.current === undefined) return;
+
+    const canvasSize = new Vector2D(this.wrapperRef.current.clientWidth, this.wrapperRef.current.clientHeight);
+    this.setState({
+      canvasSize: canvasSize
+    });
+  };
+
   // -------------------------------------- Events -------------------------------------------------------------------
   mouseDownHandler = (on: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE' | 'PORT' | 'EDGE'>) =>
     this.setState({ mouseDown: on });
+
   deselectAllHandler = () => {
     this.props.onDeselectObjects();
   };
+
   mouseMoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     e.evt.stopPropagation();
     if (this.state.mouseDown === undefined) return;
@@ -166,11 +166,13 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
     this.setState({
       mouseDown: {
+        // eslint-disable-next-line react/no-access-state-in-setstate
         ...this.state.mouseDown,
-        mouseLocation: new Vector2D(e.evt.x, e.evt.y)
+        mouseLocation: new Vector2D(e.evt.offsetX, e.evt.offsetY)
       }
     });
   };
+
   mouseUpHandler = (on?: MouseOnBlockExtracted<'PORT'>) => {
     if (on !== undefined && this.state.mouseDown?.mouseOn === 'PORT') {
       const mouseDownBlock = {
@@ -200,6 +202,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     else this.stageRef.current!.container().style.cursor = 'default';
   };
 
+  // eslint-disable-next-line react/no-unused-class-component-methods
   BlockPortComponent = (props: { block: VisualBlockStorageType<any, any>; selected: boolean }) => {
     const blockShape = CalculateScreenBlockSizeAndPosition(
       this.props.canvasTranslation,
@@ -210,6 +213,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
     );
     if (blockShape.size.x <= 25 || blockShape.size.y <= 25) return <React.Fragment />;
 
+    // eslint-disable-next-line react/no-unstable-nested-components
     const PortListWrapper = () => (
       <PortList
         canvasTranslation={this.props.canvasTranslation}
@@ -237,7 +241,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
     return (
       <React.Fragment key={`block-${props.block.id}`}>
-        {/*------------------------- Draw Blocks ------------------------------------------------------------*/}
+        {/* ------------------------- Draw Blocks ------------------------------------------------------------*/}
         <BlockComponent
           id={props.block.id}
           blockShape={blockShape}
@@ -252,9 +256,9 @@ class CanvasContainer extends Component<PropsType, StateType> {
           onZoom={this.props.onZoom}
         />
 
-        {/*------------------------------- Draw Ports -------------------------------------------------------*/}
+        {/* ------------------------------- Draw Ports -------------------------------------------------------*/}
         {this.state.mouseDown?.mouseOn === 'PORT' ? (
-          <Portal selector="#selected-block" enabled={true}>
+          <Portal selector="#selected-block" enabled>
             <PortListWrapper />
           </Portal>
         ) : (
@@ -302,7 +306,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
             />
           </Layer>
 
-          {/*--------------------------------- Grid Layer -------------------------------------------------*/}
+          {/* --------------------------------- Grid Layer -------------------------------------------------*/}
           <Layer id="grid">
             <Grid
               screenSize={this.state.canvasSize}
@@ -354,13 +358,13 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
           {/* ------------------------------- Static Block Layer ------------------------------------------*/}
           <Layer id="static-block">
-            {/*--------------------------- Draw Static Blocks -------------------------------------------*/}
+            {/* --------------------------- Draw Static Blocks -------------------------------------------*/}
             {notSelectedBlocks.map((block) => (
               <this.BlockPortComponent key={`non_selected_block_${block.id}`} block={block} selected={false} />
             ))}
           </Layer>
 
-          {/*---------------------------- Block Selection Layer -------------------------------------------*/}
+          {/* ---------------------------- Block Selection Layer -------------------------------------------*/}
           <Layer id="selected-block">
             {/* ------------------------------ Selected Edges ------------------------------------------*/}
             {this.props.edges
@@ -385,7 +389,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
             {/* ------------------------------ Selected Blocks ------------------------------------------*/}
             {selectedBlocks.map((block) => (
-              <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected={true} />
+              <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected />
             ))}
 
             {/* ---------- Used to create a transparent full screen rect to move mouse over ------------*/}
@@ -411,7 +415,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
               <React.Fragment />
             )}
 
-            {/*------------------------------ Selected Ports ------------------------------------------------*/}
+            {/* ------------------------------ Selected Ports ------------------------------------------------*/}
             {this.state.mouseDown?.mouseOn === 'PORT' ? (
               <Rect
                 x={0}
