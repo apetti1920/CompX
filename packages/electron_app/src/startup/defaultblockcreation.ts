@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-// import * as DefaultBlocks from '@compx/common/DefaultBlocks';
+// import * as DefaultBlocks from 'compx_common/DefaultBlocks';
 import { app } from 'electron';
 
 import StartupStep from './index';

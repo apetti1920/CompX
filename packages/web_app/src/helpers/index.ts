@@ -1,7 +1,4 @@
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { Vector2D } from 'compx_common/Types';
+import { Vector2D } from '@compx/common/Types';
 
 /* Utility function to convert on screen mouse coordinates to canvas coordinates */
 export function ScreenToWorld(point: Vector2D, translation: Vector2D, zoom: number, screenSize: Vector2D): Vector2D {

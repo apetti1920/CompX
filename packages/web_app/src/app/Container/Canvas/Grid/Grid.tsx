@@ -1,11 +1,5 @@
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved,max-classes-per-file
-import { Clamp, LinearInterp } from 'compx_common/Helpers/Other';
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { Vector2D } from 'compx_common/Types';
+import { Clamp, LinearInterp } from '@compx/common/Helpers/Other';
+import { Vector2D } from '@compx/common/Types';
 import Konva from 'konva';
 import React, { Component } from 'react';
 import { Line, Rect, Shape } from 'react-konva';
@@ -102,12 +96,8 @@ type DrawGridArgType = {
   CircleGridBind: (spacing: number, radius: number, color: string) => React.ReactElement;
   rgba1: string;
 };
-class GridInt extends Component<GridPropType, {}> {
+class GridInt extends Component<GridPropType, never> {
   private readonly zoomInterval: number = 8;
-
-  constructor(props: GridPropType) {
-    super(props);
-  }
 
   DrawGrid1 = (props: DrawGridArgType): React.ReactElement => {
     if (props.pct >= 0.0 && props.pct < 2 / 5) {

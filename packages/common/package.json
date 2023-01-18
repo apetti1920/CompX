@@ -1,16 +1,12 @@
 {
-  "name": "compx_common",
+  "name": "@compx/common",
   "version": "1.0.0",
   "description": "Common directory for CompX",
-  "main": "dist/index.ts",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "publishConfig": {
     "directory": "src"
   },
   "scripts": {
-    "prebuild": "npx rimraf dist",
-    "build": "npx tsc",
-    "postbuild": "copyfiles -u 1 \"src/**/*.d.ts\" dist",
     "test": "((npx jest --config='__tests__/jest.config.ts' --ci --runInBand --bail --colors --detectOpenHandles --silent --forceExit --coverage --errorOnDeprecated 2>&1) && echo 'PASS') || echo 'FAIL'"
   },
   "dependencies": {

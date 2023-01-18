@@ -9,7 +9,6 @@
     <div id="percentage">Percentage: Waiting</div>
 
     <script>
-      console.log('here start');
       require('electron').ipcRenderer.on('progress', (event, message) => {
         window.document.getElementById('percentage').innerHTML = `Percentage ${Math.floor(message * 100)}%`;
       });

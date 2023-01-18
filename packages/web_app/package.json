@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "web front for compx",
   "main": "dist/main.js",
+  "publishConfig": {
+    "directory": "dist"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "webpack --config webpack/webpack.config.js --env ENV=prod --env BUILD_TYPE=$BUILD_TYPE --progress",
@@ -43,7 +46,7 @@
     "@types/uuid": "^8.3.4",
     "babel-loader": "^8.2.5",
     "bootstrap": "^5.2.0",
-    "compx_common": "file:../common/dist",
+    "@compx/common": "1.0.0",
     "feather-icons": "^4.29.0",
     "konva": "^8.3.10",
     "loglevel": "^1.8.0",

@@ -2,7 +2,10 @@
   "name": "@compx/electron_loader",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/main.js",
+  "publishConfig": {
+    "directory": "dist"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "webpack --config webpack/webpack.config.js --env env=prod",

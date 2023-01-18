@@ -1,7 +1,4 @@
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { RequireOnlyOne } from 'compx_common/Types';
+import { RequireOnlyOne } from '@compx/common/Types';
 
 export type MouseHandlerType = RequireOnlyOne<{
   onDragStart?: () => void;

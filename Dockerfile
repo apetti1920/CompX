@@ -54,3 +54,21 @@ RUN npm run build
 
 FROM nginx:latest as web_server
 COPY --from=web_builder /compx/packages/web_app/dist /usr/share/nginx/html/
+
+FROM base as electon_builder_linux
+
+WORKDIR /compx/packages/electron_app
+
+ADD ./packages/electron_app/package.json .
+RUN --mount=type=cache,target=/usr/src/app/.npm \
+        npm set cache /usr/src/app/.npm && npm install
+
+COPY --from=web_builder /compx/packages/web_app/dist ./dist/renderer/app
+COPY --from=loader_builder /compx/packages/electron_loader/dist ./dist/renderer/loader
+
+ADD ./packages/electron_app/build.py ./
+ADD ./packages/electron_app/tsconfig.json ./
+ADD ./packages/electron_app/static ./static
+ADD ./packages/electron_app/src ./src
+
+RUN npx tsc && npx electron-builder && npx electron-builder install-app-deps

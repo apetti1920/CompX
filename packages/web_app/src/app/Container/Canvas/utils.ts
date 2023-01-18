@@ -1,15 +1,6 @@
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { LinearInterp } from 'compx_common/Helpers/Other';
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { VisualBlockStorageType } from 'compx_common/Network/GraphItemStorage/BlockStorage';
-// eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import { DirectionType, Vector2D } from 'compx_common/Types';
+import { LinearInterp } from '@compx/common/Helpers/Other';
+import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
+import { DirectionType, Vector2D } from '@compx/common/Types';
 import Konva from 'konva';
 
 import { ScreenToWorld } from '../../../helpers';
