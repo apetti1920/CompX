@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "npx lerna clean -y && npx lerna exec -- \"tsc --build --clean && rimraf dist package-lock.json\"",
     "bootstrap": "npx lerna bootstrap && npx lerna link",
+
     "loader:start": "npx lerna run --scope=@compx/electron_loader start --stream",
     "loader:build": "npx lerna run --scope=@compx/electron_loader build",
     "web:start": "npx lerna run --scope=@compx/web_app start --stream",
