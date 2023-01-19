@@ -8,7 +8,6 @@ const webpack = require('webpack');
 
 module.exports = (envVars) => {
   const { BUILD_TYPE, ENV } = envVars;
-  const tmpBuild = `HERE_${BUILD_TYPE}`;
 
   return {
     entry: path.resolve(__dirname, '..', 'src/index.tsx'),
@@ -58,7 +57,7 @@ module.exports = (envVars) => {
       }),
       new webpack.EnvironmentPlugin({
         ENV_TYPE: ENV,
-        BUILD_TYPE: tmpBuild
+        BUILD_TYPE: BUILD_TYPE
       })
     ],
     stats: 'errors-only'
