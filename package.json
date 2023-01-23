@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
+    "loglevel": "^1.8.1",
     "webpack-dev-server": "5.2.2"
   },
   "workspaces": [
