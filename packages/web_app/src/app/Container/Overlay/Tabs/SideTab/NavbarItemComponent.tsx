@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Icon } from 'react-feather';
 
+import NormalCurve from './NormalCurve';
+
 export type NavbarType =
   | {
       type: 'icon';
@@ -18,6 +20,14 @@ export type NavbarType =
 export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLick: () => void }) {
   const [isHover, setHover] = useState(false);
   const IconComponent = props.icon;
+  const iconShift: React.CSSProperties = props.isSelected
+    ? {
+        position: 'relative',
+        top: '0px',
+        left: '-40%',
+        zIndex: 2
+      }
+    : {};
 
   return (
     <React.Fragment>
@@ -26,8 +36,8 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
         role="presentation"
         style={{
           width: '100%',
-          borderLeft: props.isSelected ? '4px solid black' : undefined,
-          paddingLeft: props.isSelected ? '8px' : undefined,
+          // borderLeft: props.isSelected ? '4px solid black' : undefined,
+          // paddingLeft: props.isSelected ? '8px' : undefined,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'
@@ -36,12 +46,14 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
         onMouseLeave={() => setHover(false)}
         onClick={props.onCLick}
       >
+        {props.isSelected ? <NormalCurve color="black" /> : <React.Fragment />}
         <IconComponent
           style={{
             display: 'block',
             marginLeft: 'auto',
             marginRight: 'auto',
-            width: '40%'
+            width: '40%',
+            ...iconShift
           }}
           stroke={isHover || props.isSelected ? 'white' : 'gray'}
         />
