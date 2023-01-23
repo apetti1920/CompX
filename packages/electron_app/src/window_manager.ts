@@ -1,4 +1,5 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import logger from 'loglevel';
 
 export default class WindowManager {
   private static instance: WindowManager;
@@ -36,7 +37,10 @@ export default class WindowManager {
   }
 
   public CloseWindow(windowName: string) {
-    if (!(windowName in this.windows)) throw new Error(`Window ${windowName} is not defined`);
+    if (!(windowName in this.windows)) {
+      logger.warn(`Window ${windowName} not found`);
+      return;
+    }
 
     this.windows[windowName].close();
     delete this.windows[windowName];

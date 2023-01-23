@@ -29,15 +29,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^19.0.10",
-    "electron-builder": "^23.3.3"
+    "electron": "^22.0.3",
+    "electron-builder": "^22.10.3"
   },
   "dependencies": {
+    "@compx/common": "1.0.0",
     "@compx/electron_loader": "^1.0.0",
     "@compx/web_app": "^1.0.0",
     "@types/tmp": "^0.2.3",
-    "compx_common": "file:../common/dist",
-    "loglevel": "^1.8.0",
+    "loglevel": "^1.8.1",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
   }

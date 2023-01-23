@@ -1,6 +1,6 @@
-import fs from 'fs';
+// import fs from 'fs';
 import path from 'path';
-import util from 'util';
+// import util from 'util';
 
 import { app } from 'electron';
 
@@ -29,22 +29,22 @@ import WindowManager from './window_manager';
 // //   await StartupParseInt();
 // // };
 //
-const SetupApp = async (onProgress?: (pct: number) => void, onFinished?: () => void) => {
-  function sleep(ms: number) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  }
-
-  const t = 20;
-  for (let i = 0; i < t; i += 1) {
-    // eslint-disable-next-line no-await-in-loop
-    await sleep(1000);
-    onProgress?.(i / t);
-  }
-
-  onFinished?.();
-};
+// const SetupApp = async (onProgress?: (pct: number) => void, onFinished?: () => void) => {
+//   function sleep(ms: number) {
+//     return new Promise((resolve) => {
+//       setTimeout(resolve, ms);
+//     });
+//   }
+//
+//   const t = 20;
+//   for (let i = 0; i < t; i += 1) {
+//     // eslint-disable-next-line no-await-in-loop
+//     await sleep(1000);
+//     onProgress?.(i / t);
+//   }
+//
+//   onFinished?.();
+// };
 //
 //
 //
@@ -67,11 +67,11 @@ const SetupApp = async (onProgress?: (pct: number) => void, onFinished?: () => v
 const windowManager = WindowManager.GetInstance();
 
 app.on('ready', async () => {
-  const loadingWindowPath = path.join(__dirname, '/../renderer/loader/index.html');
-  windowManager.CreateWindow('loader', { width: 450, height: 300, frame: false });
-  await windowManager.GetWindowByName('loader').loadFile(loadingWindowPath);
+  // const loadingWindowPath = path.join(__dirname, '/../renderer/loader/index.html');
+  // windowManager.CreateWindow('loader', { width: 450, height: 300, frame: false });
+  // await windowManager.GetWindowByName('loader').loadFile(loadingWindowPath);
 
-  await SetupApp();
+  // await SetupApp();
 
   const mainWindowPath = path.join(__dirname, '/../renderer/app/index.html');
   windowManager.CreateWindow('main', { titleBarStyle: 'hidden', titleBarOverlay: true });
