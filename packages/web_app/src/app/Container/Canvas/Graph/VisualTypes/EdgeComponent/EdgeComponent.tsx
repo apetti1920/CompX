@@ -3,8 +3,8 @@ import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/Ed
 import { Vector2D } from '@compx/common/Types';
 import React from 'react';
 
-import { ArrowDirectionType, CalculatePortLocation, MouseOnBlockExtracted } from '../../../utils';
 import EdgeWrapperComponent from './EdgeWrapperComponent';
+import { ArrowDirectionType, CalculatePortLocation, MouseOnBlockExtracted } from '../../../utils';
 
 type MouseDraggingPortType = {
   block: VisualBlockStorageType<any, any>;

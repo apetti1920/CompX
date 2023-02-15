@@ -10,18 +10,20 @@ export type MouseHandlerType = RequireOnlyOne<{
 
 export type ThemeType = {
   palette: {
-    background: string;
-    text: string;
-    accent: string;
-    shadow: string;
-    link: string;
-    informational: string;
-    success: string;
-    warning: string;
-    error: string;
-  };
-  spacing: {
-    toolbarTopHeight: number;
-    toolbarLeftHeight: number;
+    elements: {
+      background: string;
+      headline: string;
+      paragraph: string;
+      button: string;
+      button_text: string;
+    };
+
+    illustration: {
+      stroke: string;
+      main: string;
+      highlight: string;
+      secondary: string;
+      tertiary: string;
+    };
   };
 };

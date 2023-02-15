@@ -3,6 +3,7 @@ import { BatteryCharging, BookOpen, Settings, Trash, User } from 'react-feather'
 
 import LibraryDetailComponent from './Details/LibraryDetailComponent';
 import { NavbarComponent, NavbarType } from './NavbarItemComponent';
+import { ThemeType } from '../../../../../types';
 
 const navList: Record<string, NavbarType[]> = {
   nav1: [
@@ -17,7 +18,7 @@ const navList: Record<string, NavbarType[]> = {
   ]
 };
 
-type PropsType = Record<string, never>;
+type PropsType = { theme: ThemeType };
 type StateType = {
   selected?: {
     nav: keyof typeof navList;
@@ -57,6 +58,7 @@ export default class SideBar extends Component<PropsType, StateType> {
             <NavbarComponent
               key={`icon_${t.icon.displayName}`}
               icon={t.icon}
+              theme={this.props.theme}
               onCLick={() => this.selectTabHandler({ nav: nav, ind: ind })}
               isSelected={
                 this.state.selected !== undefined && this.state.selected.nav === nav && this.state.selected.ind === ind

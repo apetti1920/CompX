@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "webpack --config webpack/webpack.config.js --env ENV=prod --env BUILD_TYPE=$BUILD_TYPE --progress",
-    "start": "webpack serve --config webpack/webpack.config.js --env ENV=dev --env BUILD_TYPE=web --progress --port 3000"
+    "start": "webpack serve --config webpack/webpack.config.js --env ENV=dev --env BUILD_TYPE=web --progress"
   },
   "keywords": [],
   "author": "",
@@ -42,11 +42,11 @@
     "@babel/core": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
     "@babel/preset-react": "^7.18.6",
+    "@compx/common": "1.0.0",
     "@reduxjs/toolkit": "^1.8.3",
     "@types/uuid": "^8.3.4",
     "babel-loader": "^8.2.5",
     "bootstrap": "^5.2.0",
-    "@compx/common": "1.0.0",
     "feather-icons": "^4.29.0",
     "konva": "^8.3.10",
     "loglevel": "^1.8.0",

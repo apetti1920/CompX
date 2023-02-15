@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Icon } from 'react-feather';
 
+import { ThemeType } from '../../../../../types';
+
 export type NavbarType =
   | {
       type: 'icon';
@@ -15,7 +17,7 @@ export type NavbarType =
       height: string;
     };
 
-export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLick: () => void }) {
+export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLick: () => void; theme: ThemeType }) {
   const [isHover, setHover] = useState(false);
   const IconComponent = props.icon;
 
@@ -43,7 +45,11 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
             marginRight: 'auto',
             width: '40%'
           }}
-          stroke={isHover || props.isSelected ? 'white' : 'gray'}
+          stroke={
+            isHover || props.isSelected
+              ? props.theme.palette.illustration.tertiary
+              : props.theme.palette.illustration.secondary
+          }
         />
       </div>
     </React.Fragment>
