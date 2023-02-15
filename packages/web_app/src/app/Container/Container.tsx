@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { StateType as SaveState } from '../../store/types';
-import { ThemeType } from '../../types';
 import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
 import SideBar from './Overlay/Tabs/SideTab/SideBar';
+import { StateType as SaveState } from '../../store/types';
+import { ThemeType } from '../../types';
 
 import './titlebar.css';
 
@@ -31,11 +31,11 @@ class Container extends React.Component<PropsType, StateType> {
           flexFlow: 'row nowrap',
           width: '100%',
           height: '100%',
-          background: this.props.theme.palette.text
+          background: this.props.theme.palette.elements.background
         }}
       >
         <div style={{ height: '100%' }}>
-          <SideBar />
+          <SideBar theme={this.props.theme} />
         </div>
         <div
           id="main-container"

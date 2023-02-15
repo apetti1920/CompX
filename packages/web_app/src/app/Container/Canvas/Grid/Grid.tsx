@@ -99,45 +99,51 @@ type DrawGridArgType = {
 class GridInt extends Component<GridPropType, never> {
   private readonly zoomInterval: number = 8;
 
+  // eslint-disable-next-line react/no-unused-class-component-methods
   DrawGrid1 = (props: DrawGridArgType): React.ReactElement => {
     if (props.pct >= 0.0 && props.pct < 2 / 5) {
       // hold 1
       return props.CircleGridBind(props.spacing, 1.0, props.rgba1);
-    } else if (props.pct >= 2 / 5 && props.pct < 3 / 5) {
+    }
+    if (props.pct >= 2 / 5 && props.pct < 3 / 5) {
       // grow 1
       const radius = LinearInterp(props.pct, 2 / 5, 3 / 5, 1.0, 3.0);
       return props.CircleGridBind(props.spacing, radius, props.rgba1);
-    } else if (props.pct >= 3 / 5 && props.pct < 5 / 5) {
+    }
+    if (props.pct >= 3 / 5 && props.pct < 5 / 5) {
       // hold 1
       return props.CircleGridBind(props.spacing, 3.0, props.rgba1);
-    } else {
-      return <React.Fragment />;
     }
+    return <React.Fragment />;
   };
 
+  // eslint-disable-next-line react/no-unused-class-component-methods
   DrawGrid2 = (props: DrawGridArgType): React.ReactElement => {
     if (props.pct >= 0.0 && props.pct < 1 / 5) {
       // Hold
       return props.CircleGridBind(props.spacing * 10, 3.0, props.rgba1);
-    } else if (props.pct >= 1 / 5 && props.pct < 7 / 15) {
+    }
+    if (props.pct >= 1 / 5 && props.pct < 7 / 15) {
       // Fade Out
       const radius = LinearInterp(props.pct, 1 / 5, 7 / 15, 3.0, 1.0);
       const opacity = Clamp(LinearInterp(props.pct, 1 / 5, 7 / 15, 0.8, 0.0), 0.0, 1.0);
       const rgba = HexToRgbA(props.color, opacity);
       return props.CircleGridBind(props.spacing * 10, radius, rgba);
-    } else if (props.pct >= 7 / 15 && props.pct < 4 / 5) {
+    }
+    if (props.pct >= 7 / 15 && props.pct < 4 / 5) {
       // Fade in
       const opacity = Clamp(LinearInterp(props.pct, 7 / 15, 4 / 5, 0.0, 0.8), 0.0, 1.0);
       const rgba = HexToRgbA(props.color, opacity);
       return props.CircleGridBind(props.spacing / 10, 1.0, rgba);
-    } else if (props.pct >= 4 / 5 && props.pct < 5 / 5) {
+    }
+    if (props.pct >= 4 / 5 && props.pct < 5 / 5) {
       // Hold
       return props.CircleGridBind(props.spacing / 10, 1.0, props.rgba1);
-    } else {
-      return <React.Fragment />;
     }
+    return <React.Fragment />;
   };
 
+  // eslint-disable-next-line react/no-unused-class-component-methods
   DrawGrids = (): React.ReactElement => {
     // Calculates the percentage of the way through any single zoom level
     // Calculates which level the zoom is on
@@ -145,30 +151,30 @@ class GridInt extends Component<GridPropType, never> {
     const level = Math.ceil(this.props.canvasZoom / this.zoomInterval);
 
     // Color Calculator
-    const color = this.props.theme.palette.shadow;
+    const color = this.props.theme.palette.illustration.stroke;
     const rgba1 = HexToRgbA(SetOpacityHex(color, 0.8));
 
     // Calculates the spacinging between any two dots
     // TODO: This imploads at higher zoom levels but works fine for our purposes. May wnat to fix in future
-    const spacing = (50 * this.props.canvasZoom) / Math.pow(10, level - 1);
+    const spacing = (50 * this.props.canvasZoom) / 10 ** (level - 1);
 
     // Function Binding for easier use
-    const CircleGridBind = (spacing: number, radius: number, color: string): React.ReactElement =>
-      CircleGrid(this.props.screenSize, this.props.canvasTranslation, spacing, radius, color);
+    const CircleGridBind = (spacingInt: number, radiusInt: number, colorInt: string): React.ReactElement =>
+      CircleGrid(this.props.screenSize, this.props.canvasTranslation, spacingInt, radiusInt, colorInt);
 
     return (
       <React.Fragment>
         <this.DrawGrid1
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.palette.shadow}
+          color={this.props.theme.palette.illustration.stroke}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />
         <this.DrawGrid2
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.palette.shadow}
+          color={this.props.theme.palette.illustration.stroke}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />

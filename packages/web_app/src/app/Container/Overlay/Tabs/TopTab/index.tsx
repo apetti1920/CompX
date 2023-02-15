@@ -15,8 +15,8 @@ export default function TopTab(props: PropsType) {
       style={{
         width: '100%',
         height: '150px',
-        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.palette.background, 0.0)}, 
-                                    ${SetOpacityHex(props.theme.palette.background, 1.0)})`,
+        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.palette.illustration.main, 0.0)}, 
+                                    ${SetOpacityHex(props.theme.palette.illustration.main, 1.0)})`,
         pointerEvents: 'auto'
       }}
     >
@@ -25,7 +25,7 @@ export default function TopTab(props: PropsType) {
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: props.theme.palette.text,
+            backgroundColor: props.theme.palette.illustration.secondary,
             borderRadius: '20px',
             display: 'flex',
             flexFlow: 'row nowrap',
@@ -53,10 +53,13 @@ export default function TopTab(props: PropsType) {
               gap: '5px'
             }}
           >
-            <Play stroke={props.theme.palette.shadow} fill={SetOpacityHex(props.theme.palette.shadow, 0.5)} />
+            <Play
+              stroke={props.theme.palette.illustration.stroke}
+              fill={SetOpacityHex(props.theme.palette.illustration.tertiary, 0.5)}
+            />
             <style>{`
                   #simTimeInput::placeholder {
-                    color: ${props.theme.palette.text};
+                    color: ${props.theme.palette.elements.headline};
                     opacity: 0.4;
                   }
             `}</style>
@@ -67,8 +70,8 @@ export default function TopTab(props: PropsType) {
               placeholder="Simulation Time"
               style={{
                 width: '200px',
-                backgroundColor: props.theme.palette.shadow,
-                color: props.theme.palette.text
+                backgroundColor: props.theme.palette.elements.button,
+                color: props.theme.palette.elements.button_text
               }}
               onChange={() => console.log('Changed')}
             />

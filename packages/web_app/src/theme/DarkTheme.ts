@@ -2,19 +2,21 @@ import { ThemeType } from '../types';
 
 const DarkTheme: ThemeType = {
   palette: {
-    background: '#121212',
-    text: '#dcdcfb',
-    accent: '#03809d',
-    shadow: '#6c7086',
-    link: '#cb6501',
-    informational: '#ffffff',
-    success: '#32CD32',
-    warning: '#ffffff',
-    error: '#cf142b'
-  },
-  spacing: {
-    toolbarTopHeight: 15,
-    toolbarLeftHeight: 35
+    elements: {
+      background: '#232946',
+      headline: '#fffffe',
+      paragraph: '#b8c1ec',
+      button: '#eebbc3',
+      button_text: '#232946'
+    },
+
+    illustration: {
+      stroke: '#121629',
+      main: '#b8c1ec',
+      highlight: '#eebbc3',
+      secondary: '#fffffe',
+      tertiary: '#eebbc3'
+    }
   }
 };
 

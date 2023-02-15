@@ -9,7 +9,7 @@ type State = {
   };
 };
 
-export default class LibraryDetailComponent extends Component<never, State> {
+export default class LibraryDetailComponent extends Component<Record<string, never>, State> {
   constructor(props: never) {
     super(props);
 

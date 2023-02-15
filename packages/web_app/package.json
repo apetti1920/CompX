@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "webpack --config webpack/webpack.config.js --env ENV=prod --env BUILD_TYPE=$BUILD_TYPE --progress",
-    "start": "webpack serve --config webpack/webpack.config.js --env ENV=dev --env BUILD_TYPE=web --progress --port 3000"
+    "start": "webpack serve --config webpack/webpack.config.js --env ENV=dev --env BUILD_TYPE=web --progress"
   },
   "keywords": [],
   "author": "",

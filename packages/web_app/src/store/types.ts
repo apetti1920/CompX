@@ -2,9 +2,9 @@ import { BlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockSt
 import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage';
 import { Vector2D } from '@compx/common/Types';
 
+import MakeVisualGraph from './testGraph';
 import DarkTheme from '../theme/DarkTheme';
 import { ThemeType } from '../types';
-import MakeVisualGraph from './testGraph';
 
 export type SelectableItemTypes = 'BLOCK' | 'EDGE';
 export type SelectedItemsType = { itemType: SelectableItemTypes; id: string };

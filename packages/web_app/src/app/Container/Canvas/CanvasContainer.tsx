@@ -10,6 +10,12 @@ import { connect } from 'react-redux';
 
 import { Dispatch, bindActionCreators } from 'redux';
 
+import BlockComponent from './Graph/VisualTypes/BlockComponent';
+import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
+import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
+import PortList from './Graph/VisualTypes/PortList';
+import Grid from './Grid/Grid';
+import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
 import {
   AddEdgeSplitAction,
@@ -24,12 +30,6 @@ import {
 } from '../../../store/actions/graphactions';
 import { StateType as SaveState, SelectableItemTypes } from '../../../store/types';
 import { ThemeType } from '../../../types';
-import BlockComponent from './Graph/VisualTypes/BlockComponent';
-import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
-import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
-import PortList from './Graph/VisualTypes/PortList';
-import Grid from './Grid/Grid';
-import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
 
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
@@ -230,31 +230,34 @@ class CanvasContainer extends Component<PropsType, StateType> {
     );
     if (blockShape.size.x <= 25 || blockShape.size.y <= 25) return <React.Fragment />;
 
-    // eslint-disable-next-line react/no-unstable-nested-components
-    const PortListWrapper = () => (
-      <PortList
-        canvasTranslation={this.props.canvasTranslation}
-        canvasZoom={this.props.canvasZoom}
-        screenSize={this.state.canvasSize}
-        onMouseUp={(block, portInd, isOutput) =>
-          this.mouseUpHandler({
-            mouseOn: 'PORT',
-            block: block,
-            portInd: portInd,
-            isOutput: isOutput
-          })
-        }
-        onMouseDown={(block, portInd, isOutput) =>
-          this.mouseDownHandler({
-            mouseOn: 'PORT',
-            block: block,
-            portInd: portInd,
-            isOutput: isOutput
-          })
-        }
-        block={props.block}
-      />
-    );
+    /* eslint-disable */
+    const PortListWrapper = () => {
+      return (
+        <PortList
+          canvasTranslation={this.props.canvasTranslation}
+          canvasZoom={this.props.canvasZoom}
+          screenSize={this.state.canvasSize}
+          onMouseUp={(block, portInd, isOutput) =>
+            this.mouseUpHandler({
+              mouseOn: 'PORT',
+              block: block,
+              portInd: portInd,
+              isOutput: isOutput
+            })
+          }
+          onMouseDown={(block, portInd, isOutput) =>
+            this.mouseDownHandler({
+              mouseOn: 'PORT',
+              block: block,
+              portInd: portInd,
+              isOutput: isOutput
+            })
+          }
+          block={props.block}
+        />
+      );
+    };
+    /* eslint-enable */
 
     return (
       <React.Fragment key={`block-${props.block.id}`}>
@@ -312,7 +315,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
               listening={false}
               width={this.state.canvasSize.x}
               height={this.state.canvasSize.y}
-              fill={this.props.theme.palette.background}
+              fill={this.props.theme.palette.illustration.main}
               shadowBlur={10}
             />
           </Layer>
