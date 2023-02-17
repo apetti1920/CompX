@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Search, XSquare } from 'react-feather';
+import { Search as SearchIcon, XSquare as XSquareIcon } from 'react-feather';
+
+import { ThemeType } from '../../../../../../types';
 // import { throttle } from 'lodash';
 
 type State = {
@@ -9,7 +11,11 @@ type State = {
   };
 };
 
-export default class LibraryDetailComponent extends Component<Record<string, never>, State> {
+type Props = {
+  theme: ThemeType;
+};
+
+export default class LibraryDetailComponent extends Component<Props, State> {
   constructor(props: never) {
     super(props);
 
@@ -36,7 +42,19 @@ export default class LibraryDetailComponent extends Component<Record<string, nev
 
   render() {
     return (
-      <div style={{ padding: '12px', backgroundColor: '#696969', borderRadius: '20px', width: '100%' }}>
+      <div
+        style={{
+          padding: '12px',
+          borderRadius: '20px',
+          width: '100%',
+          height: '40px',
+          backgroundColor: this.props.theme.palette.elements.button,
+          color: this.props.theme.palette.elements.button_text,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
         <div style={{ display: 'flex', flexFlow: 'row nowrap' }}>
           <style>{`
             input:focus,
@@ -46,11 +64,11 @@ export default class LibraryDetailComponent extends Component<Record<string, nev
                 outline: none;
             },
             .blockSearchInput::placeholder {
-              color: #BEBEBE;
+              color: ${this.props.theme.palette.elements.headline};
               opacity: 0.4;
             }
         `}</style>
-          <Search style={{ marginRight: '5px', color: '#BEBEBE' }} />
+          <SearchIcon style={{ marginRight: '5px' }} />
           <input
             className="blockSearchInput"
             type="text"
@@ -59,10 +77,14 @@ export default class LibraryDetailComponent extends Component<Record<string, nev
             onChange={(evt) =>
               this.setState((prevState) => ({ searchText: { ...prevState.searchText, value: evt.target.value } }))
             }
-            style={{ width: '100%', background: 'transparent', border: 'none' }}
+            style={{
+              width: '100%',
+              background: 'transparent',
+              border: 'none'
+            }}
           />
           {this.state.searchText.value !== '' ? (
-            <XSquare
+            <XSquareIcon
               onClick={() => this.setState({ searchText: { value: '', throttledValue: '' } })}
               style={{ marginLeft: '5px', color: '#CC5500' }}
             />

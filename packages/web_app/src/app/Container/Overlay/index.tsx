@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import TopTab from './Tabs/TopTab';
 import { StateType as SaveState } from '../../../store/types';
 import { ThemeType } from '../../../types';
-import TopTab from './Tabs/TopTab';
 
 type GlobalProps = {
   theme: ThemeType;

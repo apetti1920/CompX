@@ -9,7 +9,7 @@ export type NavbarType =
       icon: Icon;
       openSidebar: {
         type: 'tab' | 'modal';
-        element: React.ReactElement;
+        element: React.ReactElement<{ theme: ThemeType }>;
       };
     }
   | {

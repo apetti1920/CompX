@@ -5,10 +5,10 @@ import LibraryDetailComponent from './Details/LibraryDetailComponent';
 import { NavbarComponent, NavbarType } from './NavbarItemComponent';
 import { ThemeType } from '../../../../../types';
 
-const navList: Record<string, NavbarType[]> = {
+const GetNavList = (theme: ThemeType): Record<string, NavbarType[]> => ({
   nav1: [
     { type: 'spacer', height: '15%' },
-    { type: 'icon', icon: BookOpen, openSidebar: { type: 'tab', element: <LibraryDetailComponent /> } },
+    { type: 'icon', icon: BookOpen, openSidebar: { type: 'tab', element: <LibraryDetailComponent theme={theme} /> } },
     { type: 'icon', icon: Trash, openSidebar: { type: 'tab', element: <React.Fragment /> } },
     { type: 'icon', icon: BatteryCharging, openSidebar: { type: 'tab', element: <React.Fragment /> } }
   ],
@@ -16,12 +16,12 @@ const navList: Record<string, NavbarType[]> = {
     { type: 'icon', icon: User, openSidebar: { type: 'tab', element: <React.Fragment /> } },
     { type: 'icon', icon: Settings, openSidebar: { type: 'tab', element: <React.Fragment /> } }
   ]
-};
+});
 
 type PropsType = { theme: ThemeType };
 type StateType = {
   selected?: {
-    nav: keyof typeof navList;
+    nav: keyof ReturnType<typeof GetNavList>;
     ind: number;
   };
 };
@@ -29,6 +29,7 @@ type StateType = {
 export default class SideBar extends Component<PropsType, StateType> {
   private readonly minimizedWidth: string = '75px';
   private readonly maximizedWidth: string = '350px';
+  private readonly navList = GetNavList(this.props.theme);
 
   constructor(props: PropsType) {
     super(props);
@@ -50,7 +51,7 @@ export default class SideBar extends Component<PropsType, StateType> {
     else this.setState({ selected: props });
   };
 
-  NavWrap = (nav: keyof typeof navList, listNav: NavbarType[]): React.ReactElement[] =>
+  NavWrap = (nav: keyof ReturnType<typeof GetNavList>, listNav: NavbarType[]): React.ReactElement[] =>
     listNav.map((t, ind) => {
       switch (t.type) {
         case 'icon': {
@@ -78,8 +79,12 @@ export default class SideBar extends Component<PropsType, StateType> {
   render() {
     let OpenComp = <React.Fragment />;
     if (this.state.selected !== undefined) {
-      const openCompTmp = navList[this.state.selected.nav][this.state.selected.ind];
-      if (openCompTmp.type === 'icon' && openCompTmp.openSidebar.type === 'tab') {
+      const openCompTmp = this.navList[this.state.selected.nav][this.state.selected.ind];
+      if (
+        openCompTmp.type === 'icon' &&
+        openCompTmp.openSidebar !== undefined &&
+        openCompTmp.openSidebar.type === 'tab'
+      ) {
         OpenComp = (
           <div
             style={{
@@ -107,12 +112,12 @@ export default class SideBar extends Component<PropsType, StateType> {
       >
         <div style={{ display: 'flex', flexFlow: 'column nowrap', width: this.minimizedWidth, height: '100%' }}>
           <div style={{ height: '75%', width: this.minimizedWidth, display: 'flex', flexFlow: 'column nowrap' }}>
-            {this.NavWrap('nav1', navList.nav1)}
+            {this.NavWrap('nav1', this.navList.nav1)}
           </div>
           <div
             style={{ height: '25%', width: this.minimizedWidth, display: 'flex', flexFlow: 'column-reverse nowrap' }}
           >
-            {this.NavWrap('nav2', navList.nav2)}
+            {this.NavWrap('nav2', this.navList.nav2)}
           </div>
         </div>
         {OpenComp}

@@ -1,6 +1,6 @@
 import { ThemeType } from '../types';
 
-const DarkTheme: ThemeType = {
+const DarkTheme1: ThemeType = {
   palette: {
     elements: {
       background: '#232946',
@@ -20,4 +20,4 @@ const DarkTheme: ThemeType = {
   }
 };
 
-export default DarkTheme;
+export default DarkTheme1;
