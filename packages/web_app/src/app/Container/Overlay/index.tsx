@@ -8,12 +8,11 @@ import { ThemeType } from '../../../types';
 type GlobalProps = {
   theme: ThemeType;
 };
-type DispatchProps = Record<string, never>;
 type ComponentProps = {
   style?: React.CSSProperties;
 };
 
-type PropsType = GlobalProps & DispatchProps & ComponentProps;
+type PropsType = GlobalProps & ComponentProps;
 
 function Overlay(props: PropsType) {
   return (

@@ -9,21 +9,16 @@ export type MouseHandlerType = RequireOnlyOne<{
 }>;
 
 export type ThemeType = {
-  palette: {
-    elements: {
-      background: string;
-      headline: string;
-      paragraph: string;
-      button: string;
-      button_text: string;
-    };
-
-    illustration: {
-      stroke: string;
-      main: string;
-      highlight: string;
-      secondary: string;
-      tertiary: string;
-    };
-  };
+  primary: {
+    action: string, // primary actions, buttons, text links, for indicating progress and representing authentication
+    heading: string, // body text and headings
+    background: string //backgrounds
+  },
+  secondary: {
+    error: string, // backgrounds in messages and in error states, draw attention to important information or actions that are destructive
+    warning: string, // indicates a warning or that progress is impeded
+    success: string, // indicates success or to celebrate a win
+    support: string, //  indicates help and support, visited links, as an accent color in illustration
+    illustration: string, // illustrations or as an accent color
+  }
 };

@@ -1,22 +1,17 @@
 import { ThemeType } from '../types';
 
 const DarkTheme1: ThemeType = {
-  palette: {
-    elements: {
-      background: '#232946',
-      headline: '#fffffe',
-      paragraph: '#b8c1ec',
-      button: '#eebbc3',
-      button_text: '#232946'
-    },
-
-    illustration: {
-      stroke: '#121629',
-      main: '#b8c1ec',
-      highlight: '#eebbc3',
-      secondary: '#fffffe',
-      tertiary: '#eebbc3'
-    }
+  primary: {
+    action: '#b8c1ec',
+    heading: '#fffffe',
+    background: '#232946'
+  },
+  secondary: {
+    error: '#eebbc3',
+    warning: '#f6ae2d',
+    success: '#60a561',
+    support: '#a63a50',
+    illustration: '#d7f2ba'
   }
 };
 

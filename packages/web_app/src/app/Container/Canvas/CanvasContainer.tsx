@@ -301,7 +301,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
           position: 'absolute',
           top: 0,
           left: 0,
-          width: '100%',
           height: '100%'
         }}
         tabIndex={1}
@@ -315,7 +314,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
               listening={false}
               width={this.state.canvasSize.x}
               height={this.state.canvasSize.y}
-              fill={this.props.theme.palette.illustration.main}
+              fill={this.props.theme.secondary.illustration}
               shadowBlur={10}
             />
           </Layer>
@@ -433,6 +432,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
           </Layer>
         </Stage>
       </div>
+      
     );
   }
 }

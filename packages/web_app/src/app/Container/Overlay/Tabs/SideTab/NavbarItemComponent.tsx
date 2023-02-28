@@ -47,8 +47,8 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
           }}
           stroke={
             isHover || props.isSelected
-              ? props.theme.palette.illustration.tertiary
-              : props.theme.palette.illustration.secondary
+              ? props.theme.secondary.illustration
+              : props.theme.secondary.illustration
           }
         />
       </div>

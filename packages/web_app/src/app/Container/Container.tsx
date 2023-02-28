@@ -18,10 +18,7 @@ type PropsType = GlobalProps & DispatchProps & ComponentProps;
 
 type StateType = Record<string, never>;
 
-// eslint-disable-next-line react/prefer-stateless-function
 class Container extends React.Component<PropsType, StateType> {
-  // private readonly minimizedSidebarWidth = '75px';
-
   render() {
     return (
       <div
@@ -31,7 +28,7 @@ class Container extends React.Component<PropsType, StateType> {
           flexFlow: 'row nowrap',
           width: '100%',
           height: '100%',
-          background: this.props.theme.palette.elements.background
+          background: this.props.theme.primary.background
         }}
       >
         <div style={{ height: '100%' }}>
@@ -44,13 +41,11 @@ class Container extends React.Component<PropsType, StateType> {
             height: '100%',
             position: 'relative',
             overflow: 'hidden',
-            borderRadius: '35px 0px 0px 35px',
+            borderRadius: '40px 0px 0px 40px',
             boxShadow: '-15px 8px 5px rgba(0,0,0, 0.05)'
           }}
         >
           <CanvasContainer />
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore */}
           <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
         </div>
       </div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Form } from 'react-bootstrap';
 import { Play } from 'react-feather';
 
@@ -15,8 +14,8 @@ export default function TopTab(props: PropsType) {
       style={{
         width: '100%',
         height: '150px',
-        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.palette.illustration.main, 0.0)}, 
-                                    ${SetOpacityHex(props.theme.palette.illustration.main, 1.0)})`,
+        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.secondary.illustration, 0.0)}, 
+                                    ${SetOpacityHex(props.theme.secondary.illustration, 1.0)})`,
         pointerEvents: 'auto'
       }}
     >
@@ -25,7 +24,7 @@ export default function TopTab(props: PropsType) {
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: props.theme.palette.illustration.secondary,
+            backgroundColor: props.theme.secondary.illustration,
             borderRadius: '20px',
             display: 'flex',
             flexFlow: 'row nowrap',
@@ -54,12 +53,12 @@ export default function TopTab(props: PropsType) {
             }}
           >
             <Play
-              stroke={props.theme.palette.illustration.stroke}
-              fill={SetOpacityHex(props.theme.palette.illustration.tertiary, 0.5)}
+              stroke={props.theme.secondary.illustration}
+              fill={SetOpacityHex(props.theme.secondary.illustration, 0.5)}
             />
             <style>{`
                   #simTimeInput::placeholder {
-                    color: ${props.theme.palette.elements.headline};
+                    color: ${props.theme.secondary.illustration};
                     opacity: 0.4;
                   }
             `}</style>
@@ -70,8 +69,8 @@ export default function TopTab(props: PropsType) {
               placeholder="Simulation Time"
               style={{
                 width: '200px',
-                backgroundColor: props.theme.palette.elements.button,
-                color: props.theme.palette.elements.button_text
+                backgroundColor: props.theme.secondary.illustration,
+                color: props.theme.secondary.illustration
               }}
               onChange={() => console.log('Changed')}
             />
