@@ -151,7 +151,7 @@ class GridInt extends Component<GridPropType, never> {
     const level = Math.ceil(this.props.canvasZoom / this.zoomInterval);
 
     // Color Calculator
-    const color = this.props.theme.palette.illustration.stroke;
+    const color = this.props.theme.secondary.illustration;
     const rgba1 = HexToRgbA(SetOpacityHex(color, 0.8));
 
     // Calculates the spacinging between any two dots
@@ -167,14 +167,14 @@ class GridInt extends Component<GridPropType, never> {
         <this.DrawGrid1
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.palette.illustration.stroke}
+          color={this.props.theme.secondary.illustration}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />
         <this.DrawGrid2
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.palette.illustration.stroke}
+          color={this.props.theme.secondary.illustration}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />
