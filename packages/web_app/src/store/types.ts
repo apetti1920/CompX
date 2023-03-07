@@ -4,7 +4,7 @@ import { Vector2D } from '@compx/common/Types';
 
 import MakeVisualGraph from './testGraph';
 import Theme from '../theme/DarkTheme1';
-import { ThemeType } from '../types';
+import { ThemeStorageType } from '../types';
 
 export type SelectableItemTypes = 'BLOCK' | 'EDGE';
 export type SelectedItemsType = { itemType: SelectableItemTypes; id: string };
@@ -15,7 +15,7 @@ export type StateType = {
     libraryBlocks: BlockStorageType<any, any>[];
   };
   userStorage: {
-    theme: ThemeType;
+    theme: ThemeStorageType;
     canvas: {
       zoom: number;
       translation: Vector2D;
