@@ -3,8 +3,8 @@ import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/G
 import { Vector2D } from '@compx/common/Types';
 
 import MakeVisualGraph from './testGraph';
+import ColorTheme from '../theme/ColorTheme';
 import Theme from '../theme/DarkTheme1';
-import { ThemeStorageType } from '../types';
 
 export type SelectableItemTypes = 'BLOCK' | 'EDGE';
 export type SelectedItemsType = { itemType: SelectableItemTypes; id: string };
@@ -15,7 +15,7 @@ export type StateType = {
     libraryBlocks: BlockStorageType<any, any>[];
   };
   userStorage: {
-    theme: ThemeStorageType;
+    theme: ColorTheme;
     canvas: {
       zoom: number;
       translation: Vector2D;
@@ -30,7 +30,7 @@ export const defaultState: StateType = {
     libraryBlocks: []
   },
   userStorage: {
-    theme: Theme,
+    theme: new ColorTheme(Theme),
     canvas: {
       zoom: 5.6,
       translation: new Vector2D()

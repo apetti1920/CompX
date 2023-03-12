@@ -1,22 +1,17 @@
-import { ThemeType } from '../types';
+import { ThemeStorageType } from './ColorTheme';
 
-const DarkTheme2: ThemeType = {
-  palette: {
-    elements: {
-      background: '#004643',
-      headline: '#fffffe',
-      paragraph: '#abd1c6',
-      button: '#f9bc60',
-      button_text: '#001e1d'
-    },
-
-    illustration: {
-      stroke: '#001e1d',
-      main: '#e8e4e6',
-      highlight: '#f9bc60',
-      secondary: '#abd1c6',
-      tertiary: '#e16162'
-    }
+const DarkTheme2: ThemeStorageType = {
+  primary: {
+    action: '#abd1c6',
+    heading: '#fffffe',
+    background: '#004643'
+  },
+  secondary: {
+    error: '#e16162',
+    warning: '#f9bc60',
+    success: '#ffffff',
+    support: '#ffffff',
+    illustration: '#ffffff'
   }
 };
 

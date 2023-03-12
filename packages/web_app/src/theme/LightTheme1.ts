@@ -1,22 +1,17 @@
-import { ThemeType } from '../types';
+import { ThemeStorageType } from './ColorTheme';
 
-const LightTheme1: ThemeType = {
-  palette: {
-    elements: {
-      background: '#faeee7',
-      headline: '#33272a',
-      paragraph: '#594a4e',
-      button: '#ff8ba7',
-      button_text: '#33272a'
-    },
-
-    illustration: {
-      stroke: '#33272a',
-      main: '#fffffe',
-      highlight: '#ff8ba7',
-      secondary: '#ffc6c7',
-      tertiary: '#c3f0ca'
-    }
+const LightTheme1: ThemeStorageType = {
+  primary: {
+    action: '#ffffff',
+    heading: '#33272a',
+    background: '#faeee7'
+  },
+  secondary: {
+    error: '#ff8ba7',
+    warning: '#ffffff',
+    success: '#c3f0ca',
+    support: '#ffffff',
+    illustration: '#ffffff'
   }
 };
 
