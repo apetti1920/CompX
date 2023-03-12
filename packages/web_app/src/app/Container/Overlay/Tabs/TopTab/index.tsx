@@ -1,11 +1,12 @@
+import React from 'react';
 import { Container, Form } from 'react-bootstrap';
 import { Play } from 'react-feather';
 
+import ColorTheme from '../../../../../theme/ColorTheme';
 import { SetOpacityHex } from '../../../../../theme/helpers';
-import { ThemeType } from '../../../../../types';
 
 type PropsType = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 
 export default function TopTab(props: PropsType) {
@@ -14,8 +15,10 @@ export default function TopTab(props: PropsType) {
       style={{
         width: '100%',
         height: '150px',
-        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.secondary.illustration, 0.0)}, 
-                                    ${SetOpacityHex(props.theme.secondary.illustration, 1.0)})`,
+        background: `linear-gradient(to top, ${SetOpacityHex(
+          props.theme.value.primary.background.tint(80).hexString(),
+          0.0
+        )}, ${SetOpacityHex(props.theme.value.primary.background.tint(80).hexString(), 1.0)})`,
         pointerEvents: 'auto'
       }}
     >
@@ -24,7 +27,7 @@ export default function TopTab(props: PropsType) {
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: props.theme.secondary.illustration,
+            backgroundColor: props.theme.get('background'),
             borderRadius: '20px',
             display: 'flex',
             flexFlow: 'row nowrap',
@@ -53,12 +56,12 @@ export default function TopTab(props: PropsType) {
             }}
           >
             <Play
-              stroke={props.theme.secondary.illustration}
-              fill={SetOpacityHex(props.theme.secondary.illustration, 0.5)}
+              stroke={props.theme.value.secondary.illustration.shade(80).hexString()}
+              fill={props.theme.get('illustration')}
             />
             <style>{`
                   #simTimeInput::placeholder {
-                    color: ${props.theme.secondary.illustration};
+                    color: ${props.theme.get('illustration')};
                     opacity: 0.4;
                   }
             `}</style>
@@ -69,8 +72,8 @@ export default function TopTab(props: PropsType) {
               placeholder="Simulation Time"
               style={{
                 width: '200px',
-                backgroundColor: props.theme.secondary.illustration,
-                color: props.theme.secondary.illustration
+                backgroundColor: props.theme.get('illustration'),
+                color: props.theme.get('illustration')
               }}
               onChange={() => console.log('Changed')}
             />

@@ -5,12 +5,12 @@ import CanvasContainer from './Canvas/CanvasContainer';
 import Overlay from './Overlay';
 import SideBar from './Overlay/Tabs/SideTab/SideBar';
 import { StateType as SaveState } from '../../store/types';
-import { ThemeType } from '../../types';
+import ColorTheme from '../../theme/ColorTheme';
 
 import './titlebar.css';
 
 type GlobalProps = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 type DispatchProps = Record<string, never>;
 type ComponentProps = Record<string, never>;
@@ -18,6 +18,7 @@ type PropsType = GlobalProps & DispatchProps & ComponentProps;
 
 type StateType = Record<string, never>;
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Container extends React.Component<PropsType, StateType> {
   render() {
     return (
@@ -28,7 +29,7 @@ class Container extends React.Component<PropsType, StateType> {
           flexFlow: 'row nowrap',
           width: '100%',
           height: '100%',
-          background: this.props.theme.primary.background
+          background: this.props.theme.get('background')
         }}
       >
         <div style={{ height: '100%' }}>

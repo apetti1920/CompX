@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 
 import TopTab from './Tabs/TopTab';
 import { StateType as SaveState } from '../../../store/types';
-import { ThemeType } from '../../../types';
+import ColorTheme from '../../../theme/ColorTheme';
 
 type GlobalProps = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 type ComponentProps = {
   style?: React.CSSProperties;

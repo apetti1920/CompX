@@ -29,7 +29,7 @@ import {
   SelectObjectAction
 } from '../../../store/actions/graphactions';
 import { StateType as SaveState, SelectableItemTypes } from '../../../store/types';
-import { ThemeType } from '../../../types';
+import ColorTheme from '../../../theme/ColorTheme';
 
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
@@ -40,7 +40,7 @@ type GlobalProps = {
   selectedEdgeIds: string[];
   blocks: VisualBlockStorageType<PortStringListType, PortStringListType>[];
   edges: VisualEdgeStorageType<keyof PortTypes>[];
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 type DispatchProps = {
   onSelectObject: (objectId: string, objectType: SelectableItemTypes, selectMultiple: boolean) => void;
@@ -314,7 +314,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
               listening={false}
               width={this.state.canvasSize.x}
               height={this.state.canvasSize.y}
-              fill={this.props.theme.secondary.illustration}
+              fill={this.props.theme.value.primary.background.tint(80).hexString()}
               shadowBlur={10}
             />
           </Layer>
@@ -432,7 +432,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
           </Layer>
         </Stage>
       </div>
-      
     );
   }
 }

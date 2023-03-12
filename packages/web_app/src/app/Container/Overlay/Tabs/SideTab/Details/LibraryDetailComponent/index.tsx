@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Search as SearchIcon, XSquare as XSquareIcon } from 'react-feather';
 
-import { ThemeType } from '../../../../../../../types';
 import LibraryViewer from './LibraryViewer';
-// import { throttle } from 'lodash';
+import ColorTheme from '../../../../../../../theme/ColorTheme';
 
 type State = {
   searchText: {
@@ -13,7 +12,7 @@ type State = {
 };
 
 type Props = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 
 export default class LibraryDetailComponent extends Component<Props, State> {
@@ -43,22 +42,23 @@ export default class LibraryDetailComponent extends Component<Props, State> {
 
   render() {
     return (
-      <div 
+      <div
         style={{
           display: 'flex',
           flexFlow: 'column',
-          backgroundColor: this.props.theme.secondary.illustration,
+          backgroundColor: this.props.theme.get('illustration'),
           padding: '5px',
           borderRadius: '25px'
-        }}>
+        }}
+      >
         <div
           style={{
             padding: '12px',
-            borderRadius: this.state.searchText.value === '' ? '20px': '20px 20px 0px 0px',
+            borderRadius: this.state.searchText.value === '' ? '20px' : '20px 20px 0px 0px',
             width: '100%',
             height: '40px',
-            backgroundColor: this.props.theme.secondary.illustration,
-            color: this.props.theme.secondary.illustration,
+            backgroundColor: this.props.theme.get('illustration'),
+            color: this.props.theme.get('illustration'),
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
@@ -73,7 +73,7 @@ export default class LibraryDetailComponent extends Component<Props, State> {
                   outline: none;
               },
               .blockSearchInput::placeholder {
-                color: ${this.props.theme.secondary.illustration};
+                color: ${this.props.theme.get('illustration')};
                 opacity: 0.4;
               }
           `}</style>
@@ -102,11 +102,7 @@ export default class LibraryDetailComponent extends Component<Props, State> {
             )}
           </div>
         </div>
-        {this.state.searchText.value !== '' ? (
-          <LibraryViewer />
-        ) : (
-          <React.Fragment />
-        )}
+        {this.state.searchText.value !== '' ? <LibraryViewer /> : <React.Fragment />}
       </div>
     );
   }

@@ -1,6 +1,6 @@
-import { ThemeType } from '../types';
+import { ThemeStorageType } from './ColorTheme';
 
-const DarkTheme1: ThemeType = {
+const DarkTheme1: ThemeStorageType = {
   primary: {
     action: '#b8c1ec',
     heading: '#fffffe',

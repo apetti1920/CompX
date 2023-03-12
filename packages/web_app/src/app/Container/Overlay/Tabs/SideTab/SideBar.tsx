@@ -3,9 +3,9 @@ import { BatteryCharging, BookOpen, Settings, Trash, User } from 'react-feather'
 
 import LibraryDetailComponent from './Details/LibraryDetailComponent';
 import { NavbarComponent, NavbarType } from './NavbarItemComponent';
-import { ThemeType } from '../../../../../types';
+import ColorTheme from '../../../../../theme/ColorTheme';
 
-const GetNavList = (theme: ThemeType): Record<string, NavbarType[]> => ({
+const GetNavList = (theme: ColorTheme): Record<string, NavbarType[]> => ({
   nav1: [
     { type: 'spacer', height: '15%' },
     { type: 'icon', icon: BookOpen, openSidebar: { type: 'tab', element: <LibraryDetailComponent theme={theme} /> } },
@@ -18,7 +18,7 @@ const GetNavList = (theme: ThemeType): Record<string, NavbarType[]> => ({
   ]
 });
 
-type PropsType = { theme: ThemeType };
+type PropsType = { theme: ColorTheme };
 type StateType = {
   selected?: {
     nav: keyof ReturnType<typeof GetNavList>;

@@ -4,8 +4,8 @@ import Konva from 'konva';
 import React, { Component } from 'react';
 import { Line, Rect, Shape } from 'react-konva';
 
+import ColorTheme, { ThemeStorageType } from '../../../../theme/ColorTheme';
 import { HexToRgbA, SetOpacityHex } from '../../../../theme/helpers';
-import { ThemeType } from '../../../../types';
 import { WheelHandler } from '../utils';
 
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
@@ -85,7 +85,7 @@ function CenterTarget(props: { screenSize: Vector2D; canvasTranslation: Vector2D
 
 type GridPropType = {
   screenSize: Vector2D;
-  theme: ThemeType;
+  theme: ColorTheme;
   canvasTranslation: Vector2D;
   canvasZoom: number;
 };
@@ -151,7 +151,8 @@ class GridInt extends Component<GridPropType, never> {
     const level = Math.ceil(this.props.canvasZoom / this.zoomInterval);
 
     // Color Calculator
-    const color = this.props.theme.secondary.illustration;
+    const colorString: keyof ThemeStorageType['primary'] | keyof ThemeStorageType['secondary'] = 'support';
+    const color = this.props.theme.get(colorString);
     const rgba1 = HexToRgbA(SetOpacityHex(color, 0.8));
 
     // Calculates the spacinging between any two dots
@@ -167,14 +168,14 @@ class GridInt extends Component<GridPropType, never> {
         <this.DrawGrid1
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.secondary.illustration}
+          color={this.props.theme.get(colorString)}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />
         <this.DrawGrid2
           pct={pct}
           spacing={spacing}
-          color={this.props.theme.secondary.illustration}
+          color={this.props.theme.get(colorString)}
           CircleGridBind={CircleGridBind}
           rgba1={rgba1}
         />
@@ -192,7 +193,7 @@ type PropType = {
   screenSize: Vector2D;
   canvasTranslation: Vector2D;
   canvasZoom: number;
-  theme: ThemeType;
+  theme: ColorTheme;
   onTranslate: (position: Vector2D) => void;
   onZoom: (delta: number, zoomAround: Vector2D) => void;
   onClick: () => void;
