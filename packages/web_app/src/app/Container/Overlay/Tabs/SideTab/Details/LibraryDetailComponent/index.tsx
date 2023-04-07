@@ -41,14 +41,17 @@ export default class LibraryDetailComponent extends Component<Props, State> {
   // }
 
   render() {
+    const backgroundColor = this.props.theme.value.primary.background.tint(30).hexString();
+
     return (
       <div
         style={{
           display: 'flex',
           flexFlow: 'column',
-          backgroundColor: this.props.theme.get('illustration'),
+          backgroundColor: backgroundColor,
           padding: '5px',
-          borderRadius: '25px'
+          borderRadius: '25px',
+          width: '100%'
         }}
       >
         <div
@@ -57,8 +60,8 @@ export default class LibraryDetailComponent extends Component<Props, State> {
             borderRadius: this.state.searchText.value === '' ? '20px' : '20px 20px 0px 0px',
             width: '100%',
             height: '40px',
-            backgroundColor: this.props.theme.get('illustration'),
-            color: this.props.theme.get('illustration'),
+            backgroundColor: backgroundColor,
+            color: this.props.theme.get('heading'),
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
@@ -66,20 +69,21 @@ export default class LibraryDetailComponent extends Component<Props, State> {
         >
           <div style={{ display: 'flex', flexFlow: 'row nowrap' }}>
             <style>{`
+              #block-search-input::placeholder {
+                color: ${this.props.theme.get('heading')};
+                opacity: 0.4;
+              }
+              
               input:focus,
               select:focus,
               textarea:focus,
               button:focus {
                   outline: none;
-              },
-              .blockSearchInput::placeholder {
-                color: ${this.props.theme.get('illustration')};
-                opacity: 0.4;
               }
           `}</style>
             <SearchIcon style={{ marginRight: '5px' }} />
             <input
-              className="blockSearchInput"
+              id="block-search-input"
               type="text"
               placeholder="Block Search"
               value={this.state.searchText.value}
@@ -89,20 +93,21 @@ export default class LibraryDetailComponent extends Component<Props, State> {
               style={{
                 width: '100%',
                 background: 'transparent',
-                border: 'none'
+                border: 'none',
+                color: this.props.theme.get('heading')
               }}
             />
             {this.state.searchText.value !== '' ? (
               <XSquareIcon
                 onClick={() => this.setState({ searchText: { value: '', throttledValue: '' } })}
-                style={{ marginLeft: '5px', color: '#CC5500' }}
+                style={{ marginLeft: '5px', color: this.props.theme.get('action') }}
               />
             ) : (
               <React.Fragment />
             )}
           </div>
         </div>
-        {this.state.searchText.value !== '' ? <LibraryViewer /> : <React.Fragment />}
+        {this.state.searchText.value !== '' ? <LibraryViewer theme={this.props.theme} /> : <React.Fragment />}
       </div>
     );
   }
