@@ -45,7 +45,11 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
             marginRight: 'auto',
             width: '40%'
           }}
-          stroke={isHover || props.isSelected ? props.theme.get('illustration') : props.theme.get('illustration')}
+          stroke={
+            isHover || props.isSelected
+              ? props.theme.value.primary.background.tint(90).hexString()
+              : props.theme.value.primary.background.tint(50).hexString()
+          }
         />
       </div>
     </React.Fragment>

@@ -56,13 +56,16 @@ export default function TopTab(props: PropsType) {
             }}
           >
             <Play
-              stroke={props.theme.value.secondary.illustration.shade(80).hexString()}
-              fill={props.theme.get('illustration')}
+              stroke={props.theme.get('illustration')}
+              fill={props.theme.value.primary.background.tint(50).hexString()}
             />
             <style>{`
                   #simTimeInput::placeholder {
-                    color: ${props.theme.get('illustration')};
+                    color: ${props.theme.get('heading')};
                     opacity: 0.4;
+                  }
+                  #simTimeInput::focus {
+                    outline: none!important
                   }
             `}</style>
             <Form.Control
@@ -72,8 +75,10 @@ export default function TopTab(props: PropsType) {
               placeholder="Simulation Time"
               style={{
                 width: '200px',
-                backgroundColor: props.theme.get('illustration'),
-                color: props.theme.get('illustration')
+                backgroundColor: props.theme.value.primary.background.tint(50).hexString(),
+                border: 0,
+                outline: 0,
+                color: props.theme.get('heading')
               }}
               onChange={() => console.log('Changed')}
             />

@@ -92,7 +92,9 @@ export default class SideBar extends Component<PropsType, StateType> {
               width: '100%',
               height: '100%',
               padding: '15px',
-              paddingTop: '24px'
+              paddingTop: '24px',
+              pointerEvents: 'auto',
+              overflowY: 'scroll'
             }}
           >
             {openCompTmp.openSidebar.element}
