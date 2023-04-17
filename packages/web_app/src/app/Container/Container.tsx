@@ -1,4 +1,6 @@
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 
 import CanvasContainer from './Canvas/CanvasContainer';
@@ -22,34 +24,36 @@ type StateType = Record<string, never>;
 class Container extends React.Component<PropsType, StateType> {
   render() {
     return (
-      <div
-        id="overlay"
-        style={{
-          display: 'flex',
-          flexFlow: 'row nowrap',
-          width: '100%',
-          height: '100%',
-          background: this.props.theme.get('background')
-        }}
-      >
-        <div style={{ height: '100%' }}>
-          <SideBar theme={this.props.theme} />
-        </div>
+      <DndProvider backend={HTML5Backend}>
         <div
-          id="main-container"
+          id="overlay"
           style={{
+            display: 'flex',
+            flexFlow: 'row nowrap',
             width: '100%',
             height: '100%',
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: '40px 0px 0px 40px',
-            boxShadow: '-15px 8px 5px rgba(0,0,0, 0.05)'
+            background: this.props.theme.get('background')
           }}
         >
-          <CanvasContainer />
-          <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
+          <div style={{ height: '100%' }}>
+            <SideBar theme={this.props.theme} />
+          </div>
+          <div
+            id="main-container"
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: '40px 0px 0px 40px',
+              boxShadow: '-15px 8px 5px rgba(0,0,0, 0.05)'
+            }}
+          >
+            <CanvasContainer />
+            <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
+          </div>
         </div>
-      </div>
+      </DndProvider>
     );
   }
 }

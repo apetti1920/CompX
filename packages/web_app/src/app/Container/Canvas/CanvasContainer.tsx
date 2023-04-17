@@ -5,6 +5,7 @@ import { DirectionType, Vector2D } from '@compx/common/Types';
 import Konva from 'konva';
 import { throttle } from 'lodash';
 import React, { Component } from 'react';
+import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { Layer, Rect, Stage } from 'react-konva';
 import { Portal } from 'react-konva-utils';
 import { connect } from 'react-redux';
@@ -58,8 +59,8 @@ type DispatchProps = {
   onZoom: (delta: number, around: Vector2D) => void;
   onTranslate: (point: Vector2D) => void;
 };
-type ComponentProps = Record<string, never>;
-type PropsType = GlobalProps & DispatchProps & ComponentProps;
+
+type PropsType = GlobalProps & DispatchProps;
 type StateType = {
   canvasSize: Vector2D;
   mouseDown?: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE' | 'PORT' | 'EDGE'>;
@@ -438,6 +439,25 @@ class CanvasContainer extends Component<PropsType, StateType> {
   }
 }
 
+function CanvasContainerDroppableWrapper(props: PropsType) {
+  const [_, drop] = useDrop(() => ({
+    accept: 'card',
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop()
+    }),
+    drop: (monitor: DropTargetMonitor & { itemID: string }) => {
+      console.log('moving item:', monitor.itemID);
+    }
+  }));
+
+  return (
+    <div ref={drop}>
+      <CanvasContainer {...props} />
+    </div>
+  );
+}
+
 // Creates a function to map the redux state to the redux props
 function mapStateToProps(state: SaveState): GlobalProps {
   return {
@@ -472,4 +492,4 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 }
 
 // Exports the redux connected component
-export default connect(mapStateToProps, mapDispatchToProps)(CanvasContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(CanvasContainerDroppableWrapper);

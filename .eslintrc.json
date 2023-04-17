@@ -94,7 +94,8 @@
     "react/no-array-index-key": "off",
     "jsx-a11y/tabindex-no-positive": "warn",
     "jsx-a11y/no-noninteractive-tabindex": "warn",
-    "class-methods-use-this": "warn"
+    "class-methods-use-this": "warn",
+    "react/jsx-props-no-spreading": "warn"
   },
   "settings": {
     "react": {
