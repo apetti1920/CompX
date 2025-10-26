@@ -75,7 +75,11 @@ app.on('ready', async () => {
 
   const mainWindowPath = path.join(__dirname, '/../renderer/app/index.html');
   windowManager.CreateWindow('main', { titleBarStyle: 'hidden', titleBarOverlay: true });
-  await windowManager.GetWindowByName('main').loadFile(mainWindowPath);
+  const mainWindow = windowManager.GetWindowByName('main');
+  await mainWindow.loadFile(mainWindowPath);
+
+  // Open DevTools for debugging
+  mainWindow.webContents.openDevTools();
 
   windowManager.CloseWindow('loader');
 });

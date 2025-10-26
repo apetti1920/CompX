@@ -39,7 +39,10 @@ function PortComponent(props: PortPropType): React.ReactElement {
           e.evt.stopPropagation();
           props.onMouseDown();
         }}
-        onMouseUp={props.onMouseUp}
+        onMouseUp={(e) => {
+          e.evt.stopPropagation();
+          props.onMouseUp();
+        }}
         radius={12}
         fill="transparent"
       />

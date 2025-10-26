@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "mcp__serena__search_for_pattern",
+      "Bash(npm view:*)",
+      "Bash(npm run build:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "WebSearch",
+      "Bash(curl:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm install)",
+      "Bash(npm run web:build:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

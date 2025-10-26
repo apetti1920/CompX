@@ -1,9 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const path = require('path');
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpack = require('webpack');
 
 module.exports = (envVars) => {
@@ -12,7 +11,10 @@ module.exports = (envVars) => {
   return {
     entry: path.resolve(__dirname, '..', 'src/index.tsx'),
     resolve: {
-      extensions: ['.tsx', '.ts', '.js', '.jsx']
+      extensions: ['.tsx', '.ts', '.js', '.jsx'],
+      alias: {
+        '@compx/common': path.resolve(__dirname, '../../../packages/common/src')
+      }
     },
     module: {
       rules: [
@@ -49,7 +51,7 @@ module.exports = (envVars) => {
     },
     output: {
       path: path.resolve(__dirname, '..', './dist'),
-      filename: 'bundle.js'
+      filename: '[name].js'
     },
     plugins: [
       new HtmlWebpackPlugin({
@@ -60,6 +62,26 @@ module.exports = (envVars) => {
         BUILD_TYPE: BUILD_TYPE
       })
     ],
+    optimization: {
+      runtimeChunk: 'single',
+      splitChunks: {
+        cacheGroups: {
+          konva: {
+            test: /[\\/]node_modules[\\/](konva|react-konva)[\\/]/,
+            name: 'konva',
+            chunks: 'all',
+            priority: 20,
+            enforce: true
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10
+          }
+        }
+      }
+    },
     stats: 'errors-only'
   };
 };

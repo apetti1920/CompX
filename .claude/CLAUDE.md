@@ -126,6 +126,50 @@ npx lerna run build --scope=@compx/common
 npx lerna run test --scope=@compx/common --stream
 ```
 
+## Docker Build Commands
+
+### Production Web Server (Recommended)
+```bash
+# Build nginx-based web server image
+docker build --target web_server -t compx:latest .
+
+# Run container
+docker run -d -p 8080:80 --name compx compx:latest
+
+# Access application
+open http://localhost:8080
+```
+
+### Development Server
+```bash
+# Build development image with hot reload
+docker build --target web_dev -t compx:dev .
+
+# Run with volume mounts for live updates
+docker run -d -p 3000:3000 \
+  -v $(pwd)/packages/web_app/src:/compx/packages/web_app/src \
+  -v $(pwd)/packages/common/src:/compx/packages/common/src \
+  compx:dev
+```
+
+### Build Stages
+The Dockerfile contains multiple build stages:
+- **base**: Foundation with Node 18 Alpine + Python + build tools
+- **loader_builder**: Electron splash screen builder
+- **web_builder_base**: Web app build preparation
+- **web_dev**: Development server with hot reload
+- **web_builder**: Production web app build
+- **web_server**: nginx serving static files (250MB, recommended)
+- **electon_builder_linux**: Electron desktop packaging (not needed for Docker)
+
+### Important Notes
+1. **Always use `--target web_server`** for production deployments
+2. **Python + build tools** required for native npm modules (@parcel/watcher)
+3. **Workspace structure**: All dependencies installed centrally via npm workspaces
+4. **Webpack alias**: Configured to resolve @compx/common package paths
+
+See [Docker Guide](../claudedocs/DOCKER.md) for comprehensive Docker documentation.
+
 ## Graph Engine API
 
 ### Key Classes

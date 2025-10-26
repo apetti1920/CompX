@@ -1,4 +1,4 @@
-import BaseConfig = require('../../../jest.config');
+const BaseConfig = require('../../../jest.config');
 
 module.exports = {
   ...BaseConfig,

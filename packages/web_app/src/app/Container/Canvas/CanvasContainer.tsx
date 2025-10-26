@@ -6,8 +6,8 @@ import Konva from 'konva';
 import { throttle } from 'lodash';
 import React, { Component } from 'react';
 import { Layer, Rect, Stage } from 'react-konva';
-import { Portal } from 'react-konva-utils';
 import { connect } from 'react-redux';
+
 import { Dispatch, bindActionCreators } from 'redux';
 
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
@@ -98,6 +98,23 @@ class CanvasContainer extends Component<PropsType, StateType> {
       e.stopPropagation();
     });
     this.stageRef.current!.on('contextmenu', (e: KonvaEventObject<MouseEvent>) => e.evt.preventDefault());
+
+    // --------------------------------- Port Dragging Events -------------------------------------------------------
+    this.stageRef.current!.on('mousemove', (e: KonvaEventObject<MouseEvent>) => {
+      if (this.state.mouseDown?.mouseOn === 'PORT') {
+        this.mouseMovePortHandler(e);
+      }
+    });
+
+    this.stageRef.current!.on('mouseup', (e: KonvaEventObject<MouseEvent>) => {
+      if (this.state.mouseDown?.mouseOn === 'PORT') {
+        // Check if we didn't click on a port (in which case the port's handler already fired)
+        // This will be called for mouseup on empty space
+        if (!e.target.hasName || !(e.target.hasName('port-hitbox'))) {
+          this.mouseUpHandler();
+        }
+      }
+    });
 
     // ----------------------------- Resize Event ------------------------------------------------------------------
     window.addEventListener('resize', this.ThrottledSetWindowSize);
@@ -257,13 +274,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
         />
 
         {/* ------------------------------- Draw Ports -------------------------------------------------------*/}
-        {this.state.mouseDown?.mouseOn === 'PORT' ? (
-          <Portal selector="#selected-block" enabled>
-            <PortListWrapper />
-          </Portal>
-        ) : (
-          <PortListWrapper />
-        )}
+        <PortListWrapper />
       </React.Fragment>
     );
   };
@@ -416,19 +427,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
             )}
 
             {/* ------------------------------ Selected Ports ------------------------------------------------*/}
-            {this.state.mouseDown?.mouseOn === 'PORT' ? (
-              <Rect
-                x={0}
-                y={0}
-                width={this.state.canvasSize.x}
-                height={this.state.canvasSize.y}
-                fill="transparent"
-                onMouseMove={this.mouseMovePortHandler}
-                onMouseUp={() => this.setState({ mouseDown: undefined })}
-              />
-            ) : (
-              <React.Fragment />
-            )}
           </Layer>
         </Stage>
       </div>

@@ -1,74 +1,71 @@
-FROM node:18-alpine as base
+FROM node:18-alpine AS base
+
+# Install Python and build dependencies required for native modules
+RUN apk add --no-cache python3 py3-setuptools make g++
 
 WORKDIR /compx
-ADD ./package.json ./
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-        npm set cache /usr/src/app/.npm && npm install
+
+# Copy root package files and lerna config
+ADD ./package.json ./lerna.json ./
 ADD ./tsconfig.json ./
 
-WORKDIR /compx/packages/common
-ADD ./packages/common/package.json ./
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-        npm set cache /usr/src/app/.npm && npm install
-ADD ./packages/common/tsconfig.json ./
-ADD ./packages/common/src ./src
-RUN npm run build
+# Copy all package.json files to set up workspace structure
+ADD ./packages/common/package.json ./packages/common/
+ADD ./packages/web_app/package.json ./packages/web_app/
+ADD ./packages/electron_app/package.json ./packages/electron_app/
+ADD ./packages/electron_loader/package.json ./packages/electron_loader/
 
-
-FROM base as loader_builder
-WORKDIR /compx/packages/electron_loader
-
-ADD ./packages/electron_loader/package.json ./
+# Install all dependencies using workspace
 RUN --mount=type=cache,target=/usr/src/app/.npm \
         npm set cache /usr/src/app/.npm && npm install
 
-ADD ./packages/electron_loader/index.html ./
-ADD ./packages/electron_loader/tsconfig.json ./
-ADD ./packages/electron_loader/webpack ./webpack
-ADD ./packages/electron_loader/assets ./assets
-ADD ./packages/electron_loader/src ./src
+# Add common package source
+ADD ./packages/common/tsconfig.json ./packages/common/
+ADD ./packages/common/src ./packages/common/src
 
-RUN npm run build
 
-FROM base as web_builder_base
-WORKDIR /compx/packages/web_app
+FROM base AS loader_builder
 
-ADD ./packages/web_app/package.json .
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-        npm set cache /usr/src/app/.npm && npm install
+ADD ./packages/electron_loader/index.html ./packages/electron_loader/
+ADD ./packages/electron_loader/tsconfig.json ./packages/electron_loader/
+ADD ./packages/electron_loader/webpack ./packages/electron_loader/webpack
+ADD ./packages/electron_loader/assets ./packages/electron_loader/assets
+ADD ./packages/electron_loader/src ./packages/electron_loader/src
 
-ADD ./packages/web_app/index.html ./
-ADD ./packages/web_app/.babelrc ./
-ADD ./packages/web_app/tsconfig.json ./
-ADD ./packages/web_app/webpack ./webpack
-ADD ./packages/web_app/src ./src
+RUN npm run build --workspace=@compx/electron_loader
 
-FROM web_builder_base as web_dev
+FROM base AS web_builder_base
 
-CMD npm run start
+ADD ./packages/web_app/index.html ./packages/web_app/
+ADD ./packages/web_app/.babelrc ./packages/web_app/
+ADD ./packages/web_app/tsconfig.json ./packages/web_app/
+ADD ./packages/web_app/webpack ./packages/web_app/webpack
+ADD ./packages/web_app/src ./packages/web_app/src
 
-FROM web_builder_base as web_builder
+FROM web_builder_base AS web_dev
+
+CMD npm run start --workspace=@compx/web_app
+
+FROM web_builder_base AS web_builder
 
 ENV BUILD_TYPE=web
-RUN npm run build
+RUN npm run build --workspace=@compx/web_app
 
-FROM nginx:latest as web_server
+FROM nginx:latest AS web_server
 COPY --from=web_builder /compx/packages/web_app/dist /usr/share/nginx/html/
 
-FROM base as electon_builder_linux
+FROM base AS electon_builder_linux
+
+COPY --from=web_builder /compx/packages/web_app/dist ./packages/electron_app/dist/renderer/app
+COPY --from=loader_builder /compx/packages/electron_loader/dist ./packages/electron_app/dist/renderer/loader
+
+ADD ./packages/electron_app/build.py ./packages/electron_app/
+ADD ./packages/electron_app/tsconfig.json ./packages/electron_app/
+ADD ./packages/electron_app/static ./packages/electron_app/static
+ADD ./packages/electron_app/src ./packages/electron_app/src
 
 WORKDIR /compx/packages/electron_app
+RUN npx tsc
 
-ADD ./packages/electron_app/package.json .
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-        npm set cache /usr/src/app/.npm && npm install
-
-COPY --from=web_builder /compx/packages/web_app/dist ./dist/renderer/app
-COPY --from=loader_builder /compx/packages/electron_loader/dist ./dist/renderer/loader
-
-ADD ./packages/electron_app/build.py ./
-ADD ./packages/electron_app/tsconfig.json ./
-ADD ./packages/electron_app/static ./static
-ADD ./packages/electron_app/src ./src
-
-RUN npx tsc && npx electron-builder && npx electron-builder install-app-deps
+WORKDIR /compx
+RUN npm run builder --workspace=@compx/electron_app && npm run postbuilder --workspace=@compx/electron_app
