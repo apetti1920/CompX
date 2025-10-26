@@ -8,7 +8,6 @@
   "scripts": {
     "clean": "npx lerna clean -y && npx lerna exec -- \"tsc --build --clean && rimraf dist package-lock.json\"",
     "bootstrap": "npx lerna bootstrap && npx lerna link",
-
     "loader:start": "npx lerna run --scope=@compx/electron_loader start --stream",
     "loader:build": "npx lerna run --scope=@compx/electron_loader build",
     "web:start": "npx lerna run --scope=@compx/web_app start --stream",
@@ -17,7 +16,6 @@
     "postelectron:build:deps": "npx lerna exec --scope=@compx/electron_app -- \"mkdir -p dist/renderer/loader && mkdir -p dist/renderer/app\" && npx lerna exec --scope=@compx/electron_loader -- \"cp -R dist/ ../electron_app/dist/renderer/loader/\" && npx lerna exec --scope=@compx/web_app -- \"cp -R dist/ ../electron_app/dist/renderer/app/\"",
     "electron:build": "npm run electron:build:deps && npx lerna run --scope=@compx/electron_app build",
     "electron:start": "npm run electron:build && npx lerna run --scope=@compx/electron_app start --stream",
-
     "test": "jest",
     "pretest:pretty": "npx prettier --write --ignore-path .gitignore $(git diff --name-only HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs)",
     "prepare": "husky install"
@@ -28,14 +26,14 @@
   "devDependencies": {
     "@types/jest": "^29.0.3",
     "@types/lodash": "^4.14.178",
-    "@types/node": "^18.7.18",
-    "@typescript-eslint/eslint-plugin": "^5.37.0",
-    "@typescript-eslint/parser": "^5.37.0",
+    "@types/node": "^18.19.130",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "cross-env": "^7.0.3",
     "dotenv-webpack": "^8.0.1",
     "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-node": "^4.1.0",
+    "eslint-config-node": "^1.6.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
@@ -47,19 +45,24 @@
     "husky": "^8.0.1",
     "jest": "^29.0.3",
     "lerna": "^6.4.1",
-    "lint-staged": "^13.0.3",
+    "lint-staged": "16.2.6",
     "ncp": "^2.0.0",
-    "pre-commit": "^1.2.2",
+    "pre-commit": "^1.0.10",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^29.0.1",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.4.4"
+    "ts-jest": "^29.4.5",
+    "ts-loader": "^9.5.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "webpack-dev-server": "5.2.2"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "overrides": {
+    "konva": "^10.0.8"
+  }
 }

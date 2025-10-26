@@ -1,20 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const path = require('path');
+import { resolve as _resolve } from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const webpack = require('webpack');
+import { EnvironmentPlugin } from 'webpack';
 
-module.exports = (envVars) => {
+export default (envVars) => {
   const { BUILD_TYPE, ENV } = envVars;
 
   return {
-    entry: path.resolve(__dirname, '..', 'src/index.tsx'),
+    entry: _resolve(__dirname, '..', 'src/index.tsx'),
     resolve: {
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
       alias: {
-        '@compx/common': path.resolve(__dirname, '../../../packages/common/src')
+        '@compx/common': _resolve(__dirname, '../../../packages/common/src')
       }
     },
     module: {
@@ -51,18 +51,38 @@ module.exports = (envVars) => {
       ]
     },
     output: {
-      path: path.resolve(__dirname, '..', './dist'),
-      filename: 'bundle.js'
+      path: _resolve(__dirname, '..', './dist'),
+      filename: '[name].js'
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, '..', 'index.html')
+        template: _resolve(__dirname, '..', 'index.html')
       }),
-      new webpack.EnvironmentPlugin({
+      new EnvironmentPlugin({
         ENV_TYPE: ENV,
         BUILD_TYPE: BUILD_TYPE
       })
     ],
+    optimization: {
+      runtimeChunk: 'single',
+      splitChunks: {
+        cacheGroups: {
+          konva: {
+            test: /[\\/]node_modules[\\/](konva|react-konva)[\\/]/,
+            name: 'konva',
+            chunks: 'all',
+            priority: 20,
+            enforce: true
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10
+          }
+        }
+      }
+    },
     stats: 'errors-only'
   };
 };
