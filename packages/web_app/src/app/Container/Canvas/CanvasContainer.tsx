@@ -19,6 +19,7 @@ import Grid from './Grid/Grid';
 import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
 import {
+  AddBlockAction,
   AddEdgeSplitAction,
   AddedEdgeAction,
   DeletedObjectsAction,
@@ -49,6 +50,7 @@ type DispatchProps = {
   onDeleteObjects: () => void;
   onMoveBlocks: (delta: Vector2D) => void;
   onResizeBlock: (resizeDirection: DirectionType, delta: Vector2D) => void;
+  onAddBlock: (blockTemplate: any, position: Vector2D) => void;
   onAddEdge: (
     output: { block: VisualBlockStorageType<any, any>; portInd: number },
     input: { block: VisualBlockStorageType<any, any>; portInd: number }
@@ -439,18 +441,27 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
 function CanvasContainerDroppableWrapper(props: PropsType) {
   const [_, drop] = useDrop(() => ({
-    accept: 'card',
+    accept: 'block',
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop()
     }),
-    drop: (monitor: DropTargetMonitor & { itemID: string }) => {
-      console.log('moving item:', monitor.itemID);
+    drop: (item: { type: string; blockTemplate: any }, monitor: DropTargetMonitor) => {
+      const clientOffset = monitor.getClientOffset();
+      if (clientOffset && item.blockTemplate) {
+        // Convert screen coordinates to canvas coordinates
+        const canvasX = (clientOffset.x - props.canvasTranslation.x) / props.canvasZoom;
+        const canvasY = (clientOffset.y - props.canvasTranslation.y) / props.canvasZoom;
+        const canvasPosition = new Vector2D(canvasX, canvasY);
+
+        // Add the block at the drop position
+        props.onAddBlock(item.blockTemplate, canvasPosition);
+      }
     }
   }));
 
   return (
-    <div ref={drop}>
+    <div ref={drop} style={{ width: '100%', height: '100%' }}>
       <CanvasContainer {...props} />
     </div>
   );
@@ -477,6 +488,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       onDeselectObjects: DeselectObjectsAction,
       onDeleteObjects: DeletedObjectsAction,
       onMoveBlocks: MovedBlocksAction,
+      onAddBlock: AddBlockAction,
       onResizeBlock: ResizedBlocksAction,
       onAddEdge: AddedEdgeAction,
       onMoveEdge: MovedEdgeAction,

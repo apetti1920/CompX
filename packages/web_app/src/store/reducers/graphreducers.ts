@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { CalculatePortLocation } from '../../app/Container/Canvas/utils';
 import {
+  AddBlockActionType,
   AddEdgeActionType,
   AddEdgeSplitActionType,
   DeletedObjectActionType,
@@ -23,6 +24,36 @@ import { ActionPayloadType, StateType } from '../types';
 
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
   switch (action.type) {
+    case AddBlockActionType: {
+      const tempState = _.cloneDeep(state);
+      const blockTemplate = action.payload['blockTemplate'];
+      const position: Vector2D = action.payload['position'];
+
+      if (!blockTemplate) return tempState;
+
+      // Create a new visual block from the template
+      const newBlock: VisualBlockStorageType<any, any> = {
+        ...blockTemplate,
+        id: uuidv4(),
+        visualName: blockTemplate.name,
+        inputPorts: blockTemplate.inputPorts.map((port) => ({
+          ...port,
+          id: uuidv4()
+        })),
+        outputPorts: blockTemplate.outputPorts.map((port) => ({
+          ...port,
+          id: uuidv4()
+        })),
+        position: position,
+        size: new Vector2D(15, 10),
+        mirrored: false,
+        shape: 'rect' as const,
+        color: '#3b82f6'
+      };
+
+      tempState.currentGraph.graph.blocks.push(newBlock);
+      return tempState;
+    }
     case MovedBlockActionType: {
       const tempState = _.cloneDeep(state);
       const delta: Vector2D = action.payload['delta'];

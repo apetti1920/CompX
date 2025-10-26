@@ -49,9 +49,11 @@ export default class LibraryDetailComponent extends Component<Props, State> {
           display: 'flex',
           flexFlow: 'column',
           backgroundColor: backgroundColor,
-          padding: '5px',
+          padding: '8px',
           borderRadius: '25px',
-          width: '100%'
+          width: '100%',
+          maxHeight: '500px',
+          overflow: 'hidden'
         }}
       >
         <div

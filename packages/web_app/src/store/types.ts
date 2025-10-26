@@ -1,3 +1,4 @@
+import { Constant, Sum, Multiply } from '@compx/common/DefaultBlocks';
 import { BlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage';
 import { Vector2D } from '@compx/common/Types';
@@ -27,7 +28,7 @@ export const defaultState: StateType = {
   currentGraph: {
     graph: MakeVisualGraph(0),
     selected: [],
-    libraryBlocks: []
+    libraryBlocks: [Constant, Sum, Multiply]
   },
   userStorage: {
     theme: new ColorTheme(Theme),
