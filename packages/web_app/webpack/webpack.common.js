@@ -12,7 +12,10 @@ module.exports = (envVars) => {
   return {
     entry: path.resolve(__dirname, '..', 'src/index.tsx'),
     resolve: {
-      extensions: ['.tsx', '.ts', '.js', '.jsx']
+      extensions: ['.tsx', '.ts', '.js', '.jsx'],
+      alias: {
+        '@compx/common': path.resolve(__dirname, '../../../packages/common/src')
+      }
     },
     module: {
       rules: [

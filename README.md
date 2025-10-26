@@ -177,7 +177,18 @@ npm run web:build
 npm run electron:build
 ```
 
+**Docker Deployment**
+```sh
+# Build web server image
+docker build --target web_server -t compx:latest .
+
+# Run container
+docker run -p 8080:80 compx:latest
+```
+Open browser to `http://localhost:8080`
+
 For detailed setup and development workflows, see the [Quick Start Guide](claudedocs/QUICK_START.md).
+For Docker deployment and configuration, see the [Docker Guide](claudedocs/DOCKER.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
