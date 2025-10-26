@@ -8,7 +8,11 @@
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
       "WebSearch",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm install)",
+      "Bash(npm run web:build:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

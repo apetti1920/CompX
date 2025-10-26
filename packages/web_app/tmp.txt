@@ -1,5 +1,0 @@
- Phase 3: Major Component Upgrades (Requires testing)
-  - Konva 8.4.2 → 10.0.8
-  - Redux Toolkit 1.9.2 → 2.9.2
-  - Electron 22.2.0 → 38.4.0 (highest risk)
-  - TypeScript 4.9.5 → 5.9.3

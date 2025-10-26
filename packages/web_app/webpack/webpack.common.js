@@ -1,20 +1,19 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import { resolve as _resolve } from 'path';
+/* eslint-disable @typescript-eslint/no-require-imports */
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import { EnvironmentPlugin } from 'webpack';
+const path = require('path');
 
-export default (envVars) => {
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+
+module.exports = (envVars) => {
   const { BUILD_TYPE, ENV } = envVars;
 
   return {
-    entry: _resolve(__dirname, '..', 'src/index.tsx'),
+    entry: path.resolve(__dirname, '..', 'src/index.tsx'),
     resolve: {
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
       alias: {
-        '@compx/common': _resolve(__dirname, '../../../packages/common/src')
+        '@compx/common': path.resolve(__dirname, '../../../packages/common/src')
       }
     },
     module: {
@@ -51,14 +50,14 @@ export default (envVars) => {
       ]
     },
     output: {
-      path: _resolve(__dirname, '..', './dist'),
+      path: path.resolve(__dirname, '..', './dist'),
       filename: '[name].js'
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: _resolve(__dirname, '..', 'index.html')
+        template: path.resolve(__dirname, '..', 'index.html')
       }),
-      new EnvironmentPlugin({
+      new webpack.EnvironmentPlugin({
         ENV_TYPE: ENV,
         BUILD_TYPE: BUILD_TYPE
       })
