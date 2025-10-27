@@ -1,22 +1,141 @@
+Ready to code?
 
-📝 Summary of All Electron 38 Fixes
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ JSON-Based Block Definition System Design
 
-  Issue 1: nodeIntegration + contextIsolation conflict
-  - Fix: Changed contextIsolation: true → contextIsolation: false
+ Overview
 
-  Issue 2: Restrictive Content Security Policy
-  - Fix: Removed CSP meta tag from index.html
+ Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
+ multi-platform API support.
 
-  Issue 3: Debugging difficulty
-  - Fix: Added automatic DevTools opening
+ Core Components
 
-  Status: Ready to test - app should now load correctly! 🎉
+ 1. JSON Schema Definition
 
-  ⚠️ Security Note
+ - Block schema v1.0 with versioning support
+ - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
+ (color, icon, shape)
+ - JSON Schema validation for type safety
 
-  For production deployment, consider implementing:
-  1. A proper preload script with IPC communication
-  2. Re-enable contextIsolation: true
-  3. Implement a secure CSP: script-src 'self' 'unsafe-inline' (if needed for React)
+ 2. Block Storage & Organization
 
-  But for development and testing, the current configuration will work perfectly with Electron 38.
+ - Category-based subdirectories (math/, logic/, io/, etc.)
+ - Tags remain searchable metadata (independent of directory)
+ - Location: block_definitions/ in packages/common
+
+ 3. Build-Time Processing
+
+ - Compile JSON → TypeScript types during build
+ - Validate all block definitions
+ - Generate block registry/index
+
+ 4. Electron Integration
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ JSON-Based Block Definition System Design
+
+ Overview
+
+ Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
+ multi-platform API support.
+
+ Core Components
+
+ 1. JSON Schema Definition
+
+ - Block schema v1.0 with versioning support
+ - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
+ (color, icon, shape)
+ - JSON Schema validation for type safety
+
+ 2. Block Storage & Organization
+
+ - Category-based subdirectories (math/, logic/, io/, etc.)
+ - Tags remain searchable metadata (independent of directory)
+ - Location: block_definitions/ in packages/common
+
+ 3. Build-Time Processing
+
+ - Compile JSON → TypeScript types during build
+ - Validate all block definitions
+ - Generate block registry/index
+
+ 4. Electron Integration
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ JSON-Based Block Definition System Design
+
+ Overview
+
+ Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
+ multi-platform API support.
+
+ Core Components
+
+ 1. JSON Schema Definition
+
+ - Block schema v1.0 with versioning support
+ - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
+ (color, icon, shape)
+ - JSON Schema validation for type safety
+
+ 2. Block Storage & Organization
+
+ - Category-based subdirectories (math/, logic/, io/, etc.)
+ - Tags remain searchable metadata (independent of directory)
+ - Location: block_definitions/ in packages/common
+
+ 3. Build-Time Processing
+
+ - Compile JSON → TypeScript types during build
+ - Validate all block definitions
+ - Generate block registry/index
+
+ 4. Electron Integration
+
+ - Load blocks during electron_loader startup
+ - IPC API for block library access
+ - Cache compiled blocks in userData
+
+ 5. Web Server Abstraction Layer
+
+ - Platform-agnostic API interface
+ - Electron IPC implementation
+ - Future HTTP/REST implementation
+ - Unified frontend access pattern
+
+ 6. Frontend Block Access
+
+ - Service layer abstracts platform differences
+ - Search/filter by name, tags, category
+ - Type-safe block retrieval
+ - Hot-reload support for development
+
+ Implementation Steps
+
+ 1. Create JSON schema + example blocks
+ 2. Build validation system
+ 3. Implement loader/registry
+ 4. Create IPC API handlers (Electron)
+ 5. Build abstraction layer + service interface
+ 6. Update frontend to use new API
+ 7. Add web server implementation (future)
+ 8. Migrate existing TS blocks to JSON
+ 9. Deprecate old TS definitions
+
+ Key Design Decisions
+
+ - ✅ Basic visual styling (color, icon, shape)
+ - ✅ Version field with migration support
+ - ✅ Category directories + tag-based search
+ - ✅ Strict schema (no custom metadata)
+ - ✅ Platform-agnostic API from day 1

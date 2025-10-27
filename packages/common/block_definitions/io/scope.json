@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "name": "scope",
+  "version": "1.0.0",
+  "description": "Visualizes and logs signal values to console (sink block with no outputs)",
+  "category": "io",
+  "tags": ["io", "visualization", "debug", "sink"],
+  "inputPorts": [
+    {
+      "name": "x",
+      "type": "NUMBER"
+    }
+  ],
+  "outputPorts": [],
+  "callbackString": "console.log('Scope:', inputPort[x]); return []",
+  "visual": {
+    "color": "#00BCD4",
+    "icon": "eye",
+    "shape": "rect"
+  }
+}

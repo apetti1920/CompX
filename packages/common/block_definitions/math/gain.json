@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "name": "gain",
+  "version": "1.0.0",
+  "description": "Multiplies the input signal by a constant gain factor (default: 0.75)",
+  "category": "math",
+  "tags": ["math", "linear", "scaling", "amplifier"],
+  "inputPorts": [
+    {
+      "name": "x",
+      "type": "NUMBER"
+    }
+  ],
+  "outputPorts": [
+    {
+      "name": "y",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [inputPort[x] * 0.75]",
+  "visual": {
+    "color": "#4CAF50",
+    "icon": "trending-up",
+    "shape": "rect"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "name": "multiply",
+  "version": "1.0.0",
+  "description": "Multiplies two input signals together",
+  "category": "math",
+  "tags": ["math", "arithmetic", "multiplication"],
+  "inputPorts": [
+    {
+      "name": "a",
+      "type": "NUMBER"
+    },
+    {
+      "name": "b",
+      "type": "NUMBER"
+    }
+  ],
+  "outputPorts": [
+    {
+      "name": "y",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [inputPort[a] * inputPort[b]]",
+  "visual": {
+    "color": "#E91E63",
+    "icon": "x",
+    "shape": "circ"
+  }
+}

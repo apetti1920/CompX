@@ -14,7 +14,22 @@ module.exports = {
     '^uuid$': require.resolve('uuid')
   },
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        skipLibCheck: true,
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        strict: false,
+        isolatedModules: true,
+        jsx: 'react',
+        moduleResolution: 'node',
+        resolveJsonModule: true,
+        target: 'es5',
+        module: 'commonjs',
+        lib: ['dom', 'dom.iterable', 'esnext']
+      },
+      isolatedModules: true
+    }],
     '^.+\\.js$': 'babel-jest'
   },
   transformIgnorePatterns: [

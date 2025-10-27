@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://compx.dev/schemas/block-definition.json",
+  "title": "CompX Block Definition",
+  "description": "Schema for defining computational blocks in CompX",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "name",
+    "version",
+    "inputPorts",
+    "outputPorts",
+    "callbackString"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of the block schema specification (semantic versioning)",
+      "examples": ["1.0.0"]
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Unique identifier for the block (lowercase, alphanumeric, underscores only)",
+      "examples": ["gain", "integrator", "pid_controller"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of this specific block implementation (semantic versioning)",
+      "examples": ["1.0.0", "2.1.3"]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Human-readable description of the block's functionality",
+      "default": ""
+    },
+    "category": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 32,
+      "description": "Category for organizing blocks (e.g., math, logic, io)",
+      "examples": ["math", "logic", "signal", "control", "io"],
+      "default": "misc"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_-]*$",
+        "maxLength": 32
+      },
+      "uniqueItems": true,
+      "maxItems": 10,
+      "description": "Tags for searching and filtering blocks",
+      "default": []
+    },
+    "inputPorts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PortDefinition"
+      },
+      "maxItems": 20,
+      "description": "Input port definitions for this block"
+    },
+    "outputPorts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/OutputPortDefinition"
+      },
+      "maxItems": 20,
+      "description": "Output port definitions for this block"
+    },
+    "callbackString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "JavaScript code string that implements the block's computation"
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "Hex color code for block background",
+          "default": "#9E9E9E"
+        },
+        "icon": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Icon identifier or path for block visual representation",
+          "default": ""
+        },
+        "shape": {
+          "type": "string",
+          "enum": ["rect", "circ", "tri"],
+          "description": "Shape of the block",
+          "default": "rect"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Visual styling properties for the block"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "PortDefinition": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Unique name for this port within the block"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["NUMBER", "STRING", "VECTOR", "MATRIX", "BOOLEAN"],
+          "description": "Data type for this port"
+        },
+        "initialValue": {
+          "description": "Initial value for the port (enables prevInput access)",
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string" },
+            { "type": "boolean" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "OutputPortDefinition": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Unique name for this port within the block"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["NUMBER", "STRING", "VECTOR", "MATRIX", "BOOLEAN"],
+          "description": "Data type for this port"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
