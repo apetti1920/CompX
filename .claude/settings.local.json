@@ -18,7 +18,9 @@
       "Bash(npm run test:coverage:*)",
       "mcp__serena__get_symbols_overview",
       "mcp__serena__list_dir",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "mcp__serena__get_current_config",
+      "Bash(npx jest:*)"
     ],
     "deny": [],
     "ask": []
