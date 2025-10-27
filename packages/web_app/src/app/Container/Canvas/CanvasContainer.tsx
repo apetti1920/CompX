@@ -5,13 +5,22 @@ import { DirectionType, Vector2D } from '@compx/common/Types';
 import Konva from 'konva';
 import { throttle } from 'lodash';
 import React, { Component } from 'react';
+import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { Layer, Rect, Stage } from 'react-konva';
 import { connect } from 'react-redux';
 
 import { Dispatch, bindActionCreators } from 'redux';
 
+import BlockComponent from './Graph/VisualTypes/BlockComponent';
+import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
+import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
+import PortList from './Graph/VisualTypes/PortList';
+import Grid from './Grid/Grid';
+import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
+import { ScreenToWorld } from '../../../helpers';
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
 import {
+  AddBlockAction,
   AddEdgeSplitAction,
   AddedEdgeAction,
   DeletedObjectsAction,
@@ -23,13 +32,7 @@ import {
   SelectObjectAction
 } from '../../../store/actions/graphactions';
 import { StateType as SaveState, SelectableItemTypes } from '../../../store/types';
-import { ThemeType } from '../../../types';
-import BlockComponent from './Graph/VisualTypes/BlockComponent';
-import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
-import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
-import PortList from './Graph/VisualTypes/PortList';
-import Grid from './Grid/Grid';
-import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
+import ColorTheme from '../../../theme/ColorTheme';
 
 type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
@@ -40,7 +43,7 @@ type GlobalProps = {
   selectedEdgeIds: string[];
   blocks: VisualBlockStorageType<PortStringListType, PortStringListType>[];
   edges: VisualEdgeStorageType<keyof PortTypes>[];
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 type DispatchProps = {
   onSelectObject: (objectId: string, objectType: SelectableItemTypes, selectMultiple: boolean) => void;
@@ -48,6 +51,7 @@ type DispatchProps = {
   onDeleteObjects: () => void;
   onMoveBlocks: (delta: Vector2D) => void;
   onResizeBlock: (resizeDirection: DirectionType, delta: Vector2D) => void;
+  onAddBlock: (blockTemplate: any, position: Vector2D) => void;
   onAddEdge: (
     output: { block: VisualBlockStorageType<any, any>; portInd: number },
     input: { block: VisualBlockStorageType<any, any>; portInd: number }
@@ -58,8 +62,8 @@ type DispatchProps = {
   onZoom: (delta: number, around: Vector2D) => void;
   onTranslate: (point: Vector2D) => void;
 };
-type ComponentProps = Record<string, never>;
-type PropsType = GlobalProps & DispatchProps & ComponentProps;
+
+type PropsType = GlobalProps & DispatchProps;
 type StateType = {
   canvasSize: Vector2D;
   mouseDown?: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE' | 'PORT' | 'EDGE'>;
@@ -230,31 +234,34 @@ class CanvasContainer extends Component<PropsType, StateType> {
     );
     if (blockShape.size.x <= 25 || blockShape.size.y <= 25) return <React.Fragment />;
 
-    // eslint-disable-next-line react/no-unstable-nested-components
-    const PortListWrapper = () => (
-      <PortList
-        canvasTranslation={this.props.canvasTranslation}
-        canvasZoom={this.props.canvasZoom}
-        screenSize={this.state.canvasSize}
-        onMouseUp={(block, portInd, isOutput) =>
-          this.mouseUpHandler({
-            mouseOn: 'PORT',
-            block: block,
-            portInd: portInd,
-            isOutput: isOutput
-          })
-        }
-        onMouseDown={(block, portInd, isOutput) =>
-          this.mouseDownHandler({
-            mouseOn: 'PORT',
-            block: block,
-            portInd: portInd,
-            isOutput: isOutput
-          })
-        }
-        block={props.block}
-      />
-    );
+    /* eslint-disable */
+    const PortListWrapper = () => {
+      return (
+        <PortList
+          canvasTranslation={this.props.canvasTranslation}
+          canvasZoom={this.props.canvasZoom}
+          screenSize={this.state.canvasSize}
+          onMouseUp={(block, portInd, isOutput) =>
+            this.mouseUpHandler({
+              mouseOn: 'PORT',
+              block: block,
+              portInd: portInd,
+              isOutput: isOutput
+            })
+          }
+          onMouseDown={(block, portInd, isOutput) =>
+            this.mouseDownHandler({
+              mouseOn: 'PORT',
+              block: block,
+              portInd: portInd,
+              isOutput: isOutput
+            })
+          }
+          block={props.block}
+        />
+      );
+    };
+    /* eslint-enable */
 
     return (
       <React.Fragment key={`block-${props.block.id}`}>
@@ -298,7 +305,6 @@ class CanvasContainer extends Component<PropsType, StateType> {
           position: 'absolute',
           top: 0,
           left: 0,
-          width: '100%',
           height: '100%'
         }}
         tabIndex={1}
@@ -312,7 +318,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
               listening={false}
               width={this.state.canvasSize.x}
               height={this.state.canvasSize.y}
-              fill={this.props.theme.palette.background}
+              fill={this.props.theme.value.primary.background.tint(80).hexString()}
               shadowBlur={10}
             />
           </Layer>
@@ -398,6 +404,11 @@ class CanvasContainer extends Component<PropsType, StateType> {
                 />
               ))}
 
+            {/* ------------------------------ Not Selected Blocks --------------------------------------*/}
+            {notSelectedBlocks.map((block) => (
+              <this.BlockPortComponent key={`not_selected_block_${block.id}`} block={block} selected={false} />
+            ))}
+
             {/* ------------------------------ Selected Blocks ------------------------------------------*/}
             {selectedBlocks.map((block) => (
               <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected />
@@ -434,6 +445,69 @@ class CanvasContainer extends Component<PropsType, StateType> {
   }
 }
 
+function CanvasContainerDroppableWrapper(props: PropsType) {
+  const canvasContainerRef = React.useRef<CanvasContainer>(null);
+
+  const [{ isOver, canDrop }, drop] = useDrop(
+    () => ({
+      accept: 'block',
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop()
+      }),
+      drop: (item: { type: string; blockTemplate: any }, monitor: DropTargetMonitor) => {
+        const clientOffset = monitor.getClientOffset();
+
+        if (clientOffset && item.blockTemplate && canvasContainerRef.current) {
+          // Get the canvas size from the CanvasContainer's state (the actual rendering canvas size)
+          const canvasSize = canvasContainerRef.current.state.canvasSize;
+
+          // Get the wrapper element's bounding rect for position
+          const wrapperElement = canvasContainerRef.current.wrapperRef.current;
+          if (!wrapperElement) {
+            console.warn('⚠️ Wrapper element not found');
+            return;
+          }
+
+          const rect = wrapperElement.getBoundingClientRect();
+
+          // Convert clientOffset (viewport coordinates) to canvas-relative coordinates
+          const canvasRelativeX = clientOffset.x - rect.left;
+          const canvasRelativeY = clientOffset.y - rect.top;
+
+          // Convert canvas-relative screen coordinates to canvas world coordinates
+          const cursorWorldPosition = ScreenToWorld(
+            new Vector2D(canvasRelativeX, canvasRelativeY),
+            props.canvasTranslation,
+            props.canvasZoom,
+            canvasSize
+          );
+
+          // Place block with center at cursor world position
+          props.onAddBlock(item.blockTemplate, cursorWorldPosition);
+        } else {
+          console.warn('⚠️ Drop failed - missing clientOffset or blockTemplate');
+        }
+      }
+  }),
+    [props.canvasZoom, props.canvasTranslation, props.onAddBlock]
+  );
+
+  return (
+    <div
+      ref={drop}
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        backgroundColor: isOver && canDrop ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
+      }}
+    >
+      <CanvasContainer ref={canvasContainerRef} {...props} />
+    </div>
+  );
+}
+
 // Creates a function to map the redux state to the redux props
 function mapStateToProps(state: SaveState): GlobalProps {
   return {
@@ -455,6 +529,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       onDeselectObjects: DeselectObjectsAction,
       onDeleteObjects: DeletedObjectsAction,
       onMoveBlocks: MovedBlocksAction,
+      onAddBlock: AddBlockAction,
       onResizeBlock: ResizedBlocksAction,
       onAddEdge: AddedEdgeAction,
       onMoveEdge: MovedEdgeAction,
@@ -468,4 +543,4 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 }
 
 // Exports the redux connected component
-export default connect(mapStateToProps, mapDispatchToProps)(CanvasContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(CanvasContainerDroppableWrapper);

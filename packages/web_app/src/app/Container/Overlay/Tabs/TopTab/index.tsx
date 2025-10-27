@@ -2,11 +2,11 @@ import React from 'react';
 import { Container, Form } from 'react-bootstrap';
 import { Play } from 'react-feather';
 
+import ColorTheme from '../../../../../theme/ColorTheme';
 import { SetOpacityHex } from '../../../../../theme/helpers';
-import { ThemeType } from '../../../../../types';
 
 type PropsType = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
 
 export default function TopTab(props: PropsType) {
@@ -15,8 +15,10 @@ export default function TopTab(props: PropsType) {
       style={{
         width: '100%',
         height: '150px',
-        background: `linear-gradient(to top, ${SetOpacityHex(props.theme.palette.background, 0.0)}, 
-                                    ${SetOpacityHex(props.theme.palette.background, 1.0)})`,
+        background: `linear-gradient(to top, ${SetOpacityHex(
+          props.theme.value.primary.background.tint(80).hexString(),
+          0.0
+        )}, ${SetOpacityHex(props.theme.value.primary.background.tint(80).hexString(), 1.0)})`,
         pointerEvents: 'auto'
       }}
     >
@@ -25,7 +27,7 @@ export default function TopTab(props: PropsType) {
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: props.theme.palette.text,
+            backgroundColor: props.theme.get('background'),
             borderRadius: '20px',
             display: 'flex',
             flexFlow: 'row nowrap',
@@ -53,11 +55,17 @@ export default function TopTab(props: PropsType) {
               gap: '5px'
             }}
           >
-            <Play stroke={props.theme.palette.shadow} fill={SetOpacityHex(props.theme.palette.shadow, 0.5)} />
+            <Play
+              stroke={props.theme.get('illustration')}
+              fill={props.theme.value.primary.background.tint(50).hexString()}
+            />
             <style>{`
                   #simTimeInput::placeholder {
-                    color: ${props.theme.palette.text};
+                    color: ${props.theme.get('heading')};
                     opacity: 0.4;
+                  }
+                  #simTimeInput::focus {
+                    outline: none!important
                   }
             `}</style>
             <Form.Control
@@ -67,8 +75,10 @@ export default function TopTab(props: PropsType) {
               placeholder="Simulation Time"
               style={{
                 width: '200px',
-                backgroundColor: props.theme.palette.shadow,
-                color: props.theme.palette.text
+                backgroundColor: props.theme.value.primary.background.tint(50).hexString(),
+                border: 0,
+                outline: 0,
+                color: props.theme.get('heading')
               }}
               onChange={() => console.log('Changed')}
             />

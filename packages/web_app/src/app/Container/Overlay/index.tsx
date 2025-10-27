@@ -1,19 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { StateType as SaveState } from '../../../store/types';
-import { ThemeType } from '../../../types';
 import TopTab from './Tabs/TopTab';
+import { StateType as SaveState } from '../../../store/types';
+import ColorTheme from '../../../theme/ColorTheme';
 
 type GlobalProps = {
-  theme: ThemeType;
+  theme: ColorTheme;
 };
-type DispatchProps = Record<string, never>;
 type ComponentProps = {
   style?: React.CSSProperties;
 };
 
-type PropsType = GlobalProps & DispatchProps & ComponentProps;
+type PropsType = GlobalProps & ComponentProps;
 
 function Overlay(props: PropsType) {
   return (

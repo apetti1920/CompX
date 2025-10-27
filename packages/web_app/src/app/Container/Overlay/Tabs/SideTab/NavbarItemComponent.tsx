@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Icon } from 'react-feather';
 
+import ColorTheme from '../../../../../theme/ColorTheme';
+
 export type NavbarType =
   | {
       type: 'icon';
       icon: Icon;
       openSidebar: {
         type: 'tab' | 'modal';
-        element: React.ReactElement;
+        element: React.ReactElement<{ theme: ColorTheme }>;
       };
     }
   | {
@@ -15,7 +17,7 @@ export type NavbarType =
       height: string;
     };
 
-export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLick: () => void }) {
+export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLick: () => void; theme: ColorTheme }) {
   const [isHover, setHover] = useState(false);
   const IconComponent = props.icon;
 
@@ -43,7 +45,11 @@ export function NavbarComponent(props: { icon: Icon; isSelected: boolean; onCLic
             marginRight: 'auto',
             width: '40%'
           }}
-          stroke={isHover || props.isSelected ? 'white' : 'gray'}
+          stroke={
+            isHover || props.isSelected
+              ? props.theme.value.primary.background.tint(90).hexString()
+              : props.theme.value.primary.background.tint(50).hexString()
+          }
         />
       </div>
     </React.Fragment>

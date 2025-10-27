@@ -1,10 +1,11 @@
+import { Constant, Sum, Multiply } from '@compx/common/DefaultBlocks';
 import { BlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { VisualGraphStorageType } from '@compx/common/Network/GraphItemStorage/GraphStorage';
 import { Vector2D } from '@compx/common/Types';
 
-import DarkTheme from '../theme/DarkTheme';
-import { ThemeType } from '../types';
 import MakeVisualGraph from './testGraph';
+import ColorTheme from '../theme/ColorTheme';
+import Theme from '../theme/DarkTheme1';
 
 export type SelectableItemTypes = 'BLOCK' | 'EDGE';
 export type SelectedItemsType = { itemType: SelectableItemTypes; id: string };
@@ -15,7 +16,7 @@ export type StateType = {
     libraryBlocks: BlockStorageType<any, any>[];
   };
   userStorage: {
-    theme: ThemeType;
+    theme: ColorTheme;
     canvas: {
       zoom: number;
       translation: Vector2D;
@@ -25,12 +26,12 @@ export type StateType = {
 
 export const defaultState: StateType = {
   currentGraph: {
-    graph: MakeVisualGraph(3),
+    graph: MakeVisualGraph(0),
     selected: [],
-    libraryBlocks: []
+    libraryBlocks: [Constant, Sum, Multiply]
   },
   userStorage: {
-    theme: DarkTheme,
+    theme: new ColorTheme(Theme),
     canvas: {
       zoom: 5.6,
       translation: new Vector2D()

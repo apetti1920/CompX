@@ -3,6 +3,11 @@ module.exports = {
   devtool: 'cheap-module-source-map',
   devServer: {
     hot: true,
-    open: true
+    open: {
+      app: {
+        name: 'google-chrome'
+      }
+    },
+    port: 3000
   }
 };
