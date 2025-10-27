@@ -25,15 +25,9 @@ import { ActionPayloadType, StateType } from '../types';
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
   switch (action.type) {
     case AddBlockActionType: {
-      console.log('📦 ADD_BLOCK REDUCER CALLED');
-      console.log('Action payload:', action.payload);
-
       const tempState = _.cloneDeep(state);
       const blockTemplate = action.payload['blockTemplate'];
       const position: Vector2D = action.payload['position'];
-
-      console.log('Block template:', blockTemplate);
-      console.log('Position:', position);
 
       if (!blockTemplate) {
         console.warn('⚠️ No blockTemplate in payload, returning state');
@@ -60,13 +54,7 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
         color: '#3b82f6'
       };
 
-      console.log('New block created:', newBlock);
-      console.log('Blocks before push:', tempState.currentGraph.graph.blocks.length);
-
       tempState.currentGraph.graph.blocks.push(newBlock);
-
-      console.log('Blocks after push:', tempState.currentGraph.graph.blocks.length);
-      console.log('✅ ADD_BLOCK REDUCER COMPLETE, returning new state');
 
       return tempState;
     }
