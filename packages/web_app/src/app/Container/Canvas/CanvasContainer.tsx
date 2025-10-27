@@ -17,6 +17,7 @@ import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
 import PortList from './Graph/VisualTypes/PortList';
 import Grid from './Grid/Grid';
 import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
+import { ScreenToWorld } from '../../../helpers';
 import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
 import {
   AddBlockAction,
@@ -73,6 +74,15 @@ class CanvasContainer extends Component<PropsType, StateType> {
   private readonly wrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   private readonly stageRef: React.MutableRefObject<Konva.Stage | null>;
   private readonly ThrottledSetWindowSize = throttle(() => requestAnimationFrame(this.SetWindowSize), 60);
+
+  componentDidUpdate(prevProps: PropsType) {
+    if (prevProps.blocks.length !== this.props.blocks.length) {
+      console.log('🔄 BLOCKS PROP UPDATED!');
+      console.log('Previous blocks count:', prevProps.blocks.length);
+      console.log('New blocks count:', this.props.blocks.length);
+      console.log('New blocks:', this.props.blocks);
+    }
+  }
 
   // Create the Component
   constructor(props: PropsType) {
@@ -297,6 +307,17 @@ class CanvasContainer extends Component<PropsType, StateType> {
       selectedBlocks = [];
     }
 
+    console.log('🎨 RENDER METHOD CALLED');
+    console.log('Total blocks:', this.props.blocks.length);
+    console.log('Selected block IDs:', this.props.selectedBlockIds);
+    console.log('Not selected blocks count:', notSelectedBlocks.length);
+    console.log('Selected blocks count:', selectedBlocks.length);
+    if (notSelectedBlocks.length > 0) {
+      console.log('First notSelectedBlock:', notSelectedBlocks[0]);
+      console.log('Position:', notSelectedBlocks[0].position);
+      console.log('Size:', notSelectedBlocks[0].size);
+    }
+
     return (
       <div
         ref={this.wrapperRef}
@@ -403,6 +424,11 @@ class CanvasContainer extends Component<PropsType, StateType> {
                 />
               ))}
 
+            {/* ------------------------------ Not Selected Blocks --------------------------------------*/}
+            {notSelectedBlocks.map((block) => (
+              <this.BlockPortComponent key={`not_selected_block_${block.id}`} block={block} selected={false} />
+            ))}
+
             {/* ------------------------------ Selected Blocks ------------------------------------------*/}
             {selectedBlocks.map((block) => (
               <this.BlockPortComponent key={`selected_block_${block.id}`} block={block} selected />
@@ -440,29 +466,85 @@ class CanvasContainer extends Component<PropsType, StateType> {
 }
 
 function CanvasContainerDroppableWrapper(props: PropsType) {
-  const [_, drop] = useDrop(() => ({
-    accept: 'block',
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop()
-    }),
-    drop: (item: { type: string; blockTemplate: any }, monitor: DropTargetMonitor) => {
-      const clientOffset = monitor.getClientOffset();
-      if (clientOffset && item.blockTemplate) {
-        // Convert screen coordinates to canvas coordinates
-        const canvasX = (clientOffset.x - props.canvasTranslation.x) / props.canvasZoom;
-        const canvasY = (clientOffset.y - props.canvasTranslation.y) / props.canvasZoom;
-        const canvasPosition = new Vector2D(canvasX, canvasY);
+  const canvasContainerRef = React.useRef<CanvasContainer>(null);
 
-        // Add the block at the drop position
-        props.onAddBlock(item.blockTemplate, canvasPosition);
+  const [{ isOver, canDrop }, drop] = useDrop(
+    () => ({
+      accept: 'block',
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop()
+      }),
+      drop: (item: { type: string; blockTemplate: any }, monitor: DropTargetMonitor) => {
+        console.log('🎯 DROP EVENT FIRED!');
+        console.log('Item:', item);
+        console.log('onAddBlock available:', !!props.onAddBlock);
+
+        const clientOffset = monitor.getClientOffset();
+        console.log('Client offset:', clientOffset);
+        console.log('Canvas translation (from props):', props.canvasTranslation);
+        console.log('Canvas zoom (from props):', props.canvasZoom);
+
+      if (clientOffset && item.blockTemplate && canvasContainerRef.current) {
+        // Get the canvas size from the CanvasContainer's state (the actual rendering canvas size)
+        const canvasSize = canvasContainerRef.current.state.canvasSize;
+
+        // Get the wrapper element's bounding rect for position
+        const wrapperElement = canvasContainerRef.current.wrapperRef.current;
+        if (!wrapperElement) {
+          console.warn('⚠️ Wrapper element not found');
+          return;
+        }
+
+        const rect = wrapperElement.getBoundingClientRect();
+
+        // Convert clientOffset (viewport coordinates) to canvas-relative coordinates
+        const canvasRelativeX = clientOffset.x - rect.left;
+        const canvasRelativeY = clientOffset.y - rect.top;
+
+        console.log('🎯 DROP COORDINATES DEBUG:');
+        console.log('  Viewport coords:', clientOffset);
+        console.log('  Canvas rect:', { left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+        console.log('  Canvas size from state:', canvasSize);
+        console.log('  Canvas-relative coords:', { x: canvasRelativeX, y: canvasRelativeY });
+        console.log('  Canvas translation:', props.canvasTranslation);
+        console.log('  Canvas zoom:', props.canvasZoom);
+
+        // Convert canvas-relative screen coordinates to canvas world coordinates
+        const cursorWorldPosition = ScreenToWorld(
+          new Vector2D(canvasRelativeX, canvasRelativeY),
+          props.canvasTranslation,
+          props.canvasZoom,
+          canvasSize
+        );
+
+        console.log('  Cursor world position (block center):', cursorWorldPosition);
+        console.log('  Block will be created at this center position');
+        console.log('✅ Calling onAddBlock');
+
+        // Place block with center at cursor world position
+        props.onAddBlock(item.blockTemplate, cursorWorldPosition);
+      } else {
+        console.warn('⚠️ Drop failed - missing clientOffset or blockTemplate');
       }
     }
-  }));
+  }),
+    [props.canvasZoom, props.canvasTranslation, props.onAddBlock]
+  );
+
+  console.log('Drop zone: isOver =', isOver, ', canDrop =', canDrop);
 
   return (
-    <div ref={drop} style={{ width: '100%', height: '100%' }}>
-      <CanvasContainer {...props} />
+    <div
+      ref={drop}
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        backgroundColor: isOver && canDrop ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
+      }}
+    >
+      <CanvasContainer ref={canvasContainerRef} {...props} />
     </div>
   );
 }

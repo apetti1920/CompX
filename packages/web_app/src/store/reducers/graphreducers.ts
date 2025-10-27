@@ -25,11 +25,20 @@ import { ActionPayloadType, StateType } from '../types';
 function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
   switch (action.type) {
     case AddBlockActionType: {
+      console.log('📦 ADD_BLOCK REDUCER CALLED');
+      console.log('Action payload:', action.payload);
+
       const tempState = _.cloneDeep(state);
       const blockTemplate = action.payload['blockTemplate'];
       const position: Vector2D = action.payload['position'];
 
-      if (!blockTemplate) return tempState;
+      console.log('Block template:', blockTemplate);
+      console.log('Position:', position);
+
+      if (!blockTemplate) {
+        console.warn('⚠️ No blockTemplate in payload, returning state');
+        return tempState;
+      }
 
       // Create a new visual block from the template
       const newBlock: VisualBlockStorageType<any, any> = {
@@ -45,13 +54,20 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
           id: uuidv4()
         })),
         position: position,
-        size: new Vector2D(15, 10),
+        size: new Vector2D(30, 30),
         mirrored: false,
         shape: 'rect' as const,
         color: '#3b82f6'
       };
 
+      console.log('New block created:', newBlock);
+      console.log('Blocks before push:', tempState.currentGraph.graph.blocks.length);
+
       tempState.currentGraph.graph.blocks.push(newBlock);
+
+      console.log('Blocks after push:', tempState.currentGraph.graph.blocks.length);
+      console.log('✅ ADD_BLOCK REDUCER COMPLETE, returning new state');
+
       return tempState;
     }
     case MovedBlockActionType: {
