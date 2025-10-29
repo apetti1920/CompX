@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import App from './app/app.web';
 import store from './store';
+import { BlockServiceProvider } from './services/BlockService';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -14,7 +15,9 @@ const root = ReactDOM.createRoot(el);
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <BlockServiceProvider>
+        <App />
+      </BlockServiceProvider>
     </Provider>
   </React.StrictMode>
 );

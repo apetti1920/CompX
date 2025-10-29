@@ -1,11 +1,13 @@
 import React from 'react';
 
 import Container from './Container/Container';
+import { BlockLibraryLoader } from './BlockLibraryLoader';
 import './electron-bar.css';
 
 export default function App(): React.ReactElement {
   return (
     <React.Fragment>
+      <BlockLibraryLoader />
       <Container />
       {process.env.BUILD_TYPE === 'electron' ? (
         <div

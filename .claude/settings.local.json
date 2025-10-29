@@ -20,7 +20,12 @@
       "mcp__serena__list_dir",
       "Bash(npx ts-node:*)",
       "mcp__serena__get_current_config",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "mcp__serena__read_memory",
+      "Bash(npx tsc:*)",
+      "mcp__serena__think_about_whether_you_are_done",
+      "Bash(find:*)",
+      "Bash(npm run electron:start:*)"
     ],
     "deny": [],
     "ask": []

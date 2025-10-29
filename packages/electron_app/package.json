@@ -2,7 +2,7 @@
   "name": "@compx/electron_app",
   "version": "1.0.0",
   "description": "Electron",
-  "main": "./dist/main/index.js",
+  "main": "./dist/main/electron_app/src/index.js",
   "scripts": {
     "prebuild": "rimraf dist/main",
     "build": "npx tsc",

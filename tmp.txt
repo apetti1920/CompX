@@ -1,141 +1,47 @@
-Ready to code?
 
- Here is Claude's plan:
-╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
- JSON-Based Block Definition System Design
+  🔍 Troubleshooting Summary
 
- Overview
+  I've identified 3 critical issues preventing the block library from using JSON files:
 
- Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
- multi-platform API support.
+  Root Causes:
 
- Core Components
+  1. ❌ No Electron IPC Handlers: The main process has ZERO IPC handlers registered. When ElectronBlockService
+  calls ipc.invoke('block-library:get-all'), nothing responds.
+  2. ❌ Hardcoded Redux Store: packages/web_app/src/store/types.ts:31 initializes with only 3 blocks:
+  libraryBlocks: [Constant, Sum, Multiply]  // Hardcoded from DefaultBlocks
+  3. ❌ Missing BlockManager: There's no server-side block management in the Electron main process to read JSON
+  files from disk.
 
- 1. JSON Schema Definition
+  Why You Only See 3 Blocks:
 
- - Block schema v1.0 with versioning support
- - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
- (color, icon, shape)
- - JSON Schema validation for type safety
+  The web app never actually calls the BlockService successfully because:
+  - IPC calls fail silently (no handlers)
+  - Redux store uses hardcoded blocks from DefaultBlocks
+  - JSON files exist but are never loaded
 
- 2. Block Storage & Organization
+  Can We Delete DefaultBlocks?
 
- - Category-based subdirectories (math/, logic/, io/, etc.)
- - Tags remain searchable metadata (independent of directory)
- - Location: block_definitions/ in packages/common
+  Not yet! Current dependencies:
+  - ✅ packages/web_app/src/store/types.ts:1 - Active import
+  - ✅ Redux initialization - Uses Constant, Sum, Multiply
 
- 3. Build-Time Processing
+  Safe to delete after:
+  1. Implementing Electron BlockManager
+  2. Registering IPC handlers
+  3. Updating Redux to load from service
+  4. Verifying tests pass
 
- - Compile JSON → TypeScript types during build
- - Validate all block definitions
- - Generate block registry/index
+  Implementation Required:
 
- 4. Electron Integration
+⏺ I've created a comprehensive troubleshooting report at claudedocs/TROUBLESHOOTING_BLOCK_LIBRARY.md with:
 
-────────────────────────────────────────────────────────────────────────────────────────────────────
- Ready to code?
+  ✅ Root cause analysis with evidence✅ Architecture gap diagrams showing what's missing✅ Complete 
+  implementation plan with file locations✅ Deletion safety checklist✅ Testing verification steps
 
- Here is Claude's plan:
-╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
- JSON-Based Block Definition System Design
+  Next Steps: Would you like me to:
+  1. Implement the Electron BlockManager and IPC handlers?
+  2. Update the Redux store to use the BlockService?
+  3. Both of the above to complete the integration?
 
- Overview
-
- Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
- multi-platform API support.
-
- Core Components
-
- 1. JSON Schema Definition
-
- - Block schema v1.0 with versioning support
- - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
- (color, icon, shape)
- - JSON Schema validation for type safety
-
- 2. Block Storage & Organization
-
- - Category-based subdirectories (math/, logic/, io/, etc.)
- - Tags remain searchable metadata (independent of directory)
- - Location: block_definitions/ in packages/common
-
- 3. Build-Time Processing
-
- - Compile JSON → TypeScript types during build
- - Validate all block definitions
- - Generate block registry/index
-
- 4. Electron Integration
-
-────────────────────────────────────────────────────────────────────────────────────────────────────
- Ready to code?
-
- Here is Claude's plan:
-╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
- JSON-Based Block Definition System Design
-
- Overview
-
- Migrate from TypeScript block definitions to JSON-based schema with validation, loading, and
- multi-platform API support.
-
- Core Components
-
- 1. JSON Schema Definition
-
- - Block schema v1.0 with versioning support
- - Fields: name, version, description, tags, inputPorts[], outputPorts[], callbackString, visual
- (color, icon, shape)
- - JSON Schema validation for type safety
-
- 2. Block Storage & Organization
-
- - Category-based subdirectories (math/, logic/, io/, etc.)
- - Tags remain searchable metadata (independent of directory)
- - Location: block_definitions/ in packages/common
-
- 3. Build-Time Processing
-
- - Compile JSON → TypeScript types during build
- - Validate all block definitions
- - Generate block registry/index
-
- 4. Electron Integration
-
- - Load blocks during electron_loader startup
- - IPC API for block library access
- - Cache compiled blocks in userData
-
- 5. Web Server Abstraction Layer
-
- - Platform-agnostic API interface
- - Electron IPC implementation
- - Future HTTP/REST implementation
- - Unified frontend access pattern
-
- 6. Frontend Block Access
-
- - Service layer abstracts platform differences
- - Search/filter by name, tags, category
- - Type-safe block retrieval
- - Hot-reload support for development
-
- Implementation Steps
-
- 1. Create JSON schema + example blocks
- 2. Build validation system
- 3. Implement loader/registry
- 4. Create IPC API handlers (Electron)
- 5. Build abstraction layer + service interface
- 6. Update frontend to use new API
- 7. Add web server implementation (future)
- 8. Migrate existing TS blocks to JSON
- 9. Deprecate old TS definitions
-
- Key Design Decisions
-
- - ✅ Basic visual styling (color, icon, shape)
- - ✅ Version field with migration support
- - ✅ Category directories + tag-based search
- - ✅ Strict schema (no custom metadata)
- - ✅ Platform-agnostic API from day 1
+  The implementation will enable the JSON-based block system and allow safe deletion of the DefaultBlocks
+  directory.

@@ -5,6 +5,8 @@
 
 import Ajv, { ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
+import { promises as fs } from 'fs';
+import path from 'path';
 import {
   BlockDefinition,
   ValidationResult,
@@ -14,6 +16,19 @@ import {
   OutputPortDefinition
 } from './types';
 import blockSchema from './schema.json';
+import { getMigrator } from './migrator';
+
+/**
+ * Validator options
+ */
+export interface BlockValidatorOptions {
+  /** Enable file path verification for icons (default: false, requires async validation) */
+  verifyPaths?: boolean;
+  /** Base directory for resolving relative icon paths */
+  baseDir?: string;
+  /** Enable automatic migration for compatible versions (default: true) */
+  autoMigrate?: boolean;
+}
 
 /**
  * Validator class for block definitions
@@ -22,8 +37,15 @@ import blockSchema from './schema.json';
 export class BlockValidator {
   private ajv: Ajv;
   private validateFn: ReturnType<Ajv['compile']>;
+  private options: Required<BlockValidatorOptions>;
 
-  constructor() {
+  constructor(options: BlockValidatorOptions = {}) {
+    this.options = {
+      verifyPaths: options.verifyPaths ?? false,
+      baseDir: options.baseDir ?? process.cwd(),
+      autoMigrate: options.autoMigrate ?? true
+    };
+
     // Initialize Ajv with strict mode and all errors
     this.ajv = new Ajv({
       allErrors: true,
@@ -43,9 +65,10 @@ export class BlockValidator {
   }
 
   /**
-   * Validate a block definition
+   * Validate a block definition (synchronous)
    * @param block - Block definition to validate
    * @returns Validation result with errors and warnings
+   * @note For path verification, use validateAsync instead
    */
   validate(block: unknown): ValidationResult {
     const errors: ValidationError[] = [];
@@ -67,8 +90,37 @@ export class BlockValidator {
       };
     }
 
-    // Step 2: Semantic validation (assumes schema is valid)
+    // Step 2: Version compatibility and migration
     const blockDef = block as BlockDefinition;
+    if (this.options.autoMigrate && blockDef.schema_version !== CURRENT_SCHEMA_VERSION) {
+      const migrator = getMigrator();
+      const migrationResult = migrator.migrate(blockDef);
+
+      if (migrationResult.migrated) {
+        warnings.push({
+          field: 'schema_version',
+          message: `Block automatically migrated from ${migrationResult.originalVersion} to ${migrationResult.targetVersion}`,
+          severity: 'warning'
+        });
+        migrationResult.warnings.forEach(w => {
+          warnings.push({
+            field: 'migration',
+            message: w,
+            severity: 'warning'
+          });
+        });
+      } else if (migrationResult.warnings.length > 0) {
+        migrationResult.warnings.forEach(w => {
+          warnings.push({
+            field: 'schema_version',
+            message: w,
+            severity: 'warning'
+          });
+        });
+      }
+    }
+
+    // Step 3: Semantic validation (assumes schema is valid)
     const semanticErrors = this.validateSemantics(blockDef);
     errors.push(...semanticErrors.errors);
     warnings.push(...semanticErrors.warnings);
@@ -78,6 +130,25 @@ export class BlockValidator {
       errors,
       warnings
     };
+  }
+
+  /**
+   * Validate a block definition (asynchronous, with file path verification)
+   * @param block - Block definition to validate
+   * @returns Promise resolving to validation result
+   */
+  async validateAsync(block: unknown): Promise<ValidationResult> {
+    // First, do synchronous validation
+    const result = this.validate(block);
+
+    // If path verification is enabled and block is valid so far
+    if (this.options.verifyPaths && result.valid && typeof block === 'object' && block !== null) {
+      const blockDef = block as BlockDefinition;
+      const pathErrors = await this.validatePaths(blockDef);
+      result.warnings.push(...pathErrors);
+    }
+
+    return result;
   }
 
   /**
@@ -341,6 +412,43 @@ export class BlockValidator {
     });
 
     return Array.from(duplicates);
+  }
+
+  /**
+   * Validate file paths for icons and images (async)
+   * @param block - Block definition
+   * @returns Array of validation warnings for missing files
+   */
+  private async validatePaths(block: BlockDefinition): Promise<ValidationError[]> {
+    const warnings: ValidationError[] = [];
+
+    // Check icon path if specified
+    if (block.visual?.icon) {
+      const iconPath = block.visual.icon;
+
+      // Skip validation for icon identifiers (non-path strings)
+      if (!iconPath.includes('/') && !iconPath.includes('\\') && !iconPath.includes('.')) {
+        // This is likely an icon identifier, not a file path
+        return warnings;
+      }
+
+      // Resolve path relative to base directory
+      const resolvedPath = path.isAbsolute(iconPath)
+        ? iconPath
+        : path.resolve(this.options.baseDir, iconPath);
+
+      try {
+        await fs.access(resolvedPath);
+      } catch {
+        warnings.push({
+          field: 'visual.icon',
+          message: `Icon file not found: ${iconPath} (resolved to: ${resolvedPath})`,
+          severity: 'warning'
+        });
+      }
+    }
+
+    return warnings;
   }
 }
 

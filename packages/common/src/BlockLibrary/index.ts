@@ -31,6 +31,13 @@
 export { BlockLibraryManager, BlockLibraryManagerOptions, getDefaultManager, resetDefaultManager } from './BlockLibraryManager';
 export { BlockRegistry } from './BlockRegistry';
 export {
+  BlockWatcher,
+  BlockWatcherOptions,
+  WatchedDirectory,
+  createWatchedDirectory,
+  createStandardWatchDirectories
+} from './BlockWatcher';
+export {
   BlockSearchQuery,
   LibraryEventType,
   LibraryChangeEvent,

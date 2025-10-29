@@ -5,6 +5,7 @@ import path from 'path';
 import { app } from 'electron';
 
 import WindowManager from './window_manager';
+import { setupBlockServiceHandlers } from './ipc/blockServiceHandlers';
 
 // import { BrowserWindow, BrowserWindowConstructorOptions, app } from 'electron';
 //
@@ -66,14 +67,27 @@ import WindowManager from './window_manager';
 
 const windowManager = WindowManager.GetInstance();
 
+// Set application name for userData path
+app.setName('CompX');
+
 app.on('ready', async () => {
+  // Initialize block service IPC handlers
+  try {
+    await setupBlockServiceHandlers();
+    console.log('Block service initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize block service:', error);
+  }
+
   // const loadingWindowPath = path.join(__dirname, '/../renderer/loader/index.html');
   // windowManager.CreateWindow('loader', { width: 450, height: 300, frame: false });
   // await windowManager.GetWindowByName('loader').loadFile(loadingWindowPath);
 
   // await SetupApp();
 
-  const mainWindowPath = path.join(__dirname, '/../renderer/app/index.html');
+  // Path calculation: __dirname is dist/main/electron_app/src
+  // Need to go up 3 levels to get to dist/, then into renderer/app/
+  const mainWindowPath = path.join(__dirname, '../../../renderer/app/index.html');
   windowManager.CreateWindow('main', { titleBarStyle: 'hidden', titleBarOverlay: true });
   const mainWindow = windowManager.GetWindowByName('main');
   await mainWindow.loadFile(mainWindowPath);
@@ -81,7 +95,8 @@ app.on('ready', async () => {
   // Open DevTools for debugging
   mainWindow.webContents.openDevTools();
 
-  windowManager.CloseWindow('loader');
+  // Note: loader window creation is commented out above, so no need to close it
+  // windowManager.CloseWindow('loader');
 });
 
 app.on('window-all-closed', () => {
