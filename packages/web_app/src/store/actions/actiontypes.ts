@@ -2,6 +2,7 @@ import { CanvasReducerName, GraphReducerName } from './actionnames';
 
 // Graph Reducer Strings
 export const UpdateLibraryActionType = `@@${GraphReducerName}/UPDATED_LIBRARY`;
+export const LoadLibraryBlocksActionType = `@@${GraphReducerName}/LOAD_LIBRARY_BLOCKS`;
 export const AddBlockActionType = `@@${GraphReducerName}/ADD_BLOCK`;
 export const MovedBlockActionType = `@@${GraphReducerName}/MOVED_BLOCK`;
 export const ResizedBlockActionType = `@@${GraphReducerName}/RESIZED_BLOCK`;

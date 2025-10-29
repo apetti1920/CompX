@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "name": "integrator",
+  "version": "1.0.0",
+  "description": "Continuous integration of input signal using trapezoidal rule. Creates state by accumulating input over time.",
+  "category": "math",
+  "tags": ["math", "diffeq", "dynamics", "state", "integration"],
+  "inputPorts": [
+    {
+      "name": "x",
+      "type": "NUMBER",
+      "initialValue": 0
+    }
+  ],
+  "outputPorts": [
+    {
+      "name": "y",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [prevOutput[y] + dt * (prevInput[x] + inputPort[x]) / 2]",
+  "visual": {
+    "color": "#2196F3",
+    "icon": "activity",
+    "shape": "rect"
+  }
+}

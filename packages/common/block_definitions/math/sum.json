@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "name": "sum",
+  "version": "1.0.0",
+  "description": "Adds two input signals together",
+  "category": "math",
+  "tags": ["math", "arithmetic", "addition"],
+  "inputPorts": [
+    {
+      "name": "a",
+      "type": "NUMBER"
+    },
+    {
+      "name": "b",
+      "type": "NUMBER"
+    }
+  ],
+  "outputPorts": [
+    {
+      "name": "y",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [inputPort[a] + inputPort[b]]",
+  "visual": {
+    "color": "#9C27B0",
+    "icon": "plus",
+    "shape": "circ"
+  }
+}

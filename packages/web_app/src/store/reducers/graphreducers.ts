@@ -13,6 +13,7 @@ import {
   AddEdgeSplitActionType,
   DeletedObjectActionType,
   DeselectedObjectActionType,
+  LoadLibraryBlocksActionType,
   MovedBlockActionType,
   MovedEdgeActionType,
   RemoveEdgeSplitActionType,
@@ -348,6 +349,11 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
         return tempState;
 
       tempState.currentGraph.graph.edges[selectedEdgeInd].midPoints.splice(edgePieceInd, 2);
+      return tempState;
+    }
+    case LoadLibraryBlocksActionType: {
+      const tempState = _.cloneDeep(state);
+      tempState.currentGraph.libraryBlocks = action.payload['blocks'];
       return tempState;
     }
     case UpdateLibraryActionType: {

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "name": "constant",
+  "version": "1.0.0",
+  "description": "Outputs a constant numeric value",
+  "category": "math",
+  "tags": ["math", "source", "basic"],
+  "inputPorts": [],
+  "outputPorts": [
+    {
+      "name": "c",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [5]",
+  "visual": {
+    "color": "#FF9800",
+    "icon": "hash",
+    "shape": "rect"
+  }
+}

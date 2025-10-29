@@ -15,7 +15,17 @@
       "mcp__serena__find_symbol",
       "mcp__serena__activate_project",
       "Bash(npm test:*)",
-      "Bash(npm run test:coverage:*)"
+      "Bash(npm run test:coverage:*)",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__list_dir",
+      "Bash(npx ts-node:*)",
+      "mcp__serena__get_current_config",
+      "Bash(npx jest:*)",
+      "mcp__serena__read_memory",
+      "Bash(npx tsc:*)",
+      "mcp__serena__think_about_whether_you_are_done",
+      "Bash(find:*)",
+      "Bash(npm run electron:start:*)"
     ],
     "deny": [],
     "ask": []

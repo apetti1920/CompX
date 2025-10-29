@@ -1,9 +1,17 @@
-const BaseConfig = require('../../../jest.config');
-
 module.exports = {
-  ...BaseConfig,
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   rootDir: './',
+  testMatch: ['**/*.test.ts'],
   collectCoverageFrom: ['../src/**/*.ts'],
   coverageReporters: ['json', 'html'],
-  coverageDirectory: './coverage'
+  coverageDirectory: './coverage',
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    'index.ts',
+    'Types.ts',
+    'types.ts',
+    '/coverage/'
+  ]
 };

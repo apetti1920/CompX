@@ -8,6 +8,7 @@ import {
   AddEdgeSplitActionType,
   DeletedObjectActionType,
   DeselectedObjectActionType,
+  LoadLibraryBlocksActionType,
   MovedBlockActionType,
   MovedEdgeActionType,
   RemoveEdgeSplitActionType,
@@ -85,6 +86,13 @@ export const RemoveEdgeSplitAction: ActionType = (edgePieceInd: number): ActionP
 export const UpdateLibrary: ActionType = (): ActionPayloadType => ({
   type: UpdateLibraryActionType,
   payload: {}
+});
+
+export const LoadLibraryBlocksAction: ActionType = (
+  blocks: BlockStorageType<any, any>[]
+): ActionPayloadType => ({
+  type: LoadLibraryBlocksActionType,
+  payload: { blocks }
 });
 
 export const AddBlockAction: ActionType = (
