@@ -139,10 +139,9 @@ describe('useBlockLibrary', () => {
       mockService.getAvailableBlocks.mockResolvedValue(mockBlocks);
 
       // First render with cache disabled
-      const { result: result1, unmount: unmount1 } = renderHook(
-        () => useBlockLibrary({ useCache: false }),
-        { wrapper }
-      );
+      const { result: result1, unmount: unmount1 } = renderHook(() => useBlockLibrary({ useCache: false }), {
+        wrapper
+      });
 
       await waitFor(() => {
         expect(result1.current.loading).toBe(false);
@@ -198,9 +197,7 @@ describe('useBlockLibrary', () => {
       const mockBlocks1 = [createMockBlock('gain')];
       const mockBlocks2 = [createMockBlock('gain'), createMockBlock('sum')];
 
-      mockService.getAvailableBlocks
-        .mockResolvedValueOnce(mockBlocks1)
-        .mockResolvedValueOnce(mockBlocks2);
+      mockService.getAvailableBlocks.mockResolvedValueOnce(mockBlocks1).mockResolvedValueOnce(mockBlocks2);
 
       const { result } = renderHook(() => useBlockLibrary(), { wrapper });
 

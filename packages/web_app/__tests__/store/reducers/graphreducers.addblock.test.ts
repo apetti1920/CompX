@@ -77,11 +77,7 @@ describe('GraphReducer - ADD_BLOCK Action', () => {
       expect(typeof addedBlock.outputPorts[0].id).toBe('string');
 
       // All IDs should be unique
-      const ids = [
-        addedBlock.id,
-        addedBlock.inputPorts[0].id,
-        addedBlock.outputPorts[0].id
-      ];
+      const ids = [addedBlock.id, addedBlock.inputPorts[0].id, addedBlock.outputPorts[0].id];
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(3);
     });

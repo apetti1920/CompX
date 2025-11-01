@@ -2,7 +2,11 @@
  * Unit tests for BlockLibraryManager
  */
 
-import { BlockLibraryManager, getDefaultManager, resetDefaultManager } from '../../src/BlockLibrary/BlockLibraryManager';
+import {
+  BlockLibraryManager,
+  getDefaultManager,
+  resetDefaultManager
+} from '../../src/BlockLibrary/BlockLibraryManager';
 import { BlockDefinition } from '../../src/BlockSchema/types';
 import { LibraryEvent, LibraryChangeEvent } from '../../src/BlockLibrary/types';
 
@@ -66,9 +70,7 @@ describe('BlockLibraryManager', () => {
     });
 
     it('should throw when accessing methods before initialization', () => {
-      expect(() => manager.getAllBlocks()).toThrow(
-        'Block library not initialized'
-      );
+      expect(() => manager.getAllBlocks()).toThrow('Block library not initialized');
     });
   });
 
@@ -99,7 +101,7 @@ describe('BlockLibraryManager', () => {
 
     it('should reject invalid block', () => {
       const invalidBlock = {
-        name: 'invalid',
+        name: 'invalid'
         // Missing required fields
       } as unknown as BlockDefinition;
 

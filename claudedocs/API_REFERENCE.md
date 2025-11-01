@@ -15,9 +15,11 @@ constructor(graph: GraphStorageType)
 ```
 
 **Parameters**:
+
 - `graph`: Serialized graph structure containing blocks and edges
 
 **Example**:
+
 ```typescript
 const graph = new Graph({
   blocks: [...],
@@ -28,6 +30,7 @@ const graph = new Graph({
 #### Block Management Methods
 
 ##### AddBlock()
+
 ```typescript
 AddBlock(block: BlockStorageType<PortStringListType, PortStringListType>): string
 ```
@@ -35,6 +38,7 @@ AddBlock(block: BlockStorageType<PortStringListType, PortStringListType>): strin
 **Purpose**: Add a new block to the graph
 
 **Parameters**:
+
 - `block`: Block storage definition (name, ports, callback)
 
 **Returns**: UUID of newly created block
@@ -42,6 +46,7 @@ AddBlock(block: BlockStorageType<PortStringListType, PortStringListType>): strin
 **Throws**: None (block creation always succeeds)
 
 **Example**:
+
 ```typescript
 const blockId = graph.AddBlock({
   name: 'Gain',
@@ -50,10 +55,11 @@ const blockId = graph.AddBlock({
   inputPorts: [{ name: 'in', type: 'number' }],
   outputPorts: [{ name: 'out', type: 'number' }],
   callbackString: 'return [inputPort[in] * 2]'
-})
+});
 ```
 
 ##### RemoveBlock()
+
 ```typescript
 RemoveBlock(blockId: string): void | never
 ```
@@ -61,6 +67,7 @@ RemoveBlock(blockId: string): void | never
 **Purpose**: Remove block and connected edges from graph
 
 **Parameters**:
+
 - `blockId`: UUID of block to remove
 
 **Throws**: `CompXError` if block not found
@@ -68,13 +75,15 @@ RemoveBlock(blockId: string): void | never
 **Side Effects**: Removes all edges connected to this block
 
 **Example**:
+
 ```typescript
-graph.RemoveBlock('uuid-of-block')
+graph.RemoveBlock('uuid-of-block');
 ```
 
 #### Edge Management Methods
 
 ##### AddEdge()
+
 ```typescript
 AddEdge(
   outputBlockId: string,
@@ -87,6 +96,7 @@ AddEdge(
 **Purpose**: Create typed connection between blocks
 
 **Parameters**:
+
 - `outputBlockId`: Source block UUID
 - `outputPortId`: Source port name
 - `inputBlockId`: Destination block UUID
@@ -95,6 +105,7 @@ AddEdge(
 **Returns**: UUID of edge (existing if duplicate, new otherwise)
 
 **Validation**:
+
 - ✓ Both blocks exist
 - ✓ Both ports exist
 - ✓ Port types match
@@ -102,14 +113,18 @@ AddEdge(
 - ✗ Throws `CompXError` on validation failure
 
 **Example**:
+
 ```typescript
 const edgeId = graph.AddEdge(
-  constantBlockId, 'value',  // output
-  gainBlockId, 'in'          // input
-)
+  constantBlockId,
+  'value', // output
+  gainBlockId,
+  'in' // input
+);
 ```
 
 ##### RemoveEdge()
+
 ```typescript
 RemoveEdge(edgeId: string): void | never
 ```
@@ -119,13 +134,15 @@ RemoveEdge(edgeId: string): void | never
 **Throws**: `CompXError` if edge not found
 
 **Example**:
+
 ```typescript
-graph.RemoveEdge('uuid-of-edge')
+graph.RemoveEdge('uuid-of-edge');
 ```
 
 #### Graph Query Methods
 
 ##### GetSourceBlocks()
+
 ```typescript
 GetSourceBlocks(): string[]
 ```
@@ -137,12 +154,14 @@ GetSourceBlocks(): string[]
 **Definition**: Source = no input ports OR uses `prevInput[]`/`prevOutput[]`
 
 **Example**:
+
 ```typescript
-const sources = graph.GetSourceBlocks()
+const sources = graph.GetSourceBlocks();
 // ['constant-uuid', 'integrator-uuid']
 ```
 
 ##### GetSinkBlocks()
+
 ```typescript
 GetSinkBlocks(): string[]
 ```
@@ -152,12 +171,14 @@ GetSinkBlocks(): string[]
 **Returns**: Array of block UUIDs
 
 **Example**:
+
 ```typescript
-const sinks = graph.GetSinkBlocks()
+const sinks = graph.GetSinkBlocks();
 // ['scope-uuid', 'output-uuid']
 ```
 
 ##### GetAdjacentBlocks()
+
 ```typescript
 GetAdjacentBlocks(blockId: string): string[]
 ```
@@ -167,14 +188,16 @@ GetAdjacentBlocks(blockId: string): string[]
 **Returns**: Array of block UUIDs connected to outputs
 
 **Example**:
+
 ```typescript
-const adjacentBlocks = graph.GetAdjacentBlocks(gainBlockId)
+const adjacentBlocks = graph.GetAdjacentBlocks(gainBlockId);
 // ['sum-uuid', 'scope-uuid']
 ```
 
 #### Graph Algorithm Methods
 
 ##### DFS()
+
 ```typescript
 DFS(startBlock: string): string[]
 ```
@@ -188,12 +211,14 @@ DFS(startBlock: string): string[]
 **Complexity**: O(V + E)
 
 **Example**:
+
 ```typescript
-const reachableBlocks = graph.DFS(constantBlockId)
+const reachableBlocks = graph.DFS(constantBlockId);
 // ['constant-uuid', 'gain-uuid', 'sum-uuid', 'scope-uuid']
 ```
 
 ##### SCC()
+
 ```typescript
 SCC(): string[][]
 ```
@@ -201,6 +226,7 @@ SCC(): string[][]
 **Purpose**: Find strongly connected components using Kosaraju's algorithm
 
 **Algorithm**:
+
 1. DFS to find finish times
 2. Transpose graph
 3. DFS on transpose in reverse finish order
@@ -210,8 +236,9 @@ SCC(): string[][]
 **Complexity**: O(V + E)
 
 **Example**:
+
 ```typescript
-const components = graph.SCC()
+const components = graph.SCC();
 // [
 //   ['integrator-uuid', 'feedback-gain-uuid'],  // Feedback loop
 //   ['constant-uuid'],
@@ -220,6 +247,7 @@ const components = graph.SCC()
 ```
 
 ##### ClassifyEdges()
+
 ```typescript
 ClassifyEdges(): { [edgeId: string]: EdgeTypes }
 ```
@@ -231,14 +259,16 @@ ClassifyEdges(): { [edgeId: string]: EdgeTypes }
 **Returns**: Map of edge UUID to edge type
 
 **Edge Types**:
+
 - `TREE`: DFS tree edge (parent → child)
 - `BACK`: Feedback edge (descendant → ancestor)
 - `FORWARD`: Shortcut edge (ancestor → descendant, non-tree)
 - `CROSS`: Between different DFS subtrees
 
 **Example**:
+
 ```typescript
-const edgeTypes = graph.ClassifyEdges()
+const edgeTypes = graph.ClassifyEdges();
 // {
 //   'edge-1-uuid': 'TREE',
 //   'edge-2-uuid': 'BACK',   // Feedback loop
@@ -247,6 +277,7 @@ const edgeTypes = graph.ClassifyEdges()
 ```
 
 ##### Transpose()
+
 ```typescript
 Transpose(): Graph
 ```
@@ -258,13 +289,15 @@ Transpose(): Graph
 **Side Effects**: Clears callbacks (invalid after port swap)
 
 **Example**:
+
 ```typescript
-const reversedGraph = graph.Transpose()
+const reversedGraph = graph.Transpose();
 ```
 
 #### Graph Validation Methods
 
 ##### isValidGraph()
+
 ```typescript
 isValidGraph(): boolean
 ```
@@ -276,13 +309,15 @@ isValidGraph(): boolean
 **Returns**: `true` if valid, `false` otherwise
 
 **Example**:
+
 ```typescript
 if (!graph.isValidGraph()) {
-  throw new Error('Graph has unreachable components')
+  throw new Error('Graph has unreachable components');
 }
 ```
 
 ##### GetBlockCompileOrder()
+
 ```typescript
 GetBlockCompileOrder(): string[]
 ```
@@ -294,6 +329,7 @@ GetBlockCompileOrder(): string[]
 **Returns**: Array of block UUIDs in execution order
 
 **Guarantees**:
+
 - All inputs satisfied before execution
 - Sinks appear at end
 - Respects data dependencies
@@ -301,14 +337,16 @@ GetBlockCompileOrder(): string[]
 **Complexity**: O(V + E)
 
 **Example**:
+
 ```typescript
-const compileOrder = graph.GetBlockCompileOrder()
+const compileOrder = graph.GetBlockCompileOrder();
 // ['constant-uuid', 'gain-uuid', 'sum-uuid', 'scope-uuid']
 ```
 
 #### Execution Methods
 
 ##### Execute()
+
 ```typescript
 Execute(T: number | 'infinite', dt: number): void
 ```
@@ -316,10 +354,12 @@ Execute(T: number | 'infinite', dt: number): void
 **Purpose**: Run time-stepped simulation
 
 **Parameters**:
+
 - `T`: Total simulation time OR `'infinite'` for continuous
 - `dt`: Time step size
 
 **Algorithm**:
+
 ```
 for t = 0 to T step dt:
   for block in compileOrder:
@@ -329,17 +369,19 @@ for t = 0 to T step dt:
 ```
 
 **Example**:
+
 ```typescript
 // Simulate for 10 seconds with 0.01s time step
-graph.Execute(10.0, 0.01)
+graph.Execute(10.0, 0.01);
 
 // Continuous simulation (manual stop required)
-graph.Execute('infinite', 0.01)
+graph.Execute('infinite', 0.01);
 ```
 
 #### Serialization Methods
 
 ##### ToStorage()
+
 ```typescript
 ToStorage(): GraphStorageType
 ```
@@ -349,9 +391,10 @@ ToStorage(): GraphStorageType
 **Returns**: Plain object with block/edge storage
 
 **Example**:
+
 ```typescript
-const storage = graph.ToStorage()
-localStorage.setItem('graph', JSON.stringify(storage))
+const storage = graph.ToStorage();
+localStorage.setItem('graph', JSON.stringify(storage));
 ```
 
 ---
@@ -367,6 +410,7 @@ Blocks created via static factory methods, not direct construction
 ### Static Factory Methods
 
 ##### InitializeFromStorage()
+
 ```typescript
 static InitializeFromStorage<Inputs, Outputs>(
   blockStorage: BlockStorageType<Inputs, Outputs>
@@ -380,6 +424,7 @@ static InitializeFromStorage<Inputs, Outputs>(
 **Returns**: Block instance with new UUID
 
 ##### InitializeFromStorageWithId()
+
 ```typescript
 static InitializeFromStorageWithId<Inputs, Outputs>(
   blockStorage: BlockStorageWithIDType<Inputs, Outputs>
@@ -395,6 +440,7 @@ static InitializeFromStorageWithId<Inputs, Outputs>(
 ### Instance Methods
 
 ##### SetCallback()
+
 ```typescript
 SetCallback(callbackStr: string): void
 ```
@@ -402,20 +448,23 @@ SetCallback(callbackStr: string): void
 **Purpose**: Set/update block's computational callback
 
 **Callback Syntax**:
+
 - `inputPort[name]` → Current input value
 - `prevInput[name]` → Previous input (makes pseudo-source)
 - `prevOutput[name]` → Previous output value
 - `initialCondition[name]` → Initial value for port
 
 **Example**:
+
 ```typescript
 block.SetCallback(`
   const sum = inputPort[in1] + inputPort[in2];
   return [sum];
-`)
+`);
 ```
 
 ##### Execute()
+
 ```typescript
 Execute(t: number, dt: number, newInputs: MapStringsToTypes<Inputs>): void
 ```
@@ -423,6 +472,7 @@ Execute(t: number, dt: number, newInputs: MapStringsToTypes<Inputs>): void
 **Purpose**: Execute block for one time step
 
 **Parameters**:
+
 - `t`: Current simulation time
 - `dt`: Time step duration
 - `newInputs`: Array of input values in port order
@@ -430,11 +480,13 @@ Execute(t: number, dt: number, newInputs: MapStringsToTypes<Inputs>): void
 **Side Effects**: Updates output port values
 
 **Example**:
+
 ```typescript
-block.Execute(0.5, 0.01, [10, 20])  // Two inputs
+block.Execute(0.5, 0.01, [10, 20]); // Two inputs
 ```
 
 ##### ChangeInputPortType()
+
 ```typescript
 ChangeInputPortType<I, U>(
   portIndex: I,
@@ -448,11 +500,13 @@ ChangeInputPortType<I, U>(
 **Type Safety**: Return type reflects new port configuration
 
 **Example**:
+
 ```typescript
-const newBlock = block.ChangeInputPortType(0, 'vector', new Vector2D(0, 0))
+const newBlock = block.ChangeInputPortType(0, 'vector', new Vector2D(0, 0));
 ```
 
 ##### ChangeOutputPortType()
+
 ```typescript
 ChangeOutputPortType<I, U>(
   portIndex: I,
@@ -464,11 +518,13 @@ ChangeOutputPortType<I, U>(
 **Purpose**: Change output port type
 
 **Example**:
+
 ```typescript
-const newBlock = block.ChangeOutputPortType(0, 'matrix')
+const newBlock = block.ChangeOutputPortType(0, 'matrix');
 ```
 
 ##### ToStorage()
+
 ```typescript
 ToStorage(): BlockStorageWithIDType<Inputs, Outputs>
 ```
@@ -485,17 +541,18 @@ ToStorage(): BlockStorageWithIDType<Inputs, Outputs>
 
 ```typescript
 type PortTypes = {
-  'number': number
-  'vector': Vector2D
-  'matrix': Matrix2D
-  'boolean': boolean
-  'string': string
-}
+  number: number;
+  vector: Vector2D;
+  matrix: Matrix2D;
+  boolean: boolean;
+  string: string;
+};
 ```
 
 ### Methods
 
 ##### GetObjectValue()
+
 ```typescript
 GetObjectValue(): PortTypes[T]
 ```
@@ -503,6 +560,7 @@ GetObjectValue(): PortTypes[T]
 **Purpose**: Get current port value (typed)
 
 ##### SetValue()
+
 ```typescript
 SetValue(value: PortTypes[T]): void
 ```
@@ -510,6 +568,7 @@ SetValue(value: PortTypes[T]): void
 **Purpose**: Update port value (typed)
 
 ##### GetPortResetType()
+
 ```typescript
 GetPortResetType<U>(type: U, initialValue?: PortTypes[U]): Port<U>
 ```
@@ -525,17 +584,17 @@ GetPortResetType<U>(type: U, initialValue?: PortTypes[U]): Port<U>
 ### Edge Types
 
 ```typescript
-type EdgeTypes = 'TREE' | 'BACK' | 'FORWARD' | 'CROSS'
+type EdgeTypes = 'TREE' | 'BACK' | 'FORWARD' | 'CROSS';
 ```
 
 ### Structure
 
 ```typescript
 class Edge<T extends keyof PortTypes> {
-  id: string
-  type: T
-  output: { blockID: string, portID: string }
-  input: { blockID: string, portID: string }
+  id: string;
+  type: T;
+  output: { blockID: string; portID: string };
+  input: { blockID: string; portID: string };
 }
 ```
 
@@ -591,21 +650,14 @@ class Edge<T extends keyof PortTypes> {
 
 ```typescript
 class CompXError extends Error {
-  constructor(
-    level: 'error' | 'warning',
-    title: string,
-    message: string
-  )
+  constructor(level: 'error' | 'warning', title: string, message: string);
 }
 ```
 
 **Usage**:
+
 ```typescript
-throw new CompXError(
-  'warning',
-  'Port Type Mismatch',
-  `Cannot connect ${outputType} to ${inputType}`
-)
+throw new CompXError('warning', 'Port Type Mismatch', `Cannot connect ${outputType} to ${inputType}`);
 ```
 
 ---
@@ -618,38 +670,38 @@ throw new CompXError(
 
 ```typescript
 // Add block to graph
-dispatch({ type: 'ADD_BLOCK', payload: blockStorage })
+dispatch({ type: 'ADD_BLOCK', payload: blockStorage });
 
 // Remove block from graph
-dispatch({ type: 'REMOVE_BLOCK', payload: blockId })
+dispatch({ type: 'REMOVE_BLOCK', payload: blockId });
 
 // Add edge connection
 dispatch({
   type: 'ADD_EDGE',
   payload: { outputBlockId, outputPortId, inputBlockId, inputPortId }
-})
+});
 
 // Remove edge connection
-dispatch({ type: 'REMOVE_EDGE', payload: edgeId })
+dispatch({ type: 'REMOVE_EDGE', payload: edgeId });
 
 // Update compile order
-dispatch({ type: 'UPDATE_COMPILE_ORDER' })
+dispatch({ type: 'UPDATE_COMPILE_ORDER' });
 ```
 
 ### Canvas Actions
 
 ```typescript
 // Set zoom level
-dispatch({ type: 'SET_SCALE', payload: scale })
+dispatch({ type: 'SET_SCALE', payload: scale });
 
 // Set pan position
-dispatch({ type: 'SET_POSITION', payload: { x, y } })
+dispatch({ type: 'SET_POSITION', payload: { x, y } });
 
 // Select blocks
-dispatch({ type: 'SELECT_BLOCKS', payload: blockIds })
+dispatch({ type: 'SELECT_BLOCKS', payload: blockIds });
 
 // Select edges
-dispatch({ type: 'SELECT_EDGES', payload: edgeIds })
+dispatch({ type: 'SELECT_EDGES', payload: edgeIds });
 ```
 
 ---
@@ -659,6 +711,7 @@ dispatch({ type: 'SELECT_EDGES', payload: edgeIds })
 **Location**: `packages/common/src/Helpers/Types.ts`
 
 ### ReplaceInTuple
+
 ```typescript
 type ReplaceInTuple<Tuple, Index, NewType>
 ```
@@ -666,8 +719,9 @@ type ReplaceInTuple<Tuple, Index, NewType>
 **Purpose**: Replace element at index in tuple type
 
 **Example**:
+
 ```typescript
-ReplaceInTuple<['number', 'vector'], 1, 'matrix'>
+ReplaceInTuple<['number', 'vector'], 1, 'matrix'>;
 // → ['number', 'matrix']
 ```
 

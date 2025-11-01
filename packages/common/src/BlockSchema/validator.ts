@@ -102,7 +102,7 @@ export class BlockValidator {
           message: `Block automatically migrated from ${migrationResult.originalVersion} to ${migrationResult.targetVersion}`,
           severity: 'warning'
         });
-        migrationResult.warnings.forEach(w => {
+        migrationResult.warnings.forEach((w) => {
           warnings.push({
             field: 'migration',
             message: w,
@@ -110,7 +110,7 @@ export class BlockValidator {
           });
         });
       } else if (migrationResult.warnings.length > 0) {
-        migrationResult.warnings.forEach(w => {
+        migrationResult.warnings.forEach((w) => {
           warnings.push({
             field: 'schema_version',
             message: w,
@@ -181,9 +181,7 @@ export class BlockValidator {
   /**
    * Perform semantic validation beyond JSON Schema
    */
-  private validateSemantics(
-    block: BlockDefinition
-  ): Pick<ValidationResult, 'errors' | 'warnings'> {
+  private validateSemantics(block: BlockDefinition): Pick<ValidationResult, 'errors' | 'warnings'> {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
 
@@ -197,10 +195,7 @@ export class BlockValidator {
     }
 
     // Check port name uniqueness within block
-    const allPortNames = [
-      ...block.inputPorts.map((p) => p.name),
-      ...block.outputPorts.map((p) => p.name)
-    ];
+    const allPortNames = [...block.inputPorts.map((p) => p.name), ...block.outputPorts.map((p) => p.name)];
     const duplicates = this.findDuplicates(allPortNames);
     if (duplicates.length > 0) {
       errors.push({
@@ -211,11 +206,7 @@ export class BlockValidator {
     }
 
     // Validate callback string syntax
-    const callbackErrors = this.validateCallbackString(
-      block.callbackString,
-      block.inputPorts,
-      block.outputPorts
-    );
+    const callbackErrors = this.validateCallbackString(block.callbackString, block.inputPorts, block.outputPorts);
     errors.push(...callbackErrors);
 
     // Validate initial values match port types
@@ -268,15 +259,7 @@ export class BlockValidator {
     try {
       // Try to create a function (this doesn't execute it)
       // eslint-disable-next-line no-new-func
-      new Function(
-        'inputPort',
-        'prevInput',
-        'prevOutput',
-        'initialCondition',
-        't',
-        'dt',
-        callbackString
-      );
+      new Function('inputPort', 'prevInput', 'prevOutput', 'initialCondition', 't', 'dt', callbackString);
     } catch (e) {
       errors.push({
         field: 'callbackString',
@@ -296,7 +279,9 @@ export class BlockValidator {
       if (!inputPortNames.includes(ref)) {
         errors.push({
           field: 'callbackString',
-          message: `Reference to unknown input port 'inputPort[${ref}]'. Available inputs: ${inputPortNames.join(', ') || 'none'}`,
+          message: `Reference to unknown input port 'inputPort[${ref}]'. Available inputs: ${
+            inputPortNames.join(', ') || 'none'
+          }`,
           severity: 'error'
         });
       }
@@ -308,7 +293,9 @@ export class BlockValidator {
       if (!outputPortNames.includes(ref)) {
         errors.push({
           field: 'callbackString',
-          message: `Reference to unknown output port 'prevOutput[${ref}]'. Available outputs: ${outputPortNames.join(', ') || 'none'}`,
+          message: `Reference to unknown output port 'prevOutput[${ref}]'. Available outputs: ${
+            outputPortNames.join(', ') || 'none'
+          }`,
           severity: 'error'
         });
       }
@@ -321,7 +308,9 @@ export class BlockValidator {
       if (!port) {
         errors.push({
           field: 'callbackString',
-          message: `Reference to unknown input port 'prevInput[${ref}]'. Available inputs: ${inputPortNames.join(', ') || 'none'}`,
+          message: `Reference to unknown input port 'prevInput[${ref}]'. Available inputs: ${
+            inputPortNames.join(', ') || 'none'
+          }`,
           severity: 'error'
         });
       } else if (port.initialValue === undefined) {
@@ -433,9 +422,7 @@ export class BlockValidator {
       }
 
       // Resolve path relative to base directory
-      const resolvedPath = path.isAbsolute(iconPath)
-        ? iconPath
-        : path.resolve(this.options.baseDir, iconPath);
+      const resolvedPath = path.isAbsolute(iconPath) ? iconPath : path.resolve(this.options.baseDir, iconPath);
 
       try {
         await fs.access(resolvedPath);

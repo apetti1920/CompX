@@ -70,7 +70,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should not have path-related warnings
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -105,7 +105,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should have warning about missing icon
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings.length).toBeGreaterThan(0);
       expect(pathWarnings[0].message).toContain('not found');
     });
@@ -125,7 +125,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should not have warning about icon
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -141,7 +141,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should not try to verify non-path icon identifiers
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -160,7 +160,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should find the absolute path
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -181,7 +181,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Should find the icon in the subdirectory
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -198,7 +198,7 @@ describe('BlockValidator - Async Validation', () => {
 
       // Should not crash, and should still validate other aspects
       expect(result).toBeDefined();
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
   });
@@ -219,8 +219,8 @@ describe('BlockValidator - Async Validation', () => {
       // Should have both types of warnings
       expect(result.warnings.length).toBeGreaterThanOrEqual(2);
 
-      const descWarnings = result.warnings.filter(w => w.field === 'description');
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const descWarnings = result.warnings.filter((w) => w.field === 'description');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
 
       expect(descWarnings.length).toBeGreaterThan(0);
       expect(pathWarnings.length).toBeGreaterThan(0);
@@ -245,7 +245,7 @@ describe('BlockValidator - Async Validation', () => {
       expect(result.errors.length).toBeGreaterThan(0);
 
       // Should not have path warnings (didn't get to path validation)
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
   });
@@ -263,7 +263,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = validator.validate(block);
 
       // Sync validation should NOT include path warnings
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings).toHaveLength(0);
     });
 
@@ -279,7 +279,7 @@ describe('BlockValidator - Async Validation', () => {
       const result = await validator.validateAsync(block);
 
       // Async validation SHOULD include path warnings
-      const pathWarnings = result.warnings.filter(w => w.field === 'visual.icon');
+      const pathWarnings = result.warnings.filter((w) => w.field === 'visual.icon');
       expect(pathWarnings.length).toBeGreaterThan(0);
     });
 

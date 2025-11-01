@@ -52,9 +52,7 @@ describe('BlockRegistry', () => {
       const block = createTestBlock({ name: 'gain' });
       registry.add(block);
 
-      expect(() => registry.add(block)).toThrow(
-        "Block 'gain' already exists in registry"
-      );
+      expect(() => registry.add(block)).toThrow("Block 'gain' already exists in registry");
     });
 
     it('should update an existing block', () => {
@@ -71,9 +69,7 @@ describe('BlockRegistry', () => {
     it('should throw when updating non-existent block', () => {
       const block = createTestBlock({ name: 'gain' });
 
-      expect(() => registry.update('gain', block)).toThrow(
-        "Block 'gain' not found in registry"
-      );
+      expect(() => registry.update('gain', block)).toThrow("Block 'gain' not found in registry");
     });
 
     it('should throw when changing block name during update', () => {
@@ -165,11 +161,7 @@ describe('BlockRegistry', () => {
     it('should search by category', () => {
       const results = registry.search({ category: 'math' });
       expect(results).toHaveLength(3);
-      expect(results.map((b) => b.name).sort()).toEqual([
-        'constant',
-        'gain',
-        'integrator'
-      ]);
+      expect(results.map((b) => b.name).sort()).toEqual(['constant', 'gain', 'integrator']);
     });
 
     it('should search by single tag', () => {
@@ -181,10 +173,7 @@ describe('BlockRegistry', () => {
     it('should search by multiple tags (OR logic)', () => {
       const results = registry.search({ tags: ['diffeq', 'visualization'] });
       expect(results).toHaveLength(2);
-      expect(results.map((b) => b.name).sort()).toEqual([
-        'integrator',
-        'scope'
-      ]);
+      expect(results.map((b) => b.name).sort()).toEqual(['integrator', 'scope']);
     });
 
     it('should combine name and category search', () => {

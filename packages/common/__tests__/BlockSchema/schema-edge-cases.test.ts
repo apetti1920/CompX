@@ -332,7 +332,7 @@ describe('BlockSchema Edge Cases', () => {
 
       const result = validateBlock(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Invalid JavaScript syntax'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('Invalid JavaScript syntax'))).toBe(true);
     });
 
     it('detects syntax error: invalid JavaScript', () => {
@@ -449,7 +449,7 @@ describe('BlockSchema Edge Cases', () => {
 
       const result = validateBlock(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('unknown input port'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('unknown input port'))).toBe(true);
     });
 
     it('accepts dot notation for port access', () => {
@@ -530,7 +530,7 @@ describe('BlockSchema Edge Cases', () => {
     it('accepts all valid hex colors', () => {
       const colors = ['#000000', '#FFFFFF', '#FF5722', '#4CAF50', '#2196F3'];
 
-      colors.forEach(color => {
+      colors.forEach((color) => {
         const block: BlockDefinition = {
           schema_version: CURRENT_SCHEMA_VERSION,
           name: 'test',
@@ -549,7 +549,7 @@ describe('BlockSchema Edge Cases', () => {
     it('rejects invalid hex color formats', () => {
       const invalidColors = ['#FFF', '#GGGGGG', 'red', 'rgb(255,0,0)', '#12345'];
 
-      invalidColors.forEach(color => {
+      invalidColors.forEach((color) => {
         const block = {
           schema_version: CURRENT_SCHEMA_VERSION,
           name: 'test',

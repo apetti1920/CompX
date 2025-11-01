@@ -112,10 +112,7 @@ export function createBlockService(apiBaseUrl?: string): BlockService {
     }
 
     default: {
-      throw new BlockServiceError(
-        `Unsupported platform: ${platform}`,
-        BlockServiceErrorCode.UNKNOWN_ERROR
-      );
+      throw new BlockServiceError(`Unsupported platform: ${platform}`, BlockServiceErrorCode.UNKNOWN_ERROR);
     }
   }
 }

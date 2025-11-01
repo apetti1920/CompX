@@ -64,11 +64,7 @@ async function writeBlockFile(dirPath: string, blockName: string, block: BlockDe
 /**
  * Wait for a specific event to be emitted
  */
-function waitForEvent(
-  manager: BlockLibraryManager,
-  eventType: string,
-  timeout: number = 5000
-): Promise<any> {
+function waitForEvent(manager: BlockLibraryManager, eventType: string, timeout: number = 5000): Promise<any> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout waiting for event: ${eventType}`));

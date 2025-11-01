@@ -11,16 +11,19 @@ Created a comprehensive test suite with **100% coverage** for all new drag-and-d
 ## Test Files Created
 
 ### 1. Configuration Files
+
 - `packages/web_app/__tests__/jest.config.ts` - Jest configuration with jsdom environment
 - `packages/web_app/__tests__/setupTests.ts` - Test setup with Canvas API mocking
 
 ### 2. Test Suites
 
 #### `graphactions.test.ts` - Action Creator Tests
+
 - **6 test cases**
 - **Coverage**: 100% of AddBlockAction
 
 **What's tested:**
+
 - Action type correctness (`ADD_BLOCK`)
 - Payload structure (blockTemplate + position)
 - BlockTemplate property preservation
@@ -28,73 +31,87 @@ Created a comprehensive test suite with **100% coverage** for all new drag-and-d
 - Multiple action creation uniqueness
 
 #### `graphreducers.addblock.test.ts` - Reducer Tests
+
 - **29 test cases** across 6 describe blocks
 - **Coverage**: 100% of ADD_BLOCK reducer case
 
 **What's tested:**
 
-*Block Creation (5 tests)*
+_Block Creation (5 tests)_
+
 - Correct block structure with all visual properties
 - Unique ID generation for block and all ports
 - Multiple block addition without conflicts
 - ID uniqueness verification
 
-*Port Handling (1 test)*
+_Port Handling (1 test)_
+
 - Multi-port template preservation
 - Port types, names, and initial values
 - Port ID generation
 
-*Error Handling (3 tests)*
+_Error Handling (3 tests)_
+
 - Missing blockTemplate → state unchanged + warning
 - Null blockTemplate → state unchanged + warning
 - Undefined blockTemplate → state unchanged + warning
 
-*Position Handling (4 tests)*
+_Position Handling (4 tests)_
+
 - Positive coordinates
 - Negative coordinates
 - Zero coordinates
 - Large coordinate values (±10000)
 
-*State Immutability (2 tests)*
+_State Immutability (2 tests)_
+
 - Original state never mutated
 - Deep cloning verification
 - New state object creation
 
 #### `coordinates.test.ts` - Coordinate Transformation Tests
+
 - **21 test cases** across 8 describe blocks
 - **Coverage**: 100% of ScreenToWorld function
 
 **What's tested:**
 
-*Basic Transformations (3 tests)*
+_Basic Transformations (3 tests)_
+
 - Screen center → world origin
 - Corner coordinate mapping
 - Coordinate system verification
 
-*Zoom Transformations (4 tests)*
+_Zoom Transformations (4 tests)_
+
 - Zoom in (2x, 10x)
 - Zoom out (0.5x, 0.1x)
 - Scaling correctness
 
-*Translation Transformations (3 tests)*
+_Translation Transformations (3 tests)_
+
 - Positive pan (right, down)
 - Negative pan (left, up)
 - Large translation values
 
-*Combined Operations (2 tests)*
+_Combined Operations (2 tests)_
+
 - Zoom + translation together
 - Complex transformation scenarios
 
-*Y-Axis Inversion (2 tests)*
+_Y-Axis Inversion (2 tests)_
+
 - Screen down = world up
 - Inversion preserved with zoom
 
-*Edge Cases (3 tests)*
+_Edge Cases (3 tests)_
+
 - Zero-sized screen
 - Very small zoom values
 - Non-square dimensions
 
-*Real-World Scenarios (4 tests)*
+_Real-World Scenarios (4 tests)_
+
 - Drop at default position
 - Drop after panning canvas
 - Drop after zooming
@@ -102,30 +119,36 @@ Created a comprehensive test suite with **100% coverage** for all new drag-and-d
 
 ## Coverage Metrics
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Statements | 100% | ✅ 100% |
-| Branches | 100% | ✅ 100% |
-| Functions | 100% | ✅ 100% |
-| Lines | 100% | ✅ 100% |
+| Metric     | Target | Achieved |
+| ---------- | ------ | -------- |
+| Statements | 100%   | ✅ 100%  |
+| Branches   | 100%   | ✅ 100%  |
+| Functions  | 100%   | ✅ 100%  |
+| Lines      | 100%   | ✅ 100%  |
 
 ## Testing Best Practices Applied
 
 ### 1. **Immutability Verification**
+
 All reducer tests verify state immutability:
+
 ```typescript
 expect(newState).not.toBe(initialState);
 expect(initialState.blocks.length).toBe(originalCount); // Unchanged
 ```
 
 ### 2. **Floating-Point Precision**
+
 Coordinate tests use `toBeCloseTo()` for reliability:
+
 ```typescript
 expect(worldPos.x).toBeCloseTo(33.33, 2); // 2 decimal places
 ```
 
 ### 3. **Error Case Coverage**
+
 All error paths tested with console mocking:
+
 ```typescript
 const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 // ... test error case
@@ -134,7 +157,9 @@ consoleSpy.mockRestore();
 ```
 
 ### 4. **UUID Uniqueness**
+
 Block and port ID uniqueness verified:
+
 ```typescript
 const ids = [block.id, ...portIds];
 const uniqueIds = new Set(ids);
@@ -144,12 +169,14 @@ expect(uniqueIds.size).toBe(ids.length);
 ## Test Execution
 
 ### Run All Tests
+
 ```bash
 cd packages/web_app
 npm test
 ```
 
 ### Run Specific Suite
+
 ```bash
 npm test graphreducers.addblock
 npm test coordinates
@@ -157,12 +184,14 @@ npm test graphactions
 ```
 
 ### Generate Coverage Report
+
 ```bash
 npm test:coverage
 # Creates HTML report in packages/web_app/__tests__/coverage/
 ```
 
 ### Watch Mode (Development)
+
 ```bash
 npm test:watch
 ```
@@ -170,6 +199,7 @@ npm test:watch
 ## Dependencies Added
 
 Added to `packages/web_app/package.json` devDependencies:
+
 - `@testing-library/jest-dom`: ^5.16.5
 - `@testing-library/react`: ^13.3.0
 - `@types/jest`: ^29.0.0
@@ -181,16 +211,19 @@ Added to `packages/web_app/package.json` devDependencies:
 ## Key Features Tested
 
 ### ✅ Redux Flow
+
 - Action creation with correct types and payloads
 - Reducer state transformations
 - State immutability guarantees
 
 ### ✅ Block Creation
+
 - Visual block structure (position, size, shape, color)
 - Port generation with unique IDs
 - Template property preservation
 
 ### ✅ Coordinate Math
+
 - Screen-to-world transformations
 - Zoom scaling (in/out)
 - Pan translation
@@ -198,6 +231,7 @@ Added to `packages/web_app/package.json` devDependencies:
 - Combined transformations
 
 ### ✅ Error Handling
+
 - Missing/null/undefined inputs
 - Console warning verification
 - State preservation on errors
@@ -232,16 +266,19 @@ Tests are ready for CI/CD integration:
 ### Recommended Next Steps
 
 1. **Component Tests** (React Testing Library)
+
    - CardComponent drag interaction
    - LibraryViewer block rendering
    - CanvasContainer drop zones
 
 2. **Integration Tests**
+
    - End-to-end drag-and-drop flow
    - Multiple block scenarios
    - Block positioning accuracy
 
 3. **Performance Tests**
+
    - Coordinate transformation benchmarks
    - Large graph handling (100+ blocks)
    - Reducer performance under load

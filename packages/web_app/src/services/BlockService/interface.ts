@@ -8,12 +8,7 @@
  */
 
 import { BlockDefinition } from '@compx/common';
-import {
-  BlockSearchQuery,
-  LibraryChangeEvent,
-  BlockPackInstallResult,
-  BlockPackUninstallResult
-} from './types';
+import { BlockSearchQuery, LibraryChangeEvent, BlockPackInstallResult, BlockPackUninstallResult } from './types';
 
 /**
  * Block library service interface

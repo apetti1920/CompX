@@ -39,20 +39,17 @@ export async function setupBlockServiceHandlers(): Promise<void> {
   /**
    * Get all available blocks
    */
-  ipcMain.handle(
-    IPC_CHANNELS.GET_ALL,
-    async (event: IpcMainInvokeEvent): Promise<BlockDefinition[]> => {
-      try {
-        console.log('IPC: GET_ALL - Fetching all blocks');
-        const blocks = await blockManager.getAvailableBlocks();
-        console.log(`IPC: GET_ALL - Returning ${blocks.length} blocks`);
-        return blocks;
-      } catch (error) {
-        console.error('IPC: GET_ALL - Error:', error);
-        throw error;
-      }
+  ipcMain.handle(IPC_CHANNELS.GET_ALL, async (event: IpcMainInvokeEvent): Promise<BlockDefinition[]> => {
+    try {
+      console.log('IPC: GET_ALL - Fetching all blocks');
+      const blocks = await blockManager.getAvailableBlocks();
+      console.log(`IPC: GET_ALL - Returning ${blocks.length} blocks`);
+      return blocks;
+    } catch (error) {
+      console.error('IPC: GET_ALL - Error:', error);
+      throw error;
     }
-  );
+  });
 
   /**
    * Get a specific block by name
@@ -81,66 +78,57 @@ export async function setupBlockServiceHandlers(): Promise<void> {
   /**
    * Search blocks by query string
    */
-  ipcMain.handle(
-    IPC_CHANNELS.SEARCH,
-    async (event: IpcMainInvokeEvent, query: string): Promise<BlockDefinition[]> => {
-      try {
-        console.log(`IPC: SEARCH - Query: "${query}"`);
-        const results = await blockManager.searchBlocks(query);
-        console.log(`IPC: SEARCH - Found ${results.length} results`);
-        return results;
-      } catch (error) {
-        console.error(`IPC: SEARCH - Error searching for "${query}":`, error);
-        throw error;
-      }
+  ipcMain.handle(IPC_CHANNELS.SEARCH, async (event: IpcMainInvokeEvent, query: string): Promise<BlockDefinition[]> => {
+    try {
+      console.log(`IPC: SEARCH - Query: "${query}"`);
+      const results = await blockManager.searchBlocks(query);
+      console.log(`IPC: SEARCH - Found ${results.length} results`);
+      return results;
+    } catch (error) {
+      console.error(`IPC: SEARCH - Error searching for "${query}":`, error);
+      throw error;
     }
-  );
+  });
 
   /**
    * Install a block pack
    */
-  ipcMain.handle(
-    IPC_CHANNELS.INSTALL_PACK,
-    async (event: IpcMainInvokeEvent, source: string): Promise<void> => {
-      try {
-        console.log(`IPC: INSTALL_PACK - Installing from: ${source}`);
-        await blockManager.installBlockPack(source);
-        console.log(`IPC: INSTALL_PACK - Installation complete`);
+  ipcMain.handle(IPC_CHANNELS.INSTALL_PACK, async (event: IpcMainInvokeEvent, source: string): Promise<void> => {
+    try {
+      console.log(`IPC: INSTALL_PACK - Installing from: ${source}`);
+      await blockManager.installBlockPack(source);
+      console.log(`IPC: INSTALL_PACK - Installation complete`);
 
-        // TODO: Emit library changed event to all windows
-        // event.sender.send(IPC_CHANNELS.CHANGED, {
-        //   type: 'pack-installed',
-        //   source
-        // });
-      } catch (error) {
-        console.error(`IPC: INSTALL_PACK - Error installing from ${source}:`, error);
-        throw error;
-      }
+      // TODO: Emit library changed event to all windows
+      // event.sender.send(IPC_CHANNELS.CHANGED, {
+      //   type: 'pack-installed',
+      //   source
+      // });
+    } catch (error) {
+      console.error(`IPC: INSTALL_PACK - Error installing from ${source}:`, error);
+      throw error;
     }
-  );
+  });
 
   /**
    * Uninstall a block pack
    */
-  ipcMain.handle(
-    IPC_CHANNELS.UNINSTALL_PACK,
-    async (event: IpcMainInvokeEvent, packName: string): Promise<void> => {
-      try {
-        console.log(`IPC: UNINSTALL_PACK - Uninstalling: ${packName}`);
-        await blockManager.uninstallBlockPack(packName);
-        console.log(`IPC: UNINSTALL_PACK - Uninstallation complete`);
+  ipcMain.handle(IPC_CHANNELS.UNINSTALL_PACK, async (event: IpcMainInvokeEvent, packName: string): Promise<void> => {
+    try {
+      console.log(`IPC: UNINSTALL_PACK - Uninstalling: ${packName}`);
+      await blockManager.uninstallBlockPack(packName);
+      console.log(`IPC: UNINSTALL_PACK - Uninstallation complete`);
 
-        // TODO: Emit library changed event to all windows
-        // event.sender.send(IPC_CHANNELS.CHANGED, {
-        //   type: 'pack-uninstalled',
-        //   packName
-        // });
-      } catch (error) {
-        console.error(`IPC: UNINSTALL_PACK - Error uninstalling ${packName}:`, error);
-        throw error;
-      }
+      // TODO: Emit library changed event to all windows
+      // event.sender.send(IPC_CHANNELS.CHANGED, {
+      //   type: 'pack-uninstalled',
+      //   packName
+      // });
+    } catch (error) {
+      console.error(`IPC: UNINSTALL_PACK - Error uninstalling ${packName}:`, error);
+      throw error;
     }
-  );
+  });
 
   console.log(`Block service IPC handlers registered (${blockManager.getBlockCount()} blocks loaded)`);
 }

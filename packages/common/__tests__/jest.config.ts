@@ -6,12 +6,5 @@ module.exports = {
   collectCoverageFrom: ['../src/**/*.ts'],
   coverageReporters: ['json', 'html'],
   coverageDirectory: './coverage',
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    'index.ts',
-    'Types.ts',
-    'types.ts',
-    '/coverage/'
-  ]
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', 'index.ts', 'Types.ts', 'types.ts', '/coverage/']
 };

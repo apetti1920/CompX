@@ -88,11 +88,7 @@ export interface BlockPackUninstallResult {
  * Base error class for BlockService operations
  */
 export class BlockServiceError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly details?: any
-  ) {
+  constructor(message: string, public readonly code: string, public readonly details?: any) {
     super(message);
     this.name = 'BlockServiceError';
     Object.setPrototypeOf(this, BlockServiceError.prototype);

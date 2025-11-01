@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { CompXErrorJson, ErrorTypeStrings } from '../Network/ErrorHandling';
 
 export class CompXError extends Error {
-  private errorType: typeof ErrorTypeStrings[number];
+  private errorType: (typeof ErrorTypeStrings)[number];
   private compxStack?: CompXError;
 
   // Create the error from a json
@@ -14,7 +14,7 @@ export class CompXError extends Error {
   }
 
   // basic constructor
-  constructor(errorType: typeof ErrorTypeStrings[number], errorName: string, message: string) {
+  constructor(errorType: (typeof ErrorTypeStrings)[number], errorName: string, message: string) {
     super(message);
     Object.setPrototypeOf(this, CompXError.prototype);
 

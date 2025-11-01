@@ -160,10 +160,9 @@ describe('useBlock', () => {
       mockService.getBlock.mockResolvedValue(mockBlock);
 
       // First render with cache disabled
-      const { result: result1, unmount: unmount1 } = renderHook(
-        () => useBlock('gain', { useCache: false }),
-        { wrapper }
-      );
+      const { result: result1, unmount: unmount1 } = renderHook(() => useBlock('gain', { useCache: false }), {
+        wrapper
+      });
 
       await waitFor(() => {
         expect(result1.current.loading).toBe(false);

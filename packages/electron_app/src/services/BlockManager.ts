@@ -24,11 +24,7 @@ export enum BlockManagerErrorCode {
  * Block manager error
  */
 export class BlockManagerError extends Error {
-  constructor(
-    message: string,
-    public code: BlockManagerErrorCode,
-    public cause?: unknown
-  ) {
+  constructor(message: string, public code: BlockManagerErrorCode, public cause?: unknown) {
     super(message);
     this.name = 'BlockManagerError';
   }
@@ -89,7 +85,7 @@ export class BlockManager {
   private async loadBlocksFromDisk(): Promise<void> {
     try {
       const files = fs.readdirSync(this.blockStoragePath);
-      const jsonFiles = files.filter(f => f.endsWith('.json'));
+      const jsonFiles = files.filter((f) => f.endsWith('.json'));
 
       console.log(`Found ${jsonFiles.length} JSON files in block storage`);
 
@@ -193,10 +189,7 @@ export class BlockManager {
   async installBlockPack(source: string): Promise<void> {
     // TODO: Implement block pack installation
     // This will be implemented in a future phase
-    throw new BlockManagerError(
-      'Block pack installation not yet implemented',
-      BlockManagerErrorCode.STORAGE_ERROR
-    );
+    throw new BlockManagerError('Block pack installation not yet implemented', BlockManagerErrorCode.STORAGE_ERROR);
   }
 
   /**
@@ -207,10 +200,7 @@ export class BlockManager {
   async uninstallBlockPack(packName: string): Promise<void> {
     // TODO: Implement block pack uninstallation
     // This will be implemented in a future phase
-    throw new BlockManagerError(
-      'Block pack uninstallation not yet implemented',
-      BlockManagerErrorCode.STORAGE_ERROR
-    );
+    throw new BlockManagerError('Block pack uninstallation not yet implemented', BlockManagerErrorCode.STORAGE_ERROR);
   }
 
   /**

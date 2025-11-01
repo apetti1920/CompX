@@ -14,11 +14,13 @@ npm install
 ## Run Tests
 
 ### All Tests
+
 ```bash
 npm test
 ```
 
 ### Specific Test File
+
 ```bash
 npm test graphreducers.addblock
 npm test coordinates
@@ -26,12 +28,15 @@ npm test graphactions
 ```
 
 ### With Coverage Report
+
 ```bash
 npm test:coverage
 ```
+
 Then open `packages/web_app/__tests__/coverage/index.html` in your browser.
 
 ### Watch Mode (Auto-rerun on changes)
+
 ```bash
 npm test:watch
 ```
@@ -39,6 +44,7 @@ npm test:watch
 ## Expected Output
 
 All tests should pass:
+
 ```
 PASS  __tests__/store/actions/graphactions.test.ts
 PASS  __tests__/store/reducers/graphreducers.addblock.test.ts
@@ -53,18 +59,21 @@ Time:        3.456 s
 ## Troubleshooting
 
 ### "Cannot find module '@compx/common'"
+
 ```bash
 # From project root
 npm run bootstrap
 ```
 
 ### "Jest not found"
+
 ```bash
 cd packages/web_app
 npm install
 ```
 
 ### TypeScript errors
+
 ```bash
 # Rebuild common package
 cd packages/common
@@ -91,6 +100,7 @@ __tests__/
 ## Coverage Goals
 
 All metrics at 100%:
+
 - ✅ Statements
 - ✅ Branches
 - ✅ Functions

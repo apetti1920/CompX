@@ -124,9 +124,7 @@ export class BlockRegistry {
     // Filter by name (partial, case-insensitive match)
     if (query.name) {
       const nameLower = query.name.toLowerCase();
-      results = new Set(
-        Array.from(results).filter((name) => name.toLowerCase().includes(nameLower))
-      );
+      results = new Set(Array.from(results).filter((name) => name.toLowerCase().includes(nameLower)));
     }
 
     // Filter by category (exact match)

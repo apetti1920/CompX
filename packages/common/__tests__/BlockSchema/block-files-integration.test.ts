@@ -25,7 +25,7 @@ describe('Block JSON Files Integration', () => {
 
         if (!result.valid) {
           console.error(`Validation errors for ${relativePath}:`);
-          result.errors.forEach(err => {
+          result.errors.forEach((err) => {
             console.error(`  - ${err.field}: ${err.message}`);
           });
         }
@@ -42,15 +42,7 @@ describe('Block JSON Files Integration', () => {
         // Try to create a function from the callback
         expect(() => {
           // eslint-disable-next-line no-new-func
-          new Function(
-            'inputPort',
-            'prevInput',
-            'prevOutput',
-            'initialCondition',
-            't',
-            'dt',
-            block.callbackString
-          );
+          new Function('inputPort', 'prevInput', 'prevOutput', 'initialCondition', 't', 'dt', block.callbackString);
         }).not.toThrow();
       });
 
@@ -106,30 +98,24 @@ describe('Block JSON Files Integration', () => {
 
   describe('Block consistency checks', () => {
     it('all blocks use current schema version', () => {
-      const mathBlocks = fs
-        .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'));
-      const ioBlocks = fs
-        .readdirSync(path.join(blockDefinitionsPath, 'io'))
-        .filter(f => f.endsWith('.json'));
+      const mathBlocks = fs.readdirSync(path.join(blockDefinitionsPath, 'math')).filter((f) => f.endsWith('.json'));
+      const ioBlocks = fs.readdirSync(path.join(blockDefinitionsPath, 'io')).filter((f) => f.endsWith('.json'));
 
       const allBlocks = [
-        ...mathBlocks.map(f => path.join(blockDefinitionsPath, 'math', f)),
-        ...ioBlocks.map(f => path.join(blockDefinitionsPath, 'io', f))
+        ...mathBlocks.map((f) => path.join(blockDefinitionsPath, 'math', f)),
+        ...ioBlocks.map((f) => path.join(blockDefinitionsPath, 'io', f))
       ];
 
-      allBlocks.forEach(blockPath => {
+      allBlocks.forEach((blockPath) => {
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(block.schema_version).toBe(CURRENT_SCHEMA_VERSION);
       });
     });
 
     it('all math blocks have math category', () => {
-      const mathBlocks = fs
-        .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'));
+      const mathBlocks = fs.readdirSync(path.join(blockDefinitionsPath, 'math')).filter((f) => f.endsWith('.json'));
 
-      mathBlocks.forEach(file => {
+      mathBlocks.forEach((file) => {
         const blockPath = path.join(blockDefinitionsPath, 'math', file);
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(block.category).toBe('math');
@@ -137,11 +123,9 @@ describe('Block JSON Files Integration', () => {
     });
 
     it('all io blocks have io category', () => {
-      const ioBlocks = fs
-        .readdirSync(path.join(blockDefinitionsPath, 'io'))
-        .filter(f => f.endsWith('.json'));
+      const ioBlocks = fs.readdirSync(path.join(blockDefinitionsPath, 'io')).filter((f) => f.endsWith('.json'));
 
-      ioBlocks.forEach(file => {
+      ioBlocks.forEach((file) => {
         const blockPath = path.join(blockDefinitionsPath, 'io', file);
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(block.category).toBe('io');
@@ -151,15 +135,15 @@ describe('Block JSON Files Integration', () => {
     it('all blocks have descriptions', () => {
       const mathBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'math', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'math', f));
 
       const ioBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'io'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'io', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'io', f));
 
-      [...mathBlocks, ...ioBlocks].forEach(blockPath => {
+      [...mathBlocks, ...ioBlocks].forEach((blockPath) => {
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(block.description).toBeTruthy();
         expect(block.description.length).toBeGreaterThan(0);
@@ -169,15 +153,15 @@ describe('Block JSON Files Integration', () => {
     it('all blocks have tags', () => {
       const mathBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'math', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'math', f));
 
       const ioBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'io'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'io', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'io', f));
 
-      [...mathBlocks, ...ioBlocks].forEach(blockPath => {
+      [...mathBlocks, ...ioBlocks].forEach((blockPath) => {
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(Array.isArray(block.tags)).toBe(true);
         expect(block.tags.length).toBeGreaterThan(0);
@@ -187,15 +171,15 @@ describe('Block JSON Files Integration', () => {
     it('all blocks have visual properties', () => {
       const mathBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'math', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'math', f));
 
       const ioBlocks = fs
         .readdirSync(path.join(blockDefinitionsPath, 'io'))
-        .filter(f => f.endsWith('.json'))
-        .map(f => path.join(blockDefinitionsPath, 'io', f));
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => path.join(blockDefinitionsPath, 'io', f));
 
-      [...mathBlocks, ...ioBlocks].forEach(blockPath => {
+      [...mathBlocks, ...ioBlocks].forEach((blockPath) => {
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         expect(block.visual).toBeDefined();
         expect(block.visual.color).toBeDefined();
@@ -205,11 +189,9 @@ describe('Block JSON Files Integration', () => {
     });
 
     it('file names match block names', () => {
-      const mathBlocks = fs
-        .readdirSync(path.join(blockDefinitionsPath, 'math'))
-        .filter(f => f.endsWith('.json'));
+      const mathBlocks = fs.readdirSync(path.join(blockDefinitionsPath, 'math')).filter((f) => f.endsWith('.json'));
 
-      mathBlocks.forEach(file => {
+      mathBlocks.forEach((file) => {
         const blockPath = path.join(blockDefinitionsPath, 'math', file);
         const block = JSON.parse(fs.readFileSync(blockPath, 'utf8'));
         const expectedFileName = `${block.name}.json`;
@@ -269,23 +251,23 @@ describe('Block JSON Files Integration', () => {
   describe('Batch validation', () => {
     it('validates all blocks in math directory', () => {
       const mathDir = path.join(blockDefinitionsPath, 'math');
-      const files = fs.readdirSync(mathDir).filter(f => f.endsWith('.json'));
+      const files = fs.readdirSync(mathDir).filter((f) => f.endsWith('.json'));
 
       expect(files.length).toBeGreaterThan(0);
 
-      const results = files.map(file => {
+      const results = files.map((file) => {
         const filePath = path.join(mathDir, file);
         const block = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         return { file, result: validateBlock(block) };
       });
 
-      const invalid = results.filter(r => !r.result.valid);
+      const invalid = results.filter((r) => !r.result.valid);
 
       if (invalid.length > 0) {
         console.error('Invalid blocks found:');
         invalid.forEach(({ file, result }) => {
           console.error(`\n${file}:`);
-          result.errors.forEach(err => console.error(`  - ${err.message}`));
+          result.errors.forEach((err) => console.error(`  - ${err.message}`));
         });
       }
 
@@ -294,17 +276,17 @@ describe('Block JSON Files Integration', () => {
 
     it('validates all blocks in io directory', () => {
       const ioDir = path.join(blockDefinitionsPath, 'io');
-      const files = fs.readdirSync(ioDir).filter(f => f.endsWith('.json'));
+      const files = fs.readdirSync(ioDir).filter((f) => f.endsWith('.json'));
 
       expect(files.length).toBeGreaterThan(0);
 
-      const results = files.map(file => {
+      const results = files.map((file) => {
         const filePath = path.join(ioDir, file);
         const block = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         return { file, result: validateBlock(block) };
       });
 
-      const invalid = results.filter(r => !r.result.valid);
+      const invalid = results.filter((r) => !r.result.valid);
       expect(invalid.length).toBe(0);
     });
   });

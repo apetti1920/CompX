@@ -4,7 +4,7 @@ import { PortStorageType, PortStorageWithIDType } from '../Network/GraphItemStor
 import GraphObject from './GraphObjectBase';
 
 export const PortTypesStringList = ['STRING', 'NUMBER'] as const;
-type PortInterfaceType = { [K in typeof PortTypesStringList[number]]: any };
+type PortInterfaceType = { [K in (typeof PortTypesStringList)[number]]: any };
 export interface PortTypes extends PortInterfaceType {
   STRING: string;
   NUMBER: number;
@@ -14,7 +14,7 @@ export const PortTypeInitializers: PortTypes = {
   NUMBER: 0
 };
 
-export type StringListUnionType = typeof PortTypesStringList[number];
+export type StringListUnionType = (typeof PortTypesStringList)[number];
 export type PortStringListType = StringListUnionType[];
 export type MapStringsToPortsType<T extends PortStringListType> = {
   [K in keyof T]: T[K] extends PortStringListType[number] ? Port<T[K]> : never;

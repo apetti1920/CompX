@@ -42,7 +42,7 @@ function BlockPalette() {
       <h2>Available Blocks ({blocks.length})</h2>
       <button onClick={refresh}>Refresh</button>
       <ul>
-        {blocks.map(block => (
+        {blocks.map((block) => (
           <li key={block.name}>
             {block.name} - {block.description}
           </li>
@@ -99,6 +99,7 @@ const { blocks, refresh } = useBlockLibrary({
 ```
 
 **Options:**
+
 - `autoRefresh` (default: `true`): Automatically load data on mount
 - `useCache` (default: `true`): Use local caching for performance
 
@@ -167,7 +168,7 @@ function RobustBlockList() {
 
   return (
     <ul>
-      {blocks.map(block => (
+      {blocks.map((block) => (
         <li key={block.name}>{block.name}</li>
       ))}
     </ul>
@@ -195,12 +196,8 @@ function CacheSettings() {
 
   return (
     <div>
-      <button onClick={() => handleClearCache('gain')}>
-        Clear Gain Block Cache
-      </button>
-      <button onClick={handleClearAllCaches}>
-        Clear All Caches
-      </button>
+      <button onClick={() => handleClearCache('gain')}>Clear Gain Block Cache</button>
+      <button onClick={handleClearAllCaches}>Clear All Caches</button>
     </div>
   );
 }
@@ -217,11 +214,7 @@ import { createMockBlockService } from './testUtils';
 function TestWrapper({ children }) {
   const mockService = createMockBlockService();
 
-  return (
-    <BlockServiceProvider service={mockService}>
-      {children}
-    </BlockServiceProvider>
-  );
+  return <BlockServiceProvider service={mockService}>{children}</BlockServiceProvider>;
 }
 ```
 
@@ -241,6 +234,7 @@ const { blocks } = useBlockLibrary();
 ```
 
 **Cache Characteristics:**
+
 - **TTL**: 60 seconds (1 minute)
 - **Scope**:
   - `useBlockLibrary`: Module-level cache (shared across all instances)
@@ -275,7 +269,9 @@ function LazyBlockList() {
       {loading && <div>Loading...</div>}
       {blocks.length > 0 && (
         <ul>
-          {blocks.map(block => <li key={block.name}>{block.name}</li>)}
+          {blocks.map((block) => (
+            <li key={block.name}>{block.name}</li>
+          ))}
         </ul>
       )}
     </div>
@@ -309,8 +305,8 @@ interface BlockState {
 
 ```typescript
 interface HookOptions {
-  autoRefresh?: boolean;  // default: true
-  useCache?: boolean;     // default: true
+  autoRefresh?: boolean; // default: true
+  useCache?: boolean; // default: true
 }
 ```
 
@@ -323,24 +319,20 @@ function SearchableBlockList() {
   const { blocks, loading } = useBlockLibrary();
   const [search, setSearch] = React.useState('');
 
-  const filteredBlocks = blocks.filter(block =>
-    block.name.toLowerCase().includes(search.toLowerCase()) ||
-    block.description.toLowerCase().includes(search.toLowerCase())
+  const filteredBlocks = blocks.filter(
+    (block) =>
+      block.name.toLowerCase().includes(search.toLowerCase()) ||
+      block.description.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div>
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search blocks..."
-      />
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search blocks..." />
       {loading ? (
         <div>Loading...</div>
       ) : (
         <ul>
-          {filteredBlocks.map(block => (
+          {filteredBlocks.map((block) => (
             <li key={block.name}>{block.name}</li>
           ))}
         </ul>
@@ -356,7 +348,7 @@ function SearchableBlockList() {
 function ConditionalBlockEditor() {
   const [selectedBlockName, setSelectedBlockName] = React.useState<string | null>(null);
   const { block, loading, error } = useBlock(selectedBlockName || '', {
-    autoRefresh: !!selectedBlockName  // only load if block is selected
+    autoRefresh: !!selectedBlockName // only load if block is selected
   });
 
   return (
@@ -387,11 +379,7 @@ function BlockCountBadge() {
 
   if (loading) return <span>...</span>;
 
-  return (
-    <span className="badge">
-      {blocks.length} blocks available
-    </span>
-  );
+  return <span className="badge">{blocks.length} blocks available</span>;
 }
 ```
 
@@ -424,7 +412,7 @@ Your components don't need to know about these differences - the hooks provide a
 ```tsx
 // ❌ Wrong
 function App() {
-  return <BlockList />;  // No provider
+  return <BlockList />; // No provider
 }
 
 // ✅ Correct
@@ -448,13 +436,13 @@ function App() {
 const { blocks } = useBlockLibrary();
 useEffect(() => {
   // Do something
-}, [blocks]);  // blocks reference changes on every render
+}, [blocks]); // blocks reference changes on every render
 
 // ✅ Correct
 const { blocks } = useBlockLibrary();
 useEffect(() => {
   // Do something
-}, [blocks.length]);  // Only depend on length
+}, [blocks.length]); // Only depend on length
 ```
 
 ### Stale Cache Data

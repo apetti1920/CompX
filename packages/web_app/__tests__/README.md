@@ -38,29 +38,34 @@ Tests for the `AddBlockAction` action creator:
 Comprehensive tests for the ADD_BLOCK reducer case:
 
 #### Block Creation (5 tests)
+
 - Block structure validation
 - Unique ID generation (block + ports)
 - Multiple block handling
 - No ID conflicts
 
 #### Port Handling (1 test)
+
 - Multi-port template preservation
 - Port property correctness
 - Initial values preservation
 
 #### Error Handling (3 tests)
+
 - Missing blockTemplate handling
 - Null blockTemplate handling
 - Undefined blockTemplate handling
 - Console warning verification
 
 #### Position Handling (4 tests)
+
 - Positive coordinates
 - Negative coordinates
 - Zero coordinates
 - Large coordinate values
 
 #### State Immutability (2 tests)
+
 - Original state preservation
 - New state object creation
 - Deep cloning verification
@@ -72,35 +77,42 @@ Comprehensive tests for the ADD_BLOCK reducer case:
 Extensive tests for the `ScreenToWorld` helper function:
 
 #### Basic Transformations (3 tests)
+
 - Screen center to world origin
 - Corner coordinate mapping
 - Coordinate system verification
 
 #### Zoom Transformations (4 tests)
+
 - Zoom in (>1.0) scaling
 - Zoom out (<1.0) scaling
 - Very high zoom levels (10x)
 - Very low zoom levels (0.1x)
 
 #### Translation Transformations (3 tests)
+
 - Positive translation
 - Negative translation
 - Large translation values
 
 #### Combined Operations (2 tests)
+
 - Zoom + translation combinations
 - Complex transformation scenarios
 
 #### Y-Axis Inversion (2 tests)
+
 - Screen-to-world Y-axis flip
 - Y-inversion with zoom
 
 #### Edge Cases (3 tests)
+
 - Zero-sized screen handling
 - Very small zoom values
 - Non-square dimensions
 
 #### Real-World Scenarios (4 tests)
+
 - Drop at default position
 - Drop after panning
 - Drop after zooming
@@ -111,12 +123,14 @@ Extensive tests for the `ScreenToWorld` helper function:
 ## Running Tests
 
 ### Run All Tests
+
 ```bash
 cd packages/web_app
 npm test
 ```
 
 ### Run Specific Test Suite
+
 ```bash
 npm test graphreducers.addblock
 npm test coordinates
@@ -124,11 +138,13 @@ npm test graphactions
 ```
 
 ### Run with Coverage
+
 ```bash
 npm test -- --coverage
 ```
 
 ### Watch Mode
+
 ```bash
 npm test -- --watch
 ```
@@ -136,6 +152,7 @@ npm test -- --watch
 ## Test Dependencies
 
 The test suite uses:
+
 - **Jest**: Test framework
 - **@testing-library/jest-dom**: DOM matchers
 - **ts-jest**: TypeScript support
@@ -144,26 +161,34 @@ The test suite uses:
 ## Key Testing Patterns
 
 ### 1. State Immutability
+
 All reducer tests verify that:
+
 - Original state is never mutated
 - New state objects are created
 - Deep cloning works correctly
 
 ### 2. Unique ID Generation
+
 Tests verify UUID generation for:
+
 - Block IDs
 - Input port IDs
 - Output port IDs
 - No ID collisions
 
 ### 3. Coordinate Precision
+
 Coordinate tests use:
+
 - `toBeCloseTo(value, decimals)` for floating-point comparisons
 - 5 decimal places for standard precision
 - 2 decimal places for complex calculations
 
 ### 4. Error Handling
+
 All error cases include:
+
 - Console.warn spy verification
 - State preservation checks
 - Warning message validation
@@ -171,6 +196,7 @@ All error cases include:
 ## Coverage Goals
 
 Current coverage targets:
+
 - **Statements**: 100%
 - **Branches**: 100%
 - **Functions**: 100%
@@ -179,12 +205,15 @@ Current coverage targets:
 ## Future Test Additions
 
 Consider adding:
+
 1. **Component Tests**: React Testing Library tests for:
+
    - CardComponent drag behavior
    - LibraryViewer rendering
    - CanvasContainer drop handling
 
 2. **Integration Tests**: End-to-end tests for:
+
    - Complete drag-and-drop flow
    - Multi-block scenarios
    - Edge placement validation
@@ -206,17 +235,22 @@ When adding new features to the drag-and-drop functionality:
 ## Troubleshooting
 
 ### Module Resolution Issues
+
 If you see errors like "Cannot find module '@compx/common'":
+
 ```bash
 # From project root
 npm run bootstrap
 ```
 
 ### Canvas API Errors
+
 HTMLCanvasElement mocking is configured in `setupTests.ts`. If you encounter canvas-related errors, verify the mock is properly loaded.
 
 ### TypeScript Errors
+
 Ensure `tsconfig.json` includes test files:
+
 ```json
 {
   "include": ["src/**/*", "__tests__/**/*"]
