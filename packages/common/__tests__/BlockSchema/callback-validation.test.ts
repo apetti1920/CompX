@@ -85,7 +85,7 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('no initialValue'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('no initialValue'))).toBe(true);
     });
   });
 
@@ -208,9 +208,7 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(
-        result.errors.some(e => e.message.includes('unknown input port') && e.message.includes('z'))
-      ).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('unknown input port') && e.message.includes('z'))).toBe(true);
     });
 
     it('detects reference to non-existent output in prevOutput', () => {
@@ -225,9 +223,9 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(
-        result.errors.some(e => e.message.includes('unknown output port') && e.message.includes('z'))
-      ).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('unknown output port') && e.message.includes('z'))).toBe(
+        true
+      );
     });
 
     it('detects multiple undefined references', () => {
@@ -242,7 +240,7 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.filter(e => e.message.includes('unknown input port')).length).toBe(3);
+      expect(result.errors.filter((e) => e.message.includes('unknown input port')).length).toBe(3);
     });
 
     it('detects syntax error: unclosed string', () => {
@@ -257,7 +255,7 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('Invalid JavaScript syntax'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('Invalid JavaScript syntax'))).toBe(true);
     });
 
     it('detects syntax error: invalid operator', () => {
@@ -318,8 +316,7 @@ describe('Callback String Validation', () => {
           { name: 'setPoint', type: 'NUMBER' }
         ],
         outputPorts: [{ name: 'OutputValue', type: 'NUMBER' }],
-        callbackString:
-          'return [inputPort[InputValue] - inputPort[setPoint] + prevOutput[OutputValue]]'
+        callbackString: 'return [inputPort[InputValue] - inputPort[setPoint] + prevOutput[OutputValue]]'
       };
 
       const result = validator.validate(block);
@@ -338,7 +335,7 @@ describe('Callback String Validation', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.message.includes('unknown input port'))).toBe(true);
+      expect(result.errors.some((e) => e.message.includes('unknown input port'))).toBe(true);
     });
   });
 

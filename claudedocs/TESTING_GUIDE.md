@@ -6,6 +6,7 @@
 ## Quick Start
 
 ### 1. Start Electron App
+
 ```bash
 cd /Users/aidanpetti/Documents/Code/CompX
 npm run electron:start
@@ -14,6 +15,7 @@ npm run electron:start
 ### 2. Expected Console Output
 
 **Main Process Console** (Terminal where you ran `npm run electron:start`):
+
 ```
 Setting up block service IPC handlers...
 Created block storage directory: /Users/aidanpetti/Library/Application Support/CompX/block_storage
@@ -28,6 +30,7 @@ Block service initialized successfully
 ```
 
 **Renderer Process Console** (DevTools → Console in Electron window):
+
 ```
 IPC: GET_ALL - Fetching all blocks
 IPC: GET_ALL - Returning 4 blocks
@@ -37,21 +40,25 @@ Loading 4 blocks into Redux store
 ### 3. Verification Checklist
 
 ✅ **Electron Startup**:
+
 - [ ] App starts without errors
 - [ ] Console shows "Block service initialized successfully"
 - [ ] Console shows "BlockManager initialized with 4 blocks"
 
 ✅ **IPC Communication**:
+
 - [ ] DevTools console shows "IPC: GET_ALL - Returning 4 blocks"
 - [ ] No IPC errors in console
 
 ✅ **Redux Store**:
+
 - [ ] Open Redux DevTools
 - [ ] Find action: `@@graph_reducer/LOAD_LIBRARY_BLOCKS`
 - [ ] Verify `state.currentGraph.libraryBlocks` contains 4 blocks
 - [ ] Block objects have proper structure (name, description, ports, etc.)
 
 ✅ **Block Library UI**:
+
 - [ ] Open block library/search in the UI
 - [ ] Verify 4 blocks appear (not just 3):
   - Constant
@@ -64,11 +71,13 @@ Loading 4 blocks into Redux store
 ## Test Data Location
 
 JSON block files are located at:
+
 ```
 ~/Library/Application Support/CompX/block_storage/
 ```
 
 Current test blocks:
+
 - `test_block_constant.json` - Source block outputting constant value
 - `test_block_gain.json` - Multiplies input by gain factor
 - `test_block_integrator.json` - Continuous integration with initial condition
@@ -77,33 +86,40 @@ Current test blocks:
 ## Troubleshooting
 
 ### No Blocks Loaded
+
 **Symptom**: Console shows "BlockManager initialized with 0 blocks"
 
 **Check**:
+
 ```bash
 ls -la ~/Library/Application\ Support/CompX/block_storage/
 ```
 
 **Fix**: JSON files should be present. If not, they may have been deleted. Recreate with:
+
 ```bash
 # Copy test blocks from tmp if still available
 cp /tmp/test_block_*.json ~/Library/Application\ Support/CompX/block_storage/
 ```
 
 ### IPC Errors
+
 **Symptom**: Renderer console shows IPC errors or timeouts
 
 **Check**:
+
 1. Verify main process console shows IPC handlers registered
 2. Check for errors during BlockManager initialization
 3. Restart electron app to clear IPC state
 
 ### Still Shows 3 Blocks
+
 **Symptom**: Block library shows Constant, Sum, Multiply (hardcoded DefaultBlocks)
 
 **Root Cause**: Redux store still initialized with DefaultBlocks array
 
 **Verify Fix Applied**:
+
 ```bash
 grep -n "libraryBlocks:" packages/web_app/src/store/types.ts
 ```
@@ -111,9 +127,11 @@ grep -n "libraryBlocks:" packages/web_app/src/store/types.ts
 **Expected**: Should show `libraryBlocks: []` (empty array), NOT `[Constant, Sum, Multiply]`
 
 ### Redux Action Not Dispatched
+
 **Symptom**: No `LOAD_LIBRARY_BLOCKS` action in Redux DevTools
 
 **Check**:
+
 1. Verify BlockLibraryLoader component rendered
 2. Check for errors in useBlockLibrary hook
 3. Verify BlockServiceProvider wraps app in index.tsx
@@ -121,6 +139,7 @@ grep -n "libraryBlocks:" packages/web_app/src/store/types.ts
 ## Success Criteria
 
 ✅ **Implementation Successful** when:
+
 1. Electron app starts without errors
 2. Console shows 4 blocks loaded (not 0, not 3)
 3. IPC communication works (GET_ALL returns 4 blocks)
@@ -138,11 +157,13 @@ grep -n "libraryBlocks:" packages/web_app/src/store/types.ts
 ## Adding More Blocks
 
 To add custom blocks, create JSON files in:
+
 ```
 ~/Library/Application Support/CompX/block_storage/
 ```
 
 **Example - Sum block**:
+
 ```json
 {
   "schema_version": "1.0.0",
@@ -183,13 +204,17 @@ After adding blocks, restart the Electron app to load them.
 ## Debugging Commands
 
 ### Check Loaded Blocks
+
 **In Electron Main Process Console** (can add to BlockManager.ts temporarily):
+
 ```typescript
 console.log('Loaded blocks:', Array.from(this.blocks.keys()));
 ```
 
 ### Check IPC Communication
+
 **In Electron Renderer DevTools Console**:
+
 ```javascript
 // Test IPC directly
 const { ipcRenderer } = require('electron');
@@ -198,10 +223,12 @@ console.log('Blocks from IPC:', blocks);
 ```
 
 ### Check Redux State
+
 **In Redux DevTools**:
+
 ```javascript
 // View current state
-window.__REDUX_DEVTOOLS_EXTENSION__.getState().currentGraph.libraryBlocks
+window.__REDUX_DEVTOOLS_EXTENSION__.getState().currentGraph.libraryBlocks;
 ```
 
 ## References

@@ -7,13 +7,7 @@ import { EventEmitter } from 'events';
 import { BlockDefinition, ValidationResult } from '../BlockSchema/types';
 import { validateBlock } from '../BlockSchema/validator';
 import { BlockRegistry } from './BlockRegistry';
-import {
-  BlockSearchQuery,
-  LibraryEvent,
-  LibraryEventCallback,
-  LibraryEventType,
-  LibraryStats
-} from './types';
+import { BlockSearchQuery, LibraryEvent, LibraryEventCallback, LibraryEventType, LibraryStats } from './types';
 
 /**
  * Configuration options for BlockLibraryManager
@@ -367,9 +361,7 @@ let defaultManager: BlockLibraryManager | null = null;
  * @param options - Configuration options (only used on first call)
  * @returns The default manager instance
  */
-export function getDefaultManager(
-  options?: BlockLibraryManagerOptions
-): BlockLibraryManager {
+export function getDefaultManager(options?: BlockLibraryManagerOptions): BlockLibraryManager {
   if (!defaultManager) {
     defaultManager = new BlockLibraryManager(options);
   }

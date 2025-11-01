@@ -8,6 +8,7 @@
 ### 1. JSON Schema Definition (`packages/common/src/BlockSchema/schema.json`)
 
 Complete JSON Schema Draft 7 specification for block definitions with:
+
 - Semantic versioning support (`schema_version: 1.0.0`)
 - Strict validation rules for all fields
 - Port type system (NUMBER, STRING, VECTOR, MATRIX, BOOLEAN)
@@ -15,6 +16,7 @@ Complete JSON Schema Draft 7 specification for block definitions with:
 - Comprehensive field validation (patterns, enums, limits)
 
 **Key Features**:
+
 - Port name uniqueness enforced via pattern matching
 - Hex color validation for visual properties
 - Callback string length limits (1-10,000 chars)
@@ -23,6 +25,7 @@ Complete JSON Schema Draft 7 specification for block definitions with:
 ### 2. TypeScript Type Definitions (`packages/common/src/BlockSchema/types.ts`)
 
 Type-safe interfaces matching the JSON Schema:
+
 - `BlockDefinition` - Main block structure
 - `PortDefinition` - Input port with optional initialValue
 - `OutputPortDefinition` - Output port definition
@@ -31,6 +34,7 @@ Type-safe interfaces matching the JSON Schema:
 - `ValidationError` - Detailed error information
 
 **Helper Functions**:
+
 - Type guards: `isBlockDefinition()`, `isPortDefinition()`
 - Default values: `BLOCK_DEFAULTS`, `PORT_TYPE_DEFAULTS`
 - Current schema version constant
@@ -40,12 +44,14 @@ Type-safe interfaces matching the JSON Schema:
 Multi-layer validation system with Ajv:
 
 **JSON Schema Validation**:
+
 - Field presence and types
 - Pattern matching for names, versions, colors
 - Enum constraints for types and shapes
 - Array size limits
 
 **Semantic Validation**:
+
 - Port name uniqueness check
 - Callback string JavaScript syntax validation
 - Port reference validation (inputPort[], prevInput[], prevOutput[])
@@ -53,11 +59,13 @@ Multi-layer validation system with Ajv:
 - prevInput[] requires initialValue enforcement
 
 **Warning System**:
+
 - Missing descriptions
 - Missing tags
 - Schema version mismatches
 
 **API**:
+
 ```typescript
 const validator = new BlockValidator();
 const result = validator.validate(blockDefinition);
@@ -67,6 +75,7 @@ const result = validator.validate(blockDefinition);
 ### 4. Comprehensive Test Suite (`packages/common/__tests__/BlockSchema/validator.test.ts`)
 
 20 test cases covering:
+
 - ✅ Valid block definitions (constant, gain, integrator, minimal)
 - ❌ Schema violations (invalid names, versions, types, colors, shapes)
 - ❌ Semantic errors (duplicate ports, invalid references, syntax errors)
@@ -79,6 +88,7 @@ const result = validator.validate(blockDefinition);
 Six JSON block definitions created in `packages/common/block_definitions/`:
 
 **Math Category** (`math/`):
+
 - `constant.json` - Constant source block
 - `gain.json` - Signal multiplier
 - `integrator.json` - Continuous integrator with state
@@ -86,9 +96,11 @@ Six JSON block definitions created in `packages/common/block_definitions/`:
 - `multiply.json` - Two-input multiplier
 
 **IO Category** (`io/`):
+
 - `scope.json` - Console logging sink
 
 All blocks validated against schema and include:
+
 - Semantic versioning
 - Descriptions and tags
 - Visual styling (color, icon, shape)
@@ -122,19 +134,21 @@ packages/common/
 
 ```json
 {
-  "ajv": "^8.12.0",           // JSON Schema validator
-  "ajv-formats": "^2.1.1"     // Additional format validators
+  "ajv": "^8.12.0", // JSON Schema validator
+  "ajv-formats": "^2.1.1" // Additional format validators
 }
 ```
 
 ## Configuration Changes
 
 **tsconfig.json**:
+
 - Added `"resolveJsonModule": true` to enable JSON imports
 
 ## Validation Examples
 
 ### Valid Block
+
 ```json
 {
   "schema_version": "1.0.0",
@@ -143,8 +157,8 @@ packages/common/
   "description": "Multiplies input by constant",
   "category": "math",
   "tags": ["math", "linear"],
-  "inputPorts": [{"name": "x", "type": "NUMBER"}],
-  "outputPorts": [{"name": "y", "type": "NUMBER"}],
+  "inputPorts": [{ "name": "x", "type": "NUMBER" }],
+  "outputPorts": [{ "name": "y", "type": "NUMBER" }],
   "callbackString": "return [inputPort[x] * 0.75]",
   "visual": {
     "color": "#4CAF50",
@@ -155,6 +169,7 @@ packages/common/
 ```
 
 ### Schema Errors Detected
+
 - ❌ Invalid name pattern (must be lowercase with underscores)
 - ❌ Invalid version format (must be semver x.y.z)
 - ❌ Invalid port types (must be NUMBER, STRING, etc.)
@@ -162,6 +177,7 @@ packages/common/
 - ❌ Invalid shape (must be rect, circ, or tri)
 
 ### Semantic Errors Detected
+
 - ❌ Duplicate port names
 - ❌ Reference to non-existent ports
 - ❌ prevInput[] without initialValue
@@ -169,6 +185,7 @@ packages/common/
 - ❌ Type mismatch in initial values
 
 ### Warnings Issued
+
 - ⚠️ Missing description
 - ⚠️ Missing tags
 - ⚠️ Schema version mismatch
@@ -179,7 +196,9 @@ packages/common/
 import { validateBlock, BlockDefinition } from '@compx/common/BlockSchema';
 
 // Validate a block definition
-const block: BlockDefinition = { /* ... */ };
+const block: BlockDefinition = {
+  /* ... */
+};
 const result = validateBlock(block);
 
 if (result.valid) {

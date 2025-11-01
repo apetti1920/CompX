@@ -74,11 +74,7 @@ export function BlockServiceProvider({
     };
   }, [customService]);
 
-  return (
-    <BlockServiceContext.Provider value={{ service, ready }}>
-      {children}
-    </BlockServiceContext.Provider>
-  );
+  return <BlockServiceContext.Provider value={{ service, ready }}>{children}</BlockServiceContext.Provider>;
 }
 
 /**

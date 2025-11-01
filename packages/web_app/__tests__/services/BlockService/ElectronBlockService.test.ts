@@ -45,10 +45,7 @@ describe('ElectronBlockService', () => {
 
   describe('constructor', () => {
     it('should setup IPC listeners on construction', () => {
-      expect(mockIpc.on).toHaveBeenCalledWith(
-        'block-library:changed',
-        expect.any(Function)
-      );
+      expect(mockIpc.on).toHaveBeenCalledWith('block-library:changed', expect.any(Function));
     });
   });
 
@@ -269,9 +266,7 @@ describe('ElectronBlockService', () => {
     it('should throw BlockServiceError on installation failure', async () => {
       mockIpc.invoke.mockRejectedValue(new Error('Installation failed'));
 
-      await expect(service.installBlockPack('invalid-url')).rejects.toThrow(
-        'Failed to install block pack'
-      );
+      await expect(service.installBlockPack('invalid-url')).rejects.toThrow('Failed to install block pack');
     });
   });
 
@@ -295,9 +290,7 @@ describe('ElectronBlockService', () => {
     it('should throw BlockServiceError on uninstallation failure', async () => {
       mockIpc.invoke.mockRejectedValue(new Error('Uninstallation failed'));
 
-      await expect(service.uninstallBlockPack('test-pack')).rejects.toThrow(
-        'Failed to uninstall block pack'
-      );
+      await expect(service.uninstallBlockPack('test-pack')).rejects.toThrow('Failed to uninstall block pack');
     });
   });
 
@@ -305,10 +298,7 @@ describe('ElectronBlockService', () => {
     it('should remove IPC listeners', () => {
       service.dispose();
 
-      expect(mockIpc.removeListener).toHaveBeenCalledWith(
-        'block-library:changed',
-        expect.any(Function)
-      );
+      expect(mockIpc.removeListener).toHaveBeenCalledWith('block-library:changed', expect.any(Function));
     });
 
     it('should clear all change listeners', () => {

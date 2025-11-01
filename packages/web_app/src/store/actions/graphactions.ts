@@ -88,9 +88,7 @@ export const UpdateLibrary: ActionType = (): ActionPayloadType => ({
   payload: {}
 });
 
-export const LoadLibraryBlocksAction: ActionType = (
-  blocks: BlockStorageType<any, any>[]
-): ActionPayloadType => ({
+export const LoadLibraryBlocksAction: ActionType = (blocks: BlockStorageType<any, any>[]): ActionPayloadType => ({
   type: LoadLibraryBlocksActionType,
   payload: { blocks }
 });

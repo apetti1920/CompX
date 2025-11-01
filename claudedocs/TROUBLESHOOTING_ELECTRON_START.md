@@ -6,12 +6,14 @@
 ## Problem Description
 
 ### Symptoms
+
 - Build completes successfully (exit code 0)
 - Electron process starts but immediately exits with error code 1
 - No visible error messages in console output
 - Command: `npm run electron:start` fails at the final `electron .` step
 
 ### Error Output
+
 ```
 @compx/electron_app: > @compx/electron_app@1.0.0 start
 @compx/electron_app: > electron .
@@ -22,6 +24,7 @@
 ## Root Cause Analysis
 
 ### Investigation Steps
+
 1. ✅ Checked build process - All packages compiled successfully
 2. ✅ Verified TypeScript compilation - No errors
 3. ✅ Ran `electron .` directly - Process started but crashed
@@ -29,6 +32,7 @@
 5. ✅ Found issue in app startup code
 
 ### Root Cause
+
 **File**: `packages/electron_app/src/index.ts:93`
 **Issue**: Attempting to close a window that was never created
 
@@ -43,6 +47,7 @@ windowManager.CloseWindow('loader'); // ❌ ERROR: 'loader' window doesn't exist
 ```
 
 **Why It Failed**:
+
 - The loader window creation code is commented out (development/testing phase)
 - The corresponding `CloseWindow('loader')` call was left active
 - WindowManager likely throws an error or fails silently when trying to close non-existent window
@@ -51,6 +56,7 @@ windowManager.CloseWindow('loader'); // ❌ ERROR: 'loader' window doesn't exist
 ## Solution
 
 ### Fix Applied
+
 Comment out the `CloseWindow('loader')` call since the loader window is not being created:
 
 ```typescript
@@ -62,6 +68,7 @@ mainWindow.webContents.openDevTools();
 ```
 
 ### Verification
+
 ```bash
 cd packages/electron_app
 npm run build
@@ -73,13 +80,16 @@ npx electron .
 ## Prevention
 
 ### Code Review Checklist
+
 - [ ] Verify all window create/close pairs are matched
 - [ ] Check for orphaned cleanup code when commenting out features
 - [ ] Test Electron startup after any main process changes
 - [ ] Add error handling to window management operations
 
 ### Future Improvements
+
 1. **Add Error Handling**: WindowManager should handle missing windows gracefully
+
    ```typescript
    CloseWindow(name: string): void {
      if (!this.windows.has(name)) {
@@ -91,6 +101,7 @@ npx electron .
    ```
 
 2. **Conditional Cleanup**: Only close windows if they exist
+
    ```typescript
    if (windowManager.HasWindow('loader')) {
      windowManager.CloseWindow('loader');
@@ -100,6 +111,7 @@ npx electron .
 3. **Testing**: Add startup tests to catch these issues earlier
 
 ## Related Files
+
 - `packages/electron_app/src/index.ts` - Main process entry point
 - `packages/electron_app/src/window_manager.ts` - Window management logic
 - `packages/electron_app/src/ipc/blockServiceHandlers.ts` - IPC handler setup
@@ -107,12 +119,14 @@ npx electron .
 ## Testing Results
 
 ### Before Fix
+
 ```bash
 npm run electron:start
 # Result: Build succeeds, electron process exits code 1
 ```
 
 ### After Fix
+
 ```bash
 npm run electron:start
 # Expected: Electron app launches with main window and DevTools open

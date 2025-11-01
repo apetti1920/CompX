@@ -28,7 +28,7 @@ export function isEdgeStorageType<U extends keyof PortTypes>(obj: any): obj is E
   if (typeof obj['id'] !== 'string') return false;
   if (
     typeof obj['type'] !== 'string' ||
-    !PortTypesStringList.includes(obj['type'] as typeof PortTypesStringList[number])
+    !PortTypesStringList.includes(obj['type'] as (typeof PortTypesStringList)[number])
   )
     return false;
 

@@ -47,24 +47,25 @@
 
 ## Field Reference
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `schema_version` | string | ✅ | Schema version (semver: "1.0.0") |
-| `name` | string | ✅ | Unique block identifier (lowercase, underscores) |
-| `version` | string | ✅ | Block version (semver: "1.0.0") |
-| `description` | string | ⚠️ | Human-readable description (max 500 chars) |
-| `category` | string | ⚠️ | Category for organization (lowercase, underscores) |
-| `tags` | array | ⚠️ | Search tags (max 10, lowercase with hyphens) |
-| `inputPorts` | array | ✅ | Input port definitions (max 20) |
-| `outputPorts` | array | ✅ | Output port definitions (max 20) |
-| `callbackString` | string | ✅ | JavaScript computation (1-10,000 chars) |
-| `visual` | object | ❌ | Visual styling properties |
+| Field            | Type   | Required | Description                                        |
+| ---------------- | ------ | -------- | -------------------------------------------------- |
+| `schema_version` | string | ✅       | Schema version (semver: "1.0.0")                   |
+| `name`           | string | ✅       | Unique block identifier (lowercase, underscores)   |
+| `version`        | string | ✅       | Block version (semver: "1.0.0")                    |
+| `description`    | string | ⚠️       | Human-readable description (max 500 chars)         |
+| `category`       | string | ⚠️       | Category for organization (lowercase, underscores) |
+| `tags`           | array  | ⚠️       | Search tags (max 10, lowercase with hyphens)       |
+| `inputPorts`     | array  | ✅       | Input port definitions (max 20)                    |
+| `outputPorts`    | array  | ✅       | Output port definitions (max 20)                   |
+| `callbackString` | string | ✅       | JavaScript computation (1-10,000 chars)            |
+| `visual`         | object | ❌       | Visual styling properties                          |
 
 ✅ Required | ⚠️ Recommended | ❌ Optional
 
 ## Port Definitions
 
 ### Input Port
+
 ```json
 {
   "name": "x",
@@ -74,6 +75,7 @@
 ```
 
 ### Output Port
+
 ```json
 {
   "name": "y",
@@ -82,6 +84,7 @@
 ```
 
 ### Port Types
+
 - `NUMBER` - Scalar numeric value
 - `STRING` - Text string
 - `VECTOR` - 2D vector (future)
@@ -93,9 +96,9 @@
 ```json
 {
   "visual": {
-    "color": "#RRGGBB",      // Hex color (e.g., "#4CAF50")
-    "icon": "icon-name",     // Icon identifier
-    "shape": "rect"          // "rect", "circ", or "tri"
+    "color": "#RRGGBB", // Hex color (e.g., "#4CAF50")
+    "icon": "icon-name", // Icon identifier
+    "shape": "rect" // "rect", "circ", or "tri"
   }
 }
 ```
@@ -103,6 +106,7 @@
 ## Callback String Syntax
 
 ### Available Variables
+
 - `inputPort[name]` - Current input port value
 - `prevInput[name]` - Previous input value (requires initialValue)
 - `prevOutput[name]` - Previous output value (for state)
@@ -113,48 +117,57 @@
 ### Examples
 
 **Constant**:
+
 ```javascript
-return [5]
+return [5];
 ```
 
 **Gain**:
+
 ```javascript
-return [inputPort[x] * 0.75]
+return [inputPort[x] * 0.75];
 ```
 
 **Sum**:
+
 ```javascript
-return [inputPort[a] + inputPort[b]]
+return [inputPort[a] + inputPort[b]];
 ```
 
 **Integrator** (requires initialValue):
+
 ```javascript
-return [prevOutput[y] + dt * (prevInput[x] + inputPort[x]) / 2]
+return [prevOutput[y] + (dt * (prevInput[x] + inputPort[x])) / 2];
 ```
 
 **Scope** (sink with side effects):
+
 ```javascript
 console.log('Value:', inputPort[x]);
-return []
+return [];
 ```
 
 ## Validation Rules
 
 ### Name Patterns
+
 - **Block name**: `^[a-z][a-z0-9_]*$` (lowercase, alphanumeric, underscores)
 - **Port name**: `^[a-zA-Z][a-zA-Z0-9_]*$` (alphanumeric, underscores)
 - **Category**: `^[a-z][a-z0-9_]*$` (lowercase, alphanumeric, underscores)
 - **Tag**: `^[a-z][a-z0-9_-]*$` (lowercase, alphanumeric, underscores, hyphens)
 
 ### Version Format
+
 - Must be semantic versioning: `major.minor.patch` (e.g., "1.0.0", "2.1.3")
 
 ### Visual Color
+
 - Must be hex color: `#RRGGBB` (e.g., "#4CAF50", "#FF5722")
 
 ## Common Validation Errors
 
 ### Invalid Name
+
 ```json
 {"name": "MyBlock"}  // ❌ Uppercase not allowed
 {"name": "my-block"} // ❌ Hyphens not allowed
@@ -162,6 +175,7 @@ return []
 ```
 
 ### Invalid Version
+
 ```json
 {"version": "v1.0"}     // ❌ No 'v' prefix
 {"version": "1.0"}      // ❌ Must have patch version
@@ -169,53 +183,57 @@ return []
 ```
 
 ### Invalid Port Reference
+
 ```json
 {
-  "inputPorts": [{"name": "x", "type": "NUMBER"}],
-  "callbackString": "return [inputPort[y]]"  // ❌ 'y' doesn't exist
+  "inputPorts": [{ "name": "x", "type": "NUMBER" }],
+  "callbackString": "return [inputPort[y]]" // ❌ 'y' doesn't exist
 }
 ```
 
 ### Missing Initial Value
+
 ```json
 {
-  "inputPorts": [{"name": "x", "type": "NUMBER"}],
-  "callbackString": "return [prevInput[x]]"  // ❌ Need initialValue for prevInput
+  "inputPorts": [{ "name": "x", "type": "NUMBER" }],
+  "callbackString": "return [prevInput[x]]" // ❌ Need initialValue for prevInput
 }
 ```
 
 **Correct**:
+
 ```json
 {
-  "inputPorts": [{"name": "x", "type": "NUMBER", "initialValue": 0}],
-  "callbackString": "return [prevInput[x]]"  // ✅ Has initialValue
+  "inputPorts": [{ "name": "x", "type": "NUMBER", "initialValue": 0 }],
+  "callbackString": "return [prevInput[x]]" // ✅ Has initialValue
 }
 ```
 
 ## TypeScript Usage
 
 ### Import
+
 ```typescript
-import {
-  BlockDefinition,
-  validateBlock,
-  CURRENT_SCHEMA_VERSION
-} from '@compx/common/BlockSchema';
+import { BlockDefinition, validateBlock, CURRENT_SCHEMA_VERSION } from '@compx/common/BlockSchema';
 ```
 
 ### Validate
+
 ```typescript
-const block: BlockDefinition = { /* ... */ };
+const block: BlockDefinition = {
+  /* ... */
+};
 const result = validateBlock(block);
 
 if (!result.valid) {
-  result.errors.forEach(err => {
+  result.errors.forEach((err) => {
     console.error(`${err.field}: ${err.message}`);
   });
 }
 ```
 
 ### Create Block
+
 ```typescript
 const myBlock: BlockDefinition = {
   schema_version: CURRENT_SCHEMA_VERSION,
@@ -224,12 +242,8 @@ const myBlock: BlockDefinition = {
   description: 'My custom block',
   category: 'custom',
   tags: ['custom', 'example'],
-  inputPorts: [
-    { name: 'input', type: 'NUMBER' }
-  ],
-  outputPorts: [
-    { name: 'output', type: 'NUMBER' }
-  ],
+  inputPorts: [{ name: 'input', type: 'NUMBER' }],
+  outputPorts: [{ name: 'output', type: 'NUMBER' }],
   callbackString: 'return [inputPort[input] * 2]',
   visual: {
     color: '#9C27B0',
@@ -242,6 +256,7 @@ const myBlock: BlockDefinition = {
 ## File Organization
 
 ### Recommended Structure
+
 ```
 block_definitions/
 ├── math/
@@ -256,6 +271,7 @@ block_definitions/
 ```
 
 ### File Naming
+
 - Use lowercase with underscores
 - Match block name: `gain.json` for block named "gain"
 - One block per file
@@ -263,6 +279,7 @@ block_definitions/
 ## Programmatic Validation
 
 ### Load and Validate
+
 ```typescript
 import * as fs from 'fs';
 import { validateBlock } from '@compx/common/BlockSchema';
@@ -279,21 +296,22 @@ if (result.valid) {
 ```
 
 ### Batch Validation
+
 ```typescript
 import { glob } from 'glob';
 
 const blockFiles = glob.sync('block_definitions/**/*.json');
-const results = blockFiles.map(file => {
+const results = blockFiles.map((file) => {
   const block = JSON.parse(fs.readFileSync(file, 'utf8'));
   return { file, result: validateBlock(block) };
 });
 
-const invalid = results.filter(r => !r.result.valid);
+const invalid = results.filter((r) => !r.result.valid);
 if (invalid.length > 0) {
   console.error(`❌ ${invalid.length} invalid blocks`);
   invalid.forEach(({ file, result }) => {
     console.error(`\n${file}:`);
-    result.errors.forEach(err => console.error(`  - ${err.message}`));
+    result.errors.forEach((err) => console.error(`  - ${err.message}`));
   });
   process.exit(1);
 }

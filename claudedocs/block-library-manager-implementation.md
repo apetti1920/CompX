@@ -13,6 +13,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 **Purpose**: In-memory storage and search for block definitions with O(1) lookups
 
 **Key Features**:
+
 - Map-based primary storage for fast block retrieval by name
 - Category and tag indexes for efficient filtering
 - Comprehensive search capabilities (name, category, tags, version)
@@ -20,6 +21,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 - Statistics tracking (total blocks, blocks by category, all tags)
 
 **Performance**:
+
 - O(1) lookup by name
 - O(n) search operations with indexed filtering
 - Efficient memory usage with shared index structures
@@ -29,6 +31,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 **Purpose**: Central registry for all available blocks with validation and event notification
 
 **Key Features**:
+
 - Initialization lifecycle management
 - Comprehensive block validation (JSON Schema + semantic checks)
 - Event-driven architecture with EventEmitter
@@ -37,6 +40,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 - Singleton pattern support via `getDefaultManager()`
 
 **Event System**:
+
 - `library-initialized`: Emitted when library finishes initialization
 - `block-added`: Emitted when a new block is added
 - `block-updated`: Emitted when an existing block is updated
@@ -44,6 +48,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 - `library-error`: Emitted on validation or operation errors
 
 **Event Listener Methods**:
+
 - `addEventListener(event, callback)`: Register listener, returns unsubscribe function
 - `addEventListenerOnce(event, callback)`: Register one-time listener
 - `removeEventListener(event, callback)`: Unregister listener
@@ -53,6 +58,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 **Purpose**: TypeScript type safety for the library system
 
 **Key Types**:
+
 - `BlockSearchQuery`: Search criteria for finding blocks
 - `LibraryEventType`: Union type of all event types
 - `LibraryChangeEvent`: Event data for block changes
@@ -62,6 +68,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 ### 4. Comprehensive Test Suite
 
 **BlockRegistry Tests** (`__tests__/BlockLibrary/BlockRegistry.test.ts`):
+
 - ✅ Basic operations (add, update, remove, clear)
 - ✅ Search operations (name, category, tags, version)
 - ✅ Category operations (get by category, list all)
@@ -70,6 +77,7 @@ This implementation completes **Phase 2** of the JSON-Based Block Definition Sys
 - ✅ Edge cases and error handling
 
 **BlockLibraryManager Tests** (`__tests__/BlockLibrary/BlockLibraryManager.test.ts`):
+
 - ✅ Initialization lifecycle
 - ✅ Block operations (add, update, remove)
 - ✅ Search and query operations
@@ -122,7 +130,7 @@ registry.remove('scope');
 
 // Search
 const results = registry.search({
-  name: 'gai',  // Partial, case-insensitive
+  name: 'gai', // Partial, case-insensitive
   category: 'math',
   tags: ['linear', 'scaling']
 });
@@ -166,26 +174,31 @@ import {
 This implementation focuses on the core registry and event system. The following are planned for future phases:
 
 ❌ **File System Watcher** (Phase 3)
+
 - Dynamic loading of blocks from filesystem
 - Chokidar integration for file monitoring
 - Hot-reload capabilities
 
 ❌ **File Loader** (Phase 1)
+
 - Loading blocks from JSON files
 - Directory scanning and organization
 - Build-time validation
 
 ❌ **Electron Integration** (Phase 4)
+
 - IPC handlers for block library API
 - Renderer process event forwarding
 - UserData directory setup
 
 ❌ **Frontend Service Layer** (Phase 5)
+
 - Platform-agnostic service interface
 - React hooks (useBlockLibrary, useBlock)
 - Service initialization
 
 ❌ **Frontend Integration** (Phase 6)
+
 - Block palette updates
 - Redux integration
 - UI for library status
@@ -211,12 +224,14 @@ npm test -- --coverage
 
 **Decision**: Use Node.js EventEmitter for event system
 **Rationale**:
+
 - Well-established pattern in Node/Electron ecosystem
 - Type-safe with custom event types
 - Easy to test and understand
 - Supports multiple listeners per event
 
 **Trade-off**:
+
 - Method name conflicts with EventEmitter base class
 - Solution: Renamed methods to `addEventListener`, `removeEventListener`, `addEventListenerOnce`
 
@@ -224,6 +239,7 @@ npm test -- --coverage
 
 **Decision**: Use Map for primary block storage
 **Rationale**:
+
 - O(1) lookup by name (critical for common operation)
 - Native JavaScript data structure
 - Better performance than object for frequent add/remove
@@ -233,6 +249,7 @@ npm test -- --coverage
 
 **Decision**: Maintain separate indexes for categories and tags
 **Rationale**:
+
 - Efficient search without full registry scan
 - Trade memory for speed
 - Automatic cleanup keeps indexes synchronized
@@ -241,6 +258,7 @@ npm test -- --coverage
 
 **Decision**: Integrate existing BlockValidator from BlockSchema
 **Rationale**:
+
 - Reuse existing, tested validation logic
 - Consistency across JSON and runtime blocks
 - Semantic validation beyond schema
@@ -249,6 +267,7 @@ npm test -- --coverage
 
 **Decision**: Support both strict and non-strict validation
 **Rationale**:
+
 - Development: non-strict allows warnings
 - Production: strict enforces quality
 - User choice for different contexts
@@ -272,6 +291,7 @@ packages/common/
 ## Dependencies
 
 No new dependencies required! Uses existing:
+
 - `events` (Node.js built-in)
 - `ajv` and `ajv-formats` (already added for BlockSchema)
 
@@ -280,6 +300,7 @@ No new dependencies required! Uses existing:
 To continue implementation according to the design document:
 
 ### Immediate Next Phase (Phase 3 - File System Watcher)
+
 1. Add `chokidar` dependency
 2. Create `BlockWatcher.ts` for file system monitoring
 3. Implement debounced file change handling
@@ -287,17 +308,21 @@ To continue implementation according to the design document:
 5. Connect watcher to BlockLibraryManager
 
 ### Recommended Order
+
 1. **Phase 1**: File Storage & Organization
+
    - Create block definition directories
    - Convert sample blocks to JSON
    - Implement FileLoader
 
 2. **Phase 3**: File System Watcher
+
    - Integrate chokidar
    - Connect to BlockLibraryManager
    - Test hot-reload scenarios
 
 3. **Phase 4**: Electron Integration
+
    - IPC handlers
    - Event forwarding
    - userData setup

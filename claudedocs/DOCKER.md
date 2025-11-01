@@ -3,6 +3,7 @@
 Complete guide for building and deploying CompX using Docker.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Build Stages](#build-stages)
@@ -16,6 +17,7 @@ Complete guide for building and deploying CompX using Docker.
 ## Overview
 
 CompX provides a multi-stage Dockerfile that supports:
+
 - **Web Server**: Production-ready nginx deployment (recommended for Docker)
 - **Development Server**: Hot-reload development environment
 - **Electron Builder**: Desktop application packaging (Linux)
@@ -86,6 +88,7 @@ The Dockerfile defines multiple build stages for different purposes:
 **Purpose**: Common foundation for all build stages
 
 **Key Features**:
+
 - Node.js 18 Alpine (minimal size)
 - Python 3.12 + setuptools (required for native npm modules)
 - Build tools: `make`, `g++`
@@ -93,6 +96,7 @@ The Dockerfile defines multiple build stages for different purposes:
 - Common package source code ready
 
 **Dependencies Installed**:
+
 - All packages from root `package.json`
 - All workspace packages (`@compx/common`, `@compx/web_app`, etc.)
 - Native modules built successfully (`@parcel/watcher`, etc.)
@@ -104,6 +108,7 @@ The Dockerfile defines multiple build stages for different purposes:
 **Inherits From**: `base`
 
 **Output**:
+
 - Compiled loader assets in `dist/`
 - Used by Electron desktop application
 
@@ -116,6 +121,7 @@ The Dockerfile defines multiple build stages for different purposes:
 **Inherits From**: `base`
 
 **Contains**:
+
 - Web app source code
 - Webpack configuration
 - Babel configuration
@@ -130,6 +136,7 @@ The Dockerfile defines multiple build stages for different purposes:
 **Command**: `npm run start --workspace=@compx/web_app`
 
 **Usage**:
+
 ```bash
 docker build --target web_dev -t compx:dev .
 docker run -p 3000:3000 -v $(pwd)/packages/web_app/src:/compx/packages/web_app/src compx:dev
@@ -144,6 +151,7 @@ docker run -p 3000:3000 -v $(pwd)/packages/web_app/src:/compx/packages/web_app/s
 **Environment**: `BUILD_TYPE=web`
 
 **Output**:
+
 - Minified, bundled JavaScript in `dist/`
 - Production-ready static assets
 - Optimized for performance
@@ -157,12 +165,14 @@ docker run -p 3000:3000 -v $(pwd)/packages/web_app/src:/compx/packages/web_app/s
 **Inherits From**: nginx:latest
 
 **Features**:
+
 - Lightweight (~250MB total)
 - High-performance static file serving
 - Production-ready configuration
 - No Node.js runtime overhead
 
 **Configuration**:
+
 - Serves from `/usr/share/nginx/html/`
 - Default port: 80
 - Copied from `web_builder` stage
@@ -188,11 +198,13 @@ docker build --target web_server -t compx:latest .
 ```
 
 **With custom tags:**
+
 ```bash
 docker build --target web_server -t compx:1.0.0 -t compx:latest .
 ```
 
 **Build arguments:**
+
 ```bash
 docker build \
   --target web_server \
@@ -218,17 +230,20 @@ docker build -t compx:all .
 ### Build Performance
 
 **Cache Optimization:**
+
 ```bash
 # Use BuildKit for better caching
 DOCKER_BUILDKIT=1 docker build --target web_server -t compx:latest .
 ```
 
 **No Cache (Clean Build):**
+
 ```bash
 docker build --no-cache --target web_server -t compx:latest .
 ```
 
 **Expected Build Times:**
+
 - First build: ~3-5 minutes (downloading dependencies)
 - Subsequent builds: ~30-60 seconds (using cache)
 - No-cache build: ~3-5 minutes
@@ -367,6 +382,7 @@ docker run -d \
 **Cause**: Building all stages including electron_builder without targeting web_server
 
 **Solution**:
+
 ```bash
 docker build --target web_server -t compx:latest .
 ```
@@ -376,6 +392,7 @@ docker build --target web_server -t compx:latest .
 **Cause**: Webpack alias not configured or cache issue
 
 **Solution**:
+
 ```bash
 docker build --no-cache --target web_server -t compx:latest .
 ```
@@ -385,6 +402,7 @@ docker build --no-cache --target web_server -t compx:latest .
 **Cause**: Missing Python dependencies in Alpine
 
 **Solution**: Already fixed in Dockerfile with:
+
 ```dockerfile
 RUN apk add --no-cache python3 py3-setuptools make g++
 ```
@@ -394,11 +412,13 @@ RUN apk add --no-cache python3 py3-setuptools make g++
 #### Issue: Container exits immediately
 
 **Check logs:**
+
 ```bash
 docker logs compx
 ```
 
 **Verify build:**
+
 ```bash
 docker run -it compx:latest sh
 ```
@@ -406,12 +426,14 @@ docker run -it compx:latest sh
 #### Issue: Cannot access on localhost
 
 **Check port mapping:**
+
 ```bash
 docker ps
 # Should show: 0.0.0.0:8080->80/tcp
 ```
 
 **Test from container:**
+
 ```bash
 docker exec compx curl http://localhost:80
 ```
@@ -419,11 +441,13 @@ docker exec compx curl http://localhost:80
 #### Issue: 404 errors
 
 **Check static files:**
+
 ```bash
 docker exec compx ls -la /usr/share/nginx/html/
 ```
 
 **Expected files:**
+
 - `index.html`
 - `bundle.js`
 - Other static assets
@@ -433,12 +457,14 @@ docker exec compx ls -la /usr/share/nginx/html/
 #### Slow Build Times
 
 **Use BuildKit:**
+
 ```bash
 export DOCKER_BUILDKIT=1
 docker build --target web_server -t compx:latest .
 ```
 
 **Prune build cache:**
+
 ```bash
 docker builder prune
 ```
@@ -446,12 +472,14 @@ docker builder prune
 #### Large Image Size
 
 **Check image size:**
+
 ```bash
 docker images compx
 # Should be ~250MB for web_server
 ```
 
 **Reduce size further:**
+
 ```bash
 # Use multi-stage build with smaller base
 # Already optimized in current Dockerfile
@@ -459,12 +487,12 @@ docker images compx
 
 ### Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `ENOENT: no such file` | Missing source files | Check .dockerignore |
-| `npm ERR! workspace` | Workspace misconfiguration | Verify lerna.json |
-| `webpack compiled with errors` | Build failure | Check build logs |
-| `Port already in use` | Port conflict | Use different port or stop conflicting process |
+| Error                          | Cause                      | Solution                                       |
+| ------------------------------ | -------------------------- | ---------------------------------------------- |
+| `ENOENT: no such file`         | Missing source files       | Check .dockerignore                            |
+| `npm ERR! workspace`           | Workspace misconfiguration | Verify lerna.json                              |
+| `webpack compiled with errors` | Build failure              | Check build logs                               |
+| `Port already in use`          | Port conflict              | Use different port or stop conflicting process |
 
 ---
 
@@ -483,18 +511,19 @@ services:
       context: .
       target: web_server
     ports:
-      - "8080:80"
+      - '8080:80'
     environment:
       - NODE_ENV=production
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:80']
       interval: 30s
       timeout: 10s
       retries: 3
 ```
 
 **Usage:**
+
 ```bash
 docker-compose up -d
 docker-compose logs -f
@@ -521,17 +550,17 @@ spec:
         app: compx
     spec:
       containers:
-      - name: compx
-        image: compx:latest
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+        - name: compx
+          image: compx:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
 ---
 apiVersion: v1
 kind: Service
@@ -541,8 +570,8 @@ spec:
   selector:
     app: compx
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80
   type: LoadBalancer
 ```
 

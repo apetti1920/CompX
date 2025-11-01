@@ -1,7 +1,7 @@
 export const ErrorTypeStrings = ['info', 'warning', 'error'] as const;
 
 export type CompXErrorJson = {
-  errorType: typeof ErrorTypeStrings[number];
+  errorType: (typeof ErrorTypeStrings)[number];
   name: string;
   message: string;
   stack?: CompXErrorJson;
@@ -15,7 +15,7 @@ export function isCompXErrorJson(d: any): d is CompXErrorJson {
 
   if (
     typeof d['errorType'] !== 'string' ||
-    !ErrorTypeStrings.includes(d['errorType'] as typeof ErrorTypeStrings[number])
+    !ErrorTypeStrings.includes(d['errorType'] as (typeof ErrorTypeStrings)[number])
   )
     return false;
   if (typeof d['name'] !== 'string') return false;

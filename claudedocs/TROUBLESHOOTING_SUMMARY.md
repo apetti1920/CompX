@@ -6,14 +6,17 @@
 ## Issues Discovered & Fixed
 
 ### Issue 1: Orphaned Window Cleanup Call ✅ FIXED
+
 **File**: `packages/electron_app/src/index.ts:93`
 
 **Problem**: Attempting to close a 'loader' window that was never created
+
 ```typescript
 windowManager.CloseWindow('loader'); // ❌ loader window never created
 ```
 
 **Fix**: Commented out the orphaned cleanup call
+
 ```typescript
 // Note: loader window creation is commented out above, so no need to close it
 // windowManager.CloseWindow('loader');
@@ -22,9 +25,11 @@ windowManager.CloseWindow('loader'); // ❌ loader window never created
 ---
 
 ### Issue 2: Incorrect package.json Main Entry ✅ FIXED
+
 **File**: `packages/electron_app/package.json:5`
 
 **Problem**: TypeScript preserves full directory structure, but package.json pointed to wrong path
+
 ```json
 "main": "./dist/main/index.js"  // ❌ File doesn't exist
 ```
@@ -34,6 +39,7 @@ windowManager.CloseWindow('loader'); // ❌ loader window never created
 **Root Cause**: TypeScript tsconfig includes both `src/**/*` and `../common/src/**/*`, causing it to preserve the full directory tree from the project root.
 
 **Fix**: Updated main entry to actual compiled location
+
 ```json
 "main": "./dist/main/electron_app/src/index.js"  // ✅ Correct path
 ```
@@ -41,13 +47,16 @@ windowManager.CloseWindow('loader'); // ❌ loader window never created
 ---
 
 ### Issue 3: Wrong Application Name for userData ✅ FIXED
+
 **File**: `packages/electron_app/src/index.ts`
 
 **Problem**: Electron used package name `@compx/electron_app` for userData directory
+
 - Expected: `~/Library/Application Support/CompX/block_storage/`
 - Actual: `~/Library/Application Support/@compx/electron_app/block_storage/`
 
 **Fix**: Set explicit app name before ready event
+
 ```typescript
 // Set application name for userData path
 app.setName('CompX');
@@ -56,9 +65,11 @@ app.setName('CompX');
 ---
 
 ### Issue 4: Incorrect Renderer HTML Path ✅ FIXED
+
 **File**: `packages/electron_app/src/index.ts:85`
 
 **Problem**: `__dirname` resolves to `dist/main/electron_app/src`, causing wrong path calculation
+
 ```typescript
 // __dirname = dist/main/electron_app/src
 const mainWindowPath = path.join(__dirname, '/../renderer/app/index.html');
@@ -67,6 +78,7 @@ const mainWindowPath = path.join(__dirname, '/../renderer/app/index.html');
 ```
 
 **Fix**: Adjusted path calculation to go up 4 levels
+
 ```typescript
 // __dirname is dist/main/electron_app/src, so we need to go up 4 levels to get to dist
 const mainWindowPath = path.join(__dirname, '/../../../../renderer/app/index.html');
@@ -77,11 +89,13 @@ const mainWindowPath = path.join(__dirname, '/../../../../renderer/app/index.htm
 ## Files Modified
 
 1. **`packages/electron_app/src/index.ts`**:
+
    - Line 71: Added `app.setName('CompX')`
    - Line 89: Fixed renderer path (`../../../../renderer/app/index.html`)
    - Line 94: Commented out `CloseWindow('loader')`
 
 2. **`packages/electron_app/package.json`**:
+
    - Line 5: Updated main entry to `./dist/main/electron_app/src/index.js`
 
 3. **Test Data**:
@@ -92,6 +106,7 @@ const mainWindowPath = path.join(__dirname, '/../../../../renderer/app/index.htm
 ## Build Output Structure
 
 ### TypeScript Compilation
+
 ```
 dist/
 ├── main/
@@ -117,6 +132,7 @@ dist/
 ### Why TypeScript Preserves Full Structure
 
 The `tsconfig.json` includes:
+
 ```json
 {
   "include": ["src/**/*", "../common/src/**/*"]
@@ -126,6 +142,7 @@ The `tsconfig.json` includes:
 This causes TypeScript to preserve paths relative to the **project root**, not the source directory. Since we're including files from `../common`, TypeScript creates the full tree structure in the output.
 
 **Alternative Approaches** (not implemented):
+
 1. Use `rootDir` in tsconfig (requires restructuring)
 2. Use separate tsconfig for dependencies
 3. Use webpack/rollup for bundling instead of tsc
@@ -137,6 +154,7 @@ This causes TypeScript to preserve paths relative to the **project root**, not t
 **Correct Path**: `~/Library/Application Support/CompX/block_storage/`
 
 **Test Blocks** (4 JSON files):
+
 - `test_block_constant.json` - Constant source block
 - `test_block_gain.json` - Gain amplifier
 - `test_block_integrator.json` - Integration block
@@ -147,6 +165,7 @@ This causes TypeScript to preserve paths relative to the **project root**, not t
 ## Verification Steps
 
 ### 1. Start Electron App
+
 ```bash
 cd /Users/aidanpetti/Documents/Code/CompX
 npm run electron:start
@@ -155,6 +174,7 @@ npm run electron:start
 ### 2. Expected Console Output
 
 **Main Process Console**:
+
 ```
 Block service initialized successfully
 Found 4 JSON files in block storage
@@ -167,6 +187,7 @@ Block service IPC handlers registered (4 blocks loaded)
 ```
 
 **Renderer DevTools Console**:
+
 ```
 IPC: GET_ALL - Fetching all blocks
 IPC: GET_ALL - Returning 4 blocks
@@ -174,6 +195,7 @@ Loading 4 blocks into Redux store
 ```
 
 ### 3. Visual Verification
+
 - ✅ Electron window opens
 - ✅ DevTools opens automatically
 - ✅ React app renders (not blank screen)
@@ -184,15 +206,18 @@ Loading 4 blocks into Redux store
 ## Known Limitations & Workarounds
 
 ### TypeScript Output Structure
+
 **Limitation**: TypeScript preserves full directory tree due to cross-package includes
 **Workaround**: Use correct path in package.json main entry
 **Better Solution**: Consider using webpack or rollup for main process bundling
 
 ### App Name Configuration
+
 **Note**: `app.setName()` must be called before `app.on('ready')`
 **Impact**: Affects userData path, app menu name, crash reporter
 
 ### Path Calculations
+
 **Current**: Relative paths from `__dirname` (fragile if structure changes)
 **Alternative**: Use `app.getAppPath()` or environment variables for more robust paths
 
@@ -219,23 +244,27 @@ Loading 4 blocks into Redux store
 ## Testing Checklist
 
 ### Build Phase
+
 - [x] TypeScript compiles without errors
 - [x] Output files exist at expected locations
 - [x] package.json main entry points to valid file
 
 ### Startup Phase
+
 - [ ] Electron process starts without errors
 - [ ] App name is "CompX" (check userData path)
 - [ ] Renderer HTML loads successfully
 - [ ] DevTools opens
 
 ### BlockManager Phase
+
 - [ ] Block storage directory found
 - [ ] 4 JSON files discovered
 - [ ] All 4 blocks loaded into memory
 - [ ] IPC handlers registered
 
 ### React App Phase
+
 - [ ] IPC communication succeeds
 - [ ] Redux store populated with blocks
 - [ ] Block library UI displays 4 blocks
@@ -246,6 +275,7 @@ Loading 4 blocks into Redux store
 ## Success Criteria
 
 ✅ **Implementation Successful** when:
+
 1. `npm run electron:start` completes without errors
 2. Electron window displays React app
 3. Console shows "BlockManager initialized with 4 blocks"
@@ -253,6 +283,7 @@ Loading 4 blocks into Redux store
 5. Block search and selection work correctly
 
 🎯 **Ready for Production** when:
+
 1. All test blocks display correctly
 2. User can add custom blocks via JSON files
 3. Block library persists across app restarts

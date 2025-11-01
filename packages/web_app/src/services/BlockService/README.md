@@ -36,7 +36,7 @@ function BlockPalette() {
 
   return (
     <ul>
-      {blocks.map(block => (
+      {blocks.map((block) => (
         <li key={block.name}>{block.name}</li>
       ))}
     </ul>
@@ -79,11 +79,13 @@ function BlockPalette() {
 ### 1. Platform Services
 
 **ElectronBlockService** (`services/electron/ElectronBlockService.ts`)
+
 - Uses Electron IPC for main process communication
 - File system-based block storage
 - Desktop-specific block pack installation
 
 **WebBlockService** (`services/web/WebBlockService.ts`)
+
 - REST API client for web server
 - HTTP-based block library access
 - Web-optimized caching strategy
@@ -91,6 +93,7 @@ function BlockPalette() {
 ### 2. Service Factory
 
 **getBlockService()** (`factory.ts`)
+
 - Automatic platform detection
 - Singleton pattern for service instances
 - Configuration support (API base URL)
@@ -98,6 +101,7 @@ function BlockPalette() {
 ### 3. React Context
 
 **BlockServiceProvider** (`context.tsx`)
+
 - Provides service instance to component tree
 - Synchronous initialization for test compatibility
 - Custom service injection for testing
@@ -105,12 +109,14 @@ function BlockPalette() {
 ### 4. React Hooks
 
 **useBlockLibrary()** (`hooks/useBlockLibrary.ts`)
+
 - Access all available blocks
 - Module-level caching with 60s TTL
 - Real-time library change events
 - Returns: `{ blocks, loading, error, refresh }`
 
 **useBlock(blockName)** (`hooks/useBlock.ts`)
+
 - Access specific block by name
 - Per-block Map cache with 60s TTL
 - Event-filtered updates (only for matching block)
@@ -123,22 +129,20 @@ function BlockPalette() {
 ```tsx
 interface BlockServiceProviderProps {
   children: ReactNode;
-  service?: BlockService;      // Optional custom service (for testing)
-  apiBaseUrl?: string;         // Optional API URL for WebBlockService
+  service?: BlockService; // Optional custom service (for testing)
+  apiBaseUrl?: string; // Optional API URL for WebBlockService
 }
 
-<BlockServiceProvider apiBaseUrl="https://api.example.com">
-  {children}
-</BlockServiceProvider>
+<BlockServiceProvider apiBaseUrl="https://api.example.com">{children}</BlockServiceProvider>;
 ```
 
 ### useBlockLibrary Hook
 
 ```tsx
 function useBlockLibrary(options?: {
-  autoRefresh?: boolean;  // default: true
-  useCache?: boolean;     // default: true
-}): BlockLibraryState
+  autoRefresh?: boolean; // default: true
+  useCache?: boolean; // default: true
+}): BlockLibraryState;
 
 interface BlockLibraryState {
   blocks: BlockDefinition[];
@@ -149,6 +153,7 @@ interface BlockLibraryState {
 ```
 
 **Example:**
+
 ```tsx
 const { blocks, loading, error, refresh } = useBlockLibrary();
 ```
@@ -159,10 +164,10 @@ const { blocks, loading, error, refresh } = useBlockLibrary();
 function useBlock(
   blockName: string,
   options?: {
-    autoRefresh?: boolean;  // default: true
-    useCache?: boolean;     // default: true
+    autoRefresh?: boolean; // default: true
+    useCache?: boolean; // default: true
   }
-): BlockState
+): BlockState;
 
 interface BlockState {
   block: BlockDefinition | null;
@@ -173,6 +178,7 @@ interface BlockState {
 ```
 
 **Example:**
+
 ```tsx
 const { block, loading, error, refresh } = useBlock('gain');
 ```
@@ -191,6 +197,7 @@ clearBlockLibraryCache(): void
 ```
 
 **Example:**
+
 ```tsx
 import { clearBlockCache, clearAllBlockCaches } from './services/BlockService';
 
@@ -229,12 +236,14 @@ When the library changes, components using the hooks automatically re-render wit
 ### Intelligent Caching
 
 **Cache Strategy:**
+
 - **TTL**: 60 seconds (1 minute)
 - **Cache Location**: Module-level (shared across component instances)
 - **Cache Invalidation**: Automatic on library change events
 - **Background Refresh**: Displays cached data immediately, refreshes if stale
 
 **Benefits:**
+
 - Reduces unnecessary service calls
 - Improves UI responsiveness
 - Supports offline-first scenarios
@@ -252,6 +261,7 @@ const { loading } = useBlockLibrary();
 ```
 
 **Smart Loading Logic:**
+
 - Shows `loading: true` only when cache is absent or stale
 - Shows cached data immediately even during background refresh
 - Provides optimal UX with instant feedback
@@ -269,6 +279,7 @@ if (error) {
 ```
 
 **Error Scenarios:**
+
 - Network failures
 - Service unavailable
 - Invalid block data
@@ -298,6 +309,7 @@ npm test -- packages/web_app/__tests__/services/BlockService/hooks
 ```
 
 **Test Coverage:**
+
 - Initial data loading
 - Caching behavior
 - Real-time update events
@@ -315,15 +327,11 @@ function TestWrapper({ children }) {
   const mockService = {
     getAvailableBlocks: jest.fn(),
     getBlock: jest.fn(),
-    onLibraryChanged: jest.fn(),
+    onLibraryChanged: jest.fn()
     // ... other methods
   };
 
-  return (
-    <BlockServiceProvider service={mockService}>
-      {children}
-    </BlockServiceProvider>
-  );
+  return <BlockServiceProvider service={mockService}>{children}</BlockServiceProvider>;
 }
 ```
 
@@ -348,6 +356,7 @@ function TestWrapper({ children }) {
 ### From Direct Service Usage
 
 **Before:**
+
 ```tsx
 function BlockList() {
   const [blocks, setBlocks] = useState([]);
@@ -357,22 +366,36 @@ function BlockList() {
     service.getAvailableBlocks().then(setBlocks);
   }, []);
 
-  return <ul>{blocks.map(b => <li>{b.name}</li>)}</ul>;
+  return (
+    <ul>
+      {blocks.map((b) => (
+        <li>{b.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
 **After:**
+
 ```tsx
 function BlockList() {
   const { blocks, loading } = useBlockLibrary();
 
   if (loading) return <div>Loading...</div>;
 
-  return <ul>{blocks.map(b => <li>{b.name}</li>)}</ul>;
+  return (
+    <ul>
+      {blocks.map((b) => (
+        <li>{b.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
 **Benefits:**
+
 - Automatic re-rendering on updates
 - Built-in loading/error states
 - Caching included
@@ -401,6 +424,7 @@ function BlockList() {
 **1. "useBlockServiceContext must be used within BlockServiceProvider"**
 
 Ensure provider wraps components using hooks:
+
 ```tsx
 <BlockServiceProvider>
   <YourComponents />
@@ -410,6 +434,7 @@ Ensure provider wraps components using hooks:
 **2. Stale cached data**
 
 Clear cache or use manual refresh:
+
 ```tsx
 const { refresh } = useBlockLibrary();
 await refresh();
@@ -418,11 +443,12 @@ await refresh();
 **3. Infinite re-renders**
 
 Don't include hook return values in useEffect dependencies:
+
 ```tsx
 const { blocks } = useBlockLibrary();
 useEffect(() => {
   // Process blocks
-}, [blocks.length]);  // Use length, not blocks array
+}, [blocks.length]); // Use length, not blocks array
 ```
 
 ## Future Enhancements

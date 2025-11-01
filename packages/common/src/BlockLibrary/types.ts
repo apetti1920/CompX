@@ -21,7 +21,12 @@ export interface BlockSearchQuery {
 /**
  * Types of events emitted by the Block Library Manager
  */
-export type LibraryEventType = 'block-added' | 'block-updated' | 'block-removed' | 'library-initialized' | 'library-error';
+export type LibraryEventType =
+  | 'block-added'
+  | 'block-updated'
+  | 'block-removed'
+  | 'library-initialized'
+  | 'library-error';
 
 /**
  * Event data for library changes

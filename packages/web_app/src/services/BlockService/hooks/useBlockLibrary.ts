@@ -59,10 +59,12 @@ const CACHE_TTL = 60000; // 1 minute cache TTL
  * }
  * ```
  */
-export function useBlockLibrary(options: {
-  autoRefresh?: boolean;
-  useCache?: boolean;
-} = {}): BlockLibraryState {
+export function useBlockLibrary(
+  options: {
+    autoRefresh?: boolean;
+    useCache?: boolean;
+  } = {}
+): BlockLibraryState {
   const { autoRefresh = true, useCache = true } = options;
   const service = useBlockServiceContext();
 

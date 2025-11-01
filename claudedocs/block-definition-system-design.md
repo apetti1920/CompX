@@ -29,6 +29,7 @@ This document outlines the migration from TypeScript-based block definitions to 
 ### Current System Limitations
 
 **TypeScript Block Definitions** (`packages/common/src/DefaultBlocks/`)
+
 - Blocks defined as TypeScript constants exported from `.ts` files
 - Requires compilation and application restart for any block changes
 - No support for runtime block loading or dynamic block packs
@@ -76,14 +77,14 @@ This document outlines the migration from TypeScript-based block definitions to 
 
 ### Key Architectural Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **Loading Strategy** | File System Watcher | Enables dynamic block pack installation without restart |
-| **Validation** | JSON Schema | Industry standard, excellent tooling, type generation |
-| **Storage Format** | JSON | Human-readable, versionable, language-agnostic |
-| **Organization** | Category directories + tags | Balance between structure and searchability |
-| **Versioning** | Semantic versioning in schema | Enables migrations and backward compatibility |
-| **Platform Abstraction** | Service interface pattern | Future-proof for web server implementation |
+| Decision                 | Choice                        | Rationale                                               |
+| ------------------------ | ----------------------------- | ------------------------------------------------------- |
+| **Loading Strategy**     | File System Watcher           | Enables dynamic block pack installation without restart |
+| **Validation**           | JSON Schema                   | Industry standard, excellent tooling, type generation   |
+| **Storage Format**       | JSON                          | Human-readable, versionable, language-agnostic          |
+| **Organization**         | Category directories + tags   | Balance between structure and searchability             |
+| **Versioning**           | Semantic versioning in schema | Enables migrations and backward compatibility           |
+| **Platform Abstraction** | Service interface pattern     | Future-proof for web server implementation              |
 
 ---
 
@@ -94,6 +95,7 @@ This document outlines the migration from TypeScript-based block definitions to 
 **Purpose**: Define strict structure for block definitions with validation
 
 **Key Features**:
+
 - JSON Schema Draft 7 specification
 - Semantic versioning support (`schema_version`, `block_version`)
 - Port type definitions with initial values
@@ -101,6 +103,7 @@ This document outlines the migration from TypeScript-based block definitions to 
 - Validation rules for callback strings
 
 **Schema Fields**:
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -130,6 +133,7 @@ This document outlines the migration from TypeScript-based block definitions to 
 **Purpose**: Central registry for all available blocks with dynamic loading
 
 **Responsibilities**:
+
 - Initialize block registry on startup
 - Watch file system for block changes
 - Validate new/updated block definitions
@@ -137,6 +141,7 @@ This document outlines the migration from TypeScript-based block definitions to 
 - Notify frontend of library changes
 
 **Key Methods**:
+
 ```typescript
 interface BlockLibraryManager {
   // Initialization
@@ -162,16 +167,19 @@ interface BlockLibraryManager {
 **Purpose**: Monitor block directories for changes and trigger registry updates
 
 **Watched Directories**:
+
 - `packages/common/block_definitions/` - Core blocks (read-only)
 - `userData/custom_blocks/` - User-created blocks
 - `userData/block_packs/{pack-name}/` - Downloaded block packs
 
 **Events Handled**:
+
 - `add` - New block file detected
 - `change` - Existing block file modified
 - `unlink` - Block file deleted
 
 **Implementation Details**:
+
 - Use `chokidar` library (stable, cross-platform, feature-rich)
 - Debounce events (100ms) to handle rapid successive changes
 - Validate on change, update registry only if valid
@@ -184,11 +192,13 @@ interface BlockLibraryManager {
 **Validation Layers**:
 
 1. **JSON Schema Validation** (Structure)
+
    - Field presence and types
    - Enum value constraints
    - String format validation (hex colors, semver)
 
 2. **Semantic Validation** (Logic)
+
    - Port name uniqueness within block
    - Callback string syntax checking
    - Port type compatibility
@@ -200,6 +210,7 @@ interface BlockLibraryManager {
    - Warning for deprecated fields
 
 **Error Reporting**:
+
 ```typescript
 interface ValidationResult {
   valid: boolean;
@@ -219,6 +230,7 @@ interface ValidationError {
 **Purpose**: Decouple frontend from specific backend implementation (Electron vs Web)
 
 **Interface Design**:
+
 ```typescript
 // Frontend-facing interface (platform-agnostic)
 interface BlockService {
@@ -236,8 +248,12 @@ interface BlockService {
 }
 
 // Backend implementations
-class ElectronBlockService implements BlockService { /* IPC-based */ }
-class WebBlockService implements BlockService { /* HTTP-based */ }
+class ElectronBlockService implements BlockService {
+  /* IPC-based */
+}
+class WebBlockService implements BlockService {
+  /* HTTP-based */
+}
 ```
 
 ### 6. Frontend Block Service
@@ -245,12 +261,14 @@ class WebBlockService implements BlockService { /* HTTP-based */ }
 **Purpose**: Provide React components with block library access
 
 **Features**:
+
 - Singleton service instance
 - React hooks for block access (`useBlockLibrary`, `useBlock`)
 - Automatic re-rendering on library updates
 - Local caching for performance
 
 **Usage Example**:
+
 ```typescript
 // In React component
 const { blocks, loading, error } = useBlockLibrary();
@@ -268,6 +286,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Establish schema and validation infrastructure
 
 **Tasks**:
+
 1. Define JSON Schema for block definitions
 2. Create schema validation system with Ajv
 3. Write comprehensive schema tests
@@ -275,12 +294,14 @@ const gainBlock = useBlock('gain');
 5. Create migration guide from TS to JSON
 
 **Deliverables**:
+
 - `packages/common/src/BlockSchema/schema.json`
 - `packages/common/src/BlockSchema/validator.ts`
 - `packages/common/src/BlockSchema/__tests__/`
 - `claudedocs/block-schema-specification.md`
 
 **Success Criteria**:
+
 - Schema validates all existing block types
 - 100% test coverage for validation logic
 - Clear error messages for validation failures
@@ -292,18 +313,21 @@ const gainBlock = useBlock('gain');
 **Goal**: Set up block definition file structure
 
 **Tasks**:
+
 1. Create directory structure for block definitions
 2. Convert 1-2 existing blocks to JSON format (proof of concept)
 3. Implement block file loader (sync, startup-only version)
 4. Create build script to validate all blocks at build time
 
 **Deliverables**:
+
 - `packages/common/block_definitions/math/gain.json`
 - `packages/common/block_definitions/math/constant.json`
 - `packages/common/src/BlockLoader/FileLoader.ts`
 - `scripts/validate-blocks.js` (build-time validation)
 
 **Success Criteria**:
+
 - 2 blocks successfully loaded from JSON
 - Build fails if any block invalid
 - Directory structure supports category organization
@@ -315,6 +339,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Create in-memory registry with startup loading
 
 **Tasks**:
+
 1. Implement BlockLibraryManager class
 2. Build block registry (Map-based, searchable)
 3. Create initialization routine (load all blocks on startup)
@@ -322,11 +347,13 @@ const gainBlock = useBlock('gain');
 5. Write comprehensive unit tests
 
 **Deliverables**:
+
 - `packages/common/src/BlockLibrary/BlockLibraryManager.ts`
 - `packages/common/src/BlockLibrary/BlockRegistry.ts`
 - `packages/common/src/BlockLibrary/__tests__/`
 
 **Success Criteria**:
+
 - All blocks loaded into registry on startup
 - Search by name, tags, category works correctly
 - <100ms search performance for 1000 blocks
@@ -338,6 +365,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Enable dynamic block loading without restart
 
 **Tasks**:
+
 1. Integrate `chokidar` file system watcher
 2. Implement event handlers (add/change/unlink)
 3. Add debouncing for rapid file changes
@@ -346,10 +374,12 @@ const gainBlock = useBlock('gain');
 6. Write integration tests with temp directories
 
 **Deliverables**:
+
 - `packages/common/src/BlockLibrary/BlockWatcher.ts`
 - `packages/common/src/BlockLibrary/__tests__/watcher.test.ts`
 
 **Success Criteria**:
+
 - New block JSON detected within 200ms
 - Invalid blocks don't crash watcher
 - Multiple rapid changes handled correctly
@@ -362,6 +392,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Expose block library via Electron IPC
 
 **Tasks**:
+
 1. Update electron_loader to initialize BlockLibraryManager
 2. Create IPC handlers for block library API
 3. Implement event forwarding (library changes → renderer)
@@ -369,19 +400,23 @@ const gainBlock = useBlock('gain');
 5. Test with Electron app
 
 **Deliverables**:
+
 - `packages/electron_app/src/startup/BlockLibrarySetup.ts`
 - `packages/electron_app/src/ipc/BlockLibraryHandlers.ts`
 - Updated `packages/electron_app/src/index.ts`
 
 **API Methods** (IPC):
+
 - `block-library:get-all` → `BlockDefinition[]`
 - `block-library:get` (name) → `BlockDefinition | null`
 - `block-library:search` (query) → `BlockDefinition[]`
 
 **Events** (IPC):
+
 - `block-library:changed` → `LibraryChangeEvent`
 
 **Success Criteria**:
+
 - Blocks available via IPC within 1s of app start
 - File changes propagate to renderer within 500ms
 - No memory leaks from event listeners
@@ -393,6 +428,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Create platform-agnostic frontend API
 
 **Tasks**:
+
 1. Define BlockService interface
 2. Implement ElectronBlockService (IPC-based)
 3. Create React hooks (useBlockLibrary, useBlock)
@@ -400,12 +436,14 @@ const gainBlock = useBlock('gain');
 5. Write frontend tests with mocked service
 
 **Deliverables**:
+
 - `packages/web_app/src/services/BlockService/interface.ts`
 - `packages/web_app/src/services/BlockService/ElectronImpl.ts`
 - `packages/web_app/src/hooks/useBlockLibrary.ts`
 - `packages/web_app/src/services/BlockService/__tests__/`
 
 **Success Criteria**:
+
 - Frontend never directly calls Electron IPC
 - Easy to swap implementations (Electron → Web)
 - React components re-render on library updates
@@ -418,6 +456,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Update UI to use new block library system
 
 **Tasks**:
+
 1. Update block palette to use BlockService
 2. Modify block creation flow to use JSON definitions
 3. Update Redux actions/reducers for new format
@@ -425,11 +464,13 @@ const gainBlock = useBlock('gain');
 5. Test all block-related UI flows
 
 **Deliverables**:
+
 - Updated `packages/web_app/src/app/Container/BlockLibrary/`
 - Modified Redux actions in `packages/web_app/src/store/actions/graphactions.ts`
 - UI components for library status/errors
 
 **Success Criteria**:
+
 - Block palette shows all available blocks
 - Newly added blocks appear without refresh
 - Block creation works identically to before
@@ -442,6 +483,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Convert all existing TS blocks to JSON, deprecate old system
 
 **Tasks**:
+
 1. Convert all remaining DefaultBlocks to JSON format
 2. Verify functional equivalence with tests
 3. Update documentation and examples
@@ -450,12 +492,14 @@ const gainBlock = useBlock('gain');
 6. Add deprecation warnings
 
 **Deliverables**:
+
 - All blocks in `packages/common/block_definitions/`
 - `scripts/migrate-ts-block-to-json.js` utility
 - Updated `CLAUDE.md` with new block creation process
 - Deprecation notices in old code
 
 **Success Criteria**:
+
 - All 6+ core blocks converted to JSON
 - App works identically with JSON blocks
 - Clear migration path documented
@@ -468,6 +512,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Prepare for future web server implementation
 
 **Tasks**:
+
 1. Design HTTP API spec for block library
 2. Implement WebBlockService stub (returns mock data)
 3. Add platform detection and service selection
@@ -475,11 +520,13 @@ const gainBlock = useBlock('gain');
 5. Create API specification (OpenAPI/Swagger)
 
 **Deliverables**:
+
 - `packages/web_app/src/services/BlockService/WebImpl.ts` (stub)
 - `claudedocs/block-library-api-spec.yaml` (OpenAPI)
 - Platform detection in service factory
 
 **Success Criteria**:
+
 - WebBlockService implements full interface
 - Easy to swap between Electron and Web implementations
 - API spec complete and validated
@@ -492,6 +539,7 @@ const gainBlock = useBlock('gain');
 **Goal**: Comprehensive testing and production readiness
 
 **Tasks**:
+
 1. Write end-to-end tests for entire flow
 2. Performance testing (large block libraries)
 3. Error handling and edge case testing
@@ -500,6 +548,7 @@ const gainBlock = useBlock('gain');
 6. User acceptance testing
 
 **Test Scenarios**:
+
 - Load 1000 blocks on startup
 - Add block while app running
 - Update block definition while in use
@@ -510,12 +559,14 @@ const gainBlock = useBlock('gain');
 - Concurrent file changes
 
 **Deliverables**:
+
 - E2E test suite
 - Performance benchmarks
 - Security audit report
 - Updated documentation
 
 **Success Criteria**:
+
 - All tests passing
 - No memory leaks
 - Handles 1000+ blocks smoothly
@@ -528,6 +579,7 @@ const gainBlock = useBlock('gain');
 ### Block JSON Format
 
 **Example: Gain Block**
+
 ```json
 {
   "$schema": "./schema.json",
@@ -559,6 +611,7 @@ const gainBlock = useBlock('gain');
 ```
 
 **Example: Integrator Block (with initial value)**
+
 ```json
 {
   "$schema": "./schema.json",
@@ -593,6 +646,7 @@ const gainBlock = useBlock('gain');
 ### Port Type System
 
 **Supported Types**:
+
 - `NUMBER` - Scalar numeric value
 - `STRING` - Text string
 - `VECTOR` - 2D vector (future)
@@ -600,6 +654,7 @@ const gainBlock = useBlock('gain');
 - `BOOLEAN` - Boolean value (future)
 
 **Type Definitions** (unchanged from current system):
+
 ```typescript
 export const PortTypesStringList = ['STRING', 'NUMBER'] as const;
 
@@ -612,6 +667,7 @@ export interface PortTypes {
 ### Callback String Syntax
 
 **Available Variables**:
+
 - `inputPort[name]` - Current input port value
 - `prevInput[name]` - Previous input value (creates pseudo-source)
 - `prevOutput[name]` - Previous output value (for state)
@@ -620,21 +676,22 @@ export interface PortTypes {
 - `dt` - Time step
 
 **Example Callbacks**:
+
 ```javascript
 // Constant
-"return [5]"
+'return [5]';
 
 // Gain
-"return [inputPort[x] * 0.75]"
+'return [inputPort[x] * 0.75]';
 
 // Sum
-"return [inputPort[a] + inputPort[b]]"
+'return [inputPort[a] + inputPort[b]]';
 
 // Integrator (trapezoidal)
-"return [prevOutput[y] + dt * (prevInput[x] + inputPort[x]) / 2]"
+'return [prevOutput[y] + dt * (prevInput[x] + inputPort[x]) / 2]';
 
 // Scope (side effect)
-"console.log(inputPort[x]); return []"
+'console.log(inputPort[x]); return []';
 ```
 
 ### Directory Structure
@@ -678,6 +735,7 @@ packages/common/block_definitions/
 ### IPC API (Electron)
 
 **Channels**:
+
 ```typescript
 // Requests
 'block-library:get-all' → BlockDefinition[]
@@ -690,6 +748,7 @@ packages/common/block_definitions/
 ```
 
 **Type Definitions**:
+
 ```typescript
 interface BlockDefinition {
   schema_version: string;
@@ -705,15 +764,15 @@ interface BlockDefinition {
 }
 
 interface BlockSearchQuery {
-  name?: string;           // Partial match
-  tags?: string[];         // Any tag matches
-  category?: string;       // Exact match
+  name?: string; // Partial match
+  tags?: string[]; // Any tag matches
+  category?: string; // Exact match
 }
 
 interface LibraryChangeEvent {
   type: 'block-added' | 'block-updated' | 'block-removed';
   blockName: string;
-  block?: BlockDefinition;  // Present for add/update
+  block?: BlockDefinition; // Present for add/update
 }
 
 interface LibraryErrorEvent {
@@ -726,6 +785,7 @@ interface LibraryErrorEvent {
 ### HTTP API (Future Web Server)
 
 **Endpoints**:
+
 ```
 GET  /api/blocks              → List all blocks
 GET  /api/blocks/:name        → Get specific block
@@ -735,6 +795,7 @@ POST /api/block-packs/install → Install block pack (future)
 ```
 
 **Example Responses**:
+
 ```json
 // GET /api/blocks
 {
@@ -763,6 +824,7 @@ data: { "blockName": "gain", "block": { ... } }
 ### From TypeScript to JSON
 
 **Current Format** (TypeScript):
+
 ```typescript
 const gain: BlockStorageType<['NUMBER'], ['NUMBER']> = {
   name: 'gain',
@@ -776,6 +838,7 @@ export default gain;
 ```
 
 **New Format** (JSON):
+
 ```json
 {
   "$schema": "./schema.json",
@@ -797,6 +860,7 @@ export default gain;
 ```
 
 **Migration Steps**:
+
 1. Convert one block at a time
 2. Run tests to verify equivalence
 3. Update any block-specific UI references
@@ -805,6 +869,7 @@ export default gain;
 6. Update exports/imports
 
 **Automated Migration Script**:
+
 ```bash
 # Convert TS block to JSON
 npm run migrate-block -- packages/common/src/DefaultBlocks/Gain.ts
@@ -813,12 +878,14 @@ npm run migrate-block -- packages/common/src/DefaultBlocks/Gain.ts
 ### Backward Compatibility
 
 **During Transition** (Phases 1-7):
+
 - Both systems coexist
 - Old TS blocks still work
 - New JSON blocks loaded alongside
 - Gradual migration, no breaking changes
 
 **Post-Migration** (Phase 8+):
+
 - TS block system deprecated but functional
 - Warnings in console for TS block usage
 - All new blocks must be JSON
@@ -831,6 +898,7 @@ npm run migrate-block -- packages/common/src/DefaultBlocks/Gain.ts
 ### Unit Tests
 
 **Components to Test**:
+
 - JSON Schema validation
 - Block file parsing
 - Registry operations (add/update/remove/search)
@@ -839,6 +907,7 @@ npm run migrate-block -- packages/common/src/DefaultBlocks/Gain.ts
 - Frontend service implementations
 
 **Example Test Cases**:
+
 ```typescript
 describe('BlockValidator', () => {
   it('validates correct block definition', () => {
@@ -869,6 +938,7 @@ describe('BlockRegistry', () => {
 ### Integration Tests
 
 **Scenarios**:
+
 - Load all blocks from directory on startup
 - Add new block file and verify registry update
 - Modify block file and verify update propagation
@@ -876,6 +946,7 @@ describe('BlockRegistry', () => {
 - Invalid block doesn't crash system
 
 **Example**:
+
 ```typescript
 describe('Block Watcher Integration', () => {
   let tempDir: string;
@@ -901,6 +972,7 @@ describe('Block Watcher Integration', () => {
 ### End-to-End Tests
 
 **Full User Flows**:
+
 1. Start app → blocks loaded → palette shows all blocks
 2. Drag block to canvas → instantiation works
 3. Add new block JSON file → appears in palette within 1s
@@ -908,6 +980,7 @@ describe('Block Watcher Integration', () => {
 5. Delete block → removed from palette
 
 **Tools**:
+
 - Playwright for Electron app testing
 - Jest for unit/integration tests
 - Custom test utilities for temp file system
@@ -921,6 +994,7 @@ describe('Block Watcher Integration', () => {
 **Target**: App ready in <2 seconds
 
 **Optimizations**:
+
 - Lazy load block details (load index first, details on demand)
 - Parallel JSON parsing
 - Index cache in userData (invalidate on directory change)
@@ -929,12 +1003,14 @@ describe('Block Watcher Integration', () => {
 ### Runtime Performance
 
 **Targets**:
+
 - Block search: <50ms for 1000 blocks
 - File change detection: <200ms
 - Registry update: <10ms
 - Frontend notification: <100ms
 
 **Optimizations**:
+
 - In-memory Map-based registry (O(1) lookup)
 - Debounced file system events
 - Incremental index updates (not full rebuild)
@@ -943,12 +1019,14 @@ describe('Block Watcher Integration', () => {
 ### Memory Management
 
 **Considerations**:
+
 - Each block definition: ~1-5KB
 - 1000 blocks = ~1-5MB memory (acceptable)
 - Registry overhead: minimal (Map + indexes)
 - Watcher overhead: <1MB
 
 **Monitoring**:
+
 - Track registry size
 - Monitor event listener count
 - Check for memory leaks in watcher
@@ -960,11 +1038,13 @@ describe('Block Watcher Integration', () => {
 ### File System Access
 
 **Risks**:
+
 - Malicious block definitions (arbitrary code in callbacks)
 - Path traversal attacks
 - Symlink attacks
 
 **Mitigations**:
+
 - Validate all file paths before reading
 - Restrict write access to userData only
 - Sanitize callback strings (AST parsing, not eval)
@@ -974,10 +1054,12 @@ describe('Block Watcher Integration', () => {
 ### Validation Bypass
 
 **Risks**:
+
 - Invalid blocks loaded into registry
 - Schema validation disabled
 
 **Mitigations**:
+
 - Always validate before adding to registry
 - No way to disable validation in production
 - Log all validation failures
@@ -988,6 +1070,7 @@ describe('Block Watcher Integration', () => {
 **Current Risk**: Callback strings use `eval` (Function constructor)
 
 **Future Mitigation** (Phase 10+):
+
 - AST parsing and validation
 - Whitelist of allowed operations
 - VM sandbox for callback execution
@@ -1000,24 +1083,28 @@ describe('Block Watcher Integration', () => {
 ### Phase 10+: Advanced Features
 
 **Block Pack Ecosystem**:
+
 - Block pack marketplace
 - Automated installation/updates
 - Dependency management
 - Digital signatures for verification
 
 **Block Development Tools**:
+
 - Visual callback editor
 - Block testing framework
 - Interactive block simulator
 - Documentation generator
 
 **Performance Enhancements**:
+
 - Compiled callbacks (WebAssembly)
 - Block caching strategies
 - Lazy block loading
 - Virtual scrolling in block palette
 
 **Collaboration Features**:
+
 - Shared block libraries
 - Version control integration
 - Team block repositories
@@ -1068,11 +1155,12 @@ packages/web_app/src/
 ### B. Dependencies
 
 **New Dependencies**:
+
 ```json
 {
-  "chokidar": "^3.5.3",          // File system watcher
-  "ajv": "^8.12.0",              // JSON Schema validation
-  "ajv-formats": "^2.1.1"        // Additional format validators
+  "chokidar": "^3.5.3", // File system watcher
+  "ajv": "^8.12.0", // JSON Schema validation
+  "ajv-formats": "^2.1.1" // Additional format validators
 }
 ```
 
@@ -1101,9 +1189,9 @@ BLOCK_CACHE_ENABLED=true         # Enable index cache
 
 ## Document History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-10-27 | System | Initial design document |
+| Version | Date       | Author | Changes                 |
+| ------- | ---------- | ------ | ----------------------- |
+| 1.0     | 2025-10-27 | System | Initial design document |
 
 ---
 

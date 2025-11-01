@@ -61,12 +61,7 @@ describe('Graph Actions - AddBlockAction', () => {
   });
 
   test('should handle different position values', () => {
-    const positions = [
-      new Vector2D(0, 0),
-      new Vector2D(100, -100),
-      new Vector2D(-500, 300),
-      new Vector2D(9999, -9999)
-    ];
+    const positions = [new Vector2D(0, 0), new Vector2D(100, -100), new Vector2D(-500, 300), new Vector2D(9999, -9999)];
 
     positions.forEach((position) => {
       const action = AddBlockAction(mockBlockTemplate, position);

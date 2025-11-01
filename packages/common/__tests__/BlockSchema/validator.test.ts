@@ -258,9 +258,7 @@ describe('BlockValidator', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e: ValidationError) => e.message.includes('Invalid JavaScript syntax'))).toBe(
-        true
-      );
+      expect(result.errors.some((e: ValidationError) => e.message.includes('Invalid JavaScript syntax'))).toBe(true);
     });
 
     it('detects type mismatch in initial value', () => {
@@ -275,9 +273,9 @@ describe('BlockValidator', () => {
 
       const result = validator.validate(block);
       expect(result.valid).toBe(false);
-      expect(
-        result.errors.some((e: ValidationError) => e.message.includes('Initial value for NUMBER port'))
-      ).toBe(true);
+      expect(result.errors.some((e: ValidationError) => e.message.includes('Initial value for NUMBER port'))).toBe(
+        true
+      );
     });
   });
 

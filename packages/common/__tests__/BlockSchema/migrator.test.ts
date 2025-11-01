@@ -3,12 +3,7 @@
  * Tests version migration and compatibility checking
  */
 
-import {
-  BlockSchemaMigrator,
-  getMigrator,
-  migrateBlock,
-  canMigrateVersion
-} from '../../src/BlockSchema/migrator';
+import { BlockSchemaMigrator, getMigrator, migrateBlock, canMigrateVersion } from '../../src/BlockSchema/migrator';
 import { BlockDefinition, CURRENT_SCHEMA_VERSION } from '../../src/BlockSchema/types';
 
 describe('BlockSchemaMigrator', () => {
@@ -307,7 +302,7 @@ describe('BlockSchemaMigrator', () => {
       const result = migrator.migrate(block);
 
       if (result.migrated) {
-        result.warnings.forEach(warning => {
+        result.warnings.forEach((warning) => {
           expect(warning).toBeTruthy();
           expect(typeof warning).toBe('string');
           expect(warning.length).toBeGreaterThan(0);

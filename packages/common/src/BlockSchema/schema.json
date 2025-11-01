@@ -4,14 +4,7 @@
   "title": "CompX Block Definition",
   "description": "Schema for defining computational blocks in CompX",
   "type": "object",
-  "required": [
-    "schema_version",
-    "name",
-    "version",
-    "inputPorts",
-    "outputPorts",
-    "callbackString"
-  ],
+  "required": ["schema_version", "name", "version", "inputPorts", "outputPorts", "callbackString"],
   "properties": {
     "schema_version": {
       "type": "string",
@@ -127,11 +120,7 @@
         },
         "initialValue": {
           "description": "Initial value for the port (enables prevInput access)",
-          "oneOf": [
-            { "type": "number" },
-            { "type": "string" },
-            { "type": "boolean" }
-          ]
+          "oneOf": [{ "type": "number" }, { "type": "string" }, { "type": "boolean" }]
         }
       },
       "additionalProperties": false

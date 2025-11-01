@@ -331,7 +331,9 @@ export class BlockWatcher {
       this.logError(`Failed to load block from ${filePath}:`, error);
       this.manager.emit('library-error', {
         type: 'library-error',
-        message: `Failed to load block from ${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Failed to load block from ${path.basename(filePath)}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         blockFile: filePath,
         timestamp: Date.now(),
         details: error
@@ -424,11 +426,7 @@ export class BlockWatcher {
 /**
  * Helper function to create standard watched directory configurations
  */
-export function createWatchedDirectory(
-  dirPath: string,
-  readOnly: boolean,
-  description: string
-): WatchedDirectory {
+export function createWatchedDirectory(dirPath: string, readOnly: boolean, description: string): WatchedDirectory {
   return {
     path: path.resolve(dirPath),
     readOnly,
@@ -442,10 +440,7 @@ export function createWatchedDirectory(
  * @param userDataDir - Path to user data directory
  * @returns Array of watched directories
  */
-export function createStandardWatchDirectories(
-  coreBlocksDir: string,
-  userDataDir: string
-): WatchedDirectory[] {
+export function createStandardWatchDirectories(coreBlocksDir: string, userDataDir: string): WatchedDirectory[] {
   return [
     createWatchedDirectory(coreBlocksDir, true, 'Core blocks (read-only)'),
     createWatchedDirectory(path.join(userDataDir, 'custom_blocks'), false, 'User-created blocks'),

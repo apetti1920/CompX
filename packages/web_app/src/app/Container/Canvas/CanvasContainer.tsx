@@ -114,7 +114,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
       if (this.state.mouseDown?.mouseOn === 'PORT') {
         // Check if we didn't click on a port (in which case the port's handler already fired)
         // This will be called for mouseup on empty space
-        if (!e.target.hasName || !(e.target.hasName('port-hitbox'))) {
+        if (!e.target.hasName || !e.target.hasName('port-hitbox')) {
           this.mouseUpHandler();
         }
       }
@@ -489,7 +489,7 @@ function CanvasContainerDroppableWrapper(props: PropsType) {
           console.warn('⚠️ Drop failed - missing clientOffset or blockTemplate');
         }
       }
-  }),
+    }),
     [props.canvasZoom, props.canvasTranslation, props.onAddBlock]
   );
 

@@ -28,7 +28,12 @@
  * ```
  */
 
-export { BlockLibraryManager, BlockLibraryManagerOptions, getDefaultManager, resetDefaultManager } from './BlockLibraryManager';
+export {
+  BlockLibraryManager,
+  BlockLibraryManagerOptions,
+  getDefaultManager,
+  resetDefaultManager
+} from './BlockLibraryManager';
 export { BlockRegistry } from './BlockRegistry';
 export {
   BlockWatcher,

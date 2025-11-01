@@ -23,11 +23,7 @@ export {
 } from './factory';
 
 // Export React context and provider
-export {
-  BlockServiceProvider,
-  useBlockServiceContext,
-  useBlockServiceReady
-} from './context';
+export { BlockServiceProvider, useBlockServiceContext, useBlockServiceReady } from './context';
 export type { BlockServiceProviderProps } from './context';
 
 // Export React hooks
