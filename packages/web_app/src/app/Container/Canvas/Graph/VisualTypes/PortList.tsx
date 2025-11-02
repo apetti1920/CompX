@@ -1,8 +1,10 @@
+import { PortType } from '@compx/common/BlockSchema/types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { Vector2D } from '@compx/common/Types';
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { Circle } from 'react-konva';
 
+import { getPortTypeColor } from './portTypeColors';
 import { CalculatePortLocation } from '../../utils';
 
 type PortPropType = {
@@ -17,7 +19,6 @@ type PortPropType = {
 };
 
 function PortComponent(props: PortPropType): React.ReactElement {
-  const [hovering, setHovering] = useState(false);
   const portLocation = CalculatePortLocation(
     props.block,
     props.isOutput,
@@ -27,14 +28,25 @@ function PortComponent(props: PortPropType): React.ReactElement {
     props.screenSize
   );
 
+  // Get port type and color
+  const port = props.isOutput ? props.block.outputPorts?.[props.portInd] : props.block.inputPorts?.[props.portInd];
+
+  // Default to gray, but try to get the port type color
+  let portColor = '#9E9E9E';
+  if (port && port.type) {
+    // Log for debugging to see what type we're getting
+    // eslint-disable-next-line no-console
+    console.log('Port type:', port.type, 'Type of:', typeof port.type, 'Port:', port);
+    // Port type should match one of: 'NUMBER' | 'STRING' | 'VECTOR' | 'MATRIX' | 'BOOLEAN'
+    portColor = getPortTypeColor(port.type as PortType | string);
+  }
+
   return (
     <React.Fragment>
-      <Circle x={portLocation.port.x} y={portLocation.port.y} radius={4} fill={hovering ? 'blue' : 'red'} />
+      <Circle x={portLocation.port.x} y={portLocation.port.y} radius={4} fill={portColor} />
       <Circle
         x={portLocation.port.x}
         y={portLocation.port.y}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
         onMouseDown={(e) => {
           e.evt.stopPropagation();
           props.onMouseDown();
@@ -65,9 +77,7 @@ export default class PortList extends Component<PropType, StateType> {
   constructor(props: PropType) {
     super(props);
 
-    this.state = {
-      hovering: false
-    };
+    this.state = {};
   }
 
   render() {

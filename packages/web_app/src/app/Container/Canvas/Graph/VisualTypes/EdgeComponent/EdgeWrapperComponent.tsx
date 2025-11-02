@@ -11,12 +11,14 @@ export default function EdgeWrapperComponent(props: {
   points: Vector2D[];
   setCursorStyle?: (side?: ArrowDirectionType) => void;
   selected?: boolean;
+  edgeColor?: string;
   onSelectComponent: (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) => void;
   onAddEdgeSplit: (on: MouseOnBlockExtracted<'EDGE'>) => void;
   onDeleteEdgeSplit: (on: MouseOnBlockExtracted<'EDGE'>) => void;
 }) {
   if (props.points.length <= 2) return <React.Fragment />;
-  const color = props.selected ? 'red' : 'green';
+  // Use edgeColor if provided, otherwise fall back to default (green/red based on selected)
+  const color = props.edgeColor ?? (props.selected ? 'red' : 'green');
   const strokeWidth = props.selected ? 2 : 3;
 
   const mouseDownHandler = (e: KonvaEventObject<MouseEvent>, on: MouseOnBlockExtracted<'EDGE'>) => {
