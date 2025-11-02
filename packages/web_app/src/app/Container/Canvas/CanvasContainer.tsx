@@ -8,7 +8,6 @@ import React, { Component } from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { Layer, Rect, Stage } from 'react-konva';
 import { connect } from 'react-redux';
-
 import { Dispatch, bindActionCreators } from 'redux';
 
 import BlockComponent from './Graph/VisualTypes/BlockComponent';
