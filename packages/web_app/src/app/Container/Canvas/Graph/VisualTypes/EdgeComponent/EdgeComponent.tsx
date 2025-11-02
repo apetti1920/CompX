@@ -152,12 +152,27 @@ const CalculateMidPoints = (start: Vector2D, end: Vector2D, percentages: number[
   const horizontalDistance = Math.abs(end.x - pointBeforeEnd.x);
   if (horizontalDistance < MIN_SEGMENT_LENGTH) {
     // Adjust pointBeforeEnd to ensure minimum segment length
+    // But check that we don't create backwards movement past lastPoint
     if (end.x < pointBeforeEnd.x) {
       // Input is to the left, move pointBeforeEnd further left
-      pointBeforeEnd = new Vector2D(end.x + MIN_SEGMENT_LENGTH, end.y);
+      // But don't overshoot past lastPoint - ensure we stay between lastPoint.x and end.x
+      const adjustedX = end.x + MIN_SEGMENT_LENGTH;
+      // Only use the adjustment if it doesn't go past lastPoint in wrong direction
+      // If it would, we keep the original pointBeforeEnd to avoid zig-zag
+      if (adjustedX <= lastPoint.x) {
+        pointBeforeEnd = new Vector2D(adjustedX, end.y);
+      }
+      // Otherwise, keep pointBeforeEnd at lastPoint.x to avoid backwards movement
     } else {
       // Input is to the right, move pointBeforeEnd further right
-      pointBeforeEnd = new Vector2D(end.x - MIN_SEGMENT_LENGTH, end.y);
+      // But don't overshoot past lastPoint - ensure we stay between lastPoint.x and end.x
+      const adjustedX = end.x - MIN_SEGMENT_LENGTH;
+      // Only use the adjustment if it doesn't go past lastPoint in wrong direction
+      // If it would, we keep the original pointBeforeEnd to avoid zig-zag
+      if (adjustedX >= lastPoint.x) {
+        pointBeforeEnd = new Vector2D(adjustedX, end.y);
+      }
+      // Otherwise, keep pointBeforeEnd at lastPoint.x to avoid backwards movement
     }
   }
 
