@@ -7,21 +7,21 @@
   "tags": ["math", "arithmetic", "multiplication"],
   "inputPorts": [
     {
-      "name": "a",
+      "name": "x",
       "type": "NUMBER"
     },
-    {
-      "name": "b",
-      "type": "NUMBER"
-    }
-  ],
-  "outputPorts": [
     {
       "name": "y",
       "type": "NUMBER"
     }
   ],
-  "callbackString": "return [inputPort[a] * inputPort[b]]",
+  "outputPorts": [
+    {
+      "name": "output",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "return [inputPort[x] * inputPort[y]]",
   "visual": {
     "color": "#E91E63",
     "icon": "x",

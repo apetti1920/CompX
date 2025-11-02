@@ -36,6 +36,7 @@ import { app } from 'electron';
 
 import WindowManager from './window_manager';
 import { setupBlockServiceHandlers } from './ipc/blockServiceHandlers';
+import DefaultBlockCreation from './startup/defaultblockcreation';
 
 // import { BrowserWindow, BrowserWindowConstructorOptions, app } from 'electron';
 //
@@ -101,6 +102,15 @@ const windowManager = WindowManager.GetInstance();
 app.setName('CompX');
 
 app.on('ready', async () => {
+  // Copy default block definitions to storage directory
+  try {
+    const defaultBlockCreation = new DefaultBlockCreation();
+    await defaultBlockCreation.run();
+    console.log('Default block definitions copied to storage');
+  } catch (error) {
+    console.error('Failed to copy default block definitions:', error);
+  }
+
   // Initialize block service IPC handlers
   try {
     await setupBlockServiceHandlers();
