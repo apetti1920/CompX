@@ -15,7 +15,7 @@
     "electron:build:deps": "BUILD_TYPE=\"electron\" npx lerna run --scope=@compx/electron_loader --scope=@compx/web_app --parallel build",
     "postelectron:build:deps": "npx lerna exec --scope=@compx/electron_app -- \"mkdir -p dist/renderer/loader && mkdir -p dist/renderer/app\" && npx lerna exec --scope=@compx/electron_loader -- \"cp -R dist/ ../electron_app/dist/renderer/loader/\" && npx lerna exec --scope=@compx/web_app -- \"cp -R dist/ ../electron_app/dist/renderer/app/\"",
     "electron:build": "npm run electron:build:deps && npx lerna run --scope=@compx/electron_app build",
-    "electron:start": "npm run electron:build && npx lerna run --scope=@compx/electron_app start --stream",
+    "electron:start": "npm run electron:build && concurrently \"npx lerna run --scope=@compx/web_app start --stream\" \"npx lerna run --scope=@compx/electron_app watch --stream\" \"npx lerna run --scope=@compx/electron_app start --stream\" --names \"webpack,tsc,electron\" --prefix-colors \"cyan,blue,green\"",
     "test": "jest",
     "pretest:pretty": "npx prettier --write --ignore-path .gitignore $(git diff --name-only HEAD | grep -E '\\.(js|jsx|ts|tsx)$' | xargs)",
     "prepare": "husky install"
@@ -29,6 +29,7 @@
     "@types/node": "^18.19.130",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "dotenv-webpack": "^8.0.1",
     "eslint": "^8.23.1",
