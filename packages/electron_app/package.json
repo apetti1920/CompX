@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "rimraf dist/main",
     "build": "npx tsc",
+    "watch": "npx tsc --watch",
     "start": "electron .",
     "builder": "electron-builder",
     "postbuilder": "electron-builder install-app-deps"
@@ -30,7 +31,9 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^38.4.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-reloader": "^1.2.3"
   },
   "dependencies": {
     "@compx/common": "1.0.0",

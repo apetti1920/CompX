@@ -100,7 +100,8 @@
     },
     "import/resolver": {
       "typescript": {
-        "project": "./tsconfig.json"
+        "alwaysTryTypes": true,
+        "project": ["./tsconfig.json", "./packages/web_app/tsconfig.json", "./packages/common/tsconfig.json"]
       }
     }
   }

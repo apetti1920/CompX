@@ -2,6 +2,36 @@
 import path from 'path';
 // import util from 'util';
 
+const env = process.env.NODE_ENV || 'development';
+
+// If development environment - only reload on main process changes
+// Renderer (web_app) uses webpack dev server hot reload
+if (env === 'development') {
+  try {
+    // Use electron-reload only for main process changes
+    const electronReload = require('electron-reload');
+    // __dirname in compiled code will be: dist/main/electron_app/src
+    // We want to watch: dist/main (where all the compiled JS files are)
+    const watchPath = path.join(__dirname, '../..');
+
+    // Use process.execPath as the electron executable (works when running in electron)
+    electronReload(watchPath, {
+      electron: process.execPath,
+      hardResetMethod: 'exit',
+      ignore: [
+        /node_modules/,
+        /\.git/,
+        /\.map$/,
+        /dist\/renderer/ // Don't reload on renderer changes (handled by webpack HMR)
+      ]
+    });
+    console.log('electron-reload watching main process:', watchPath);
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    console.log('electron-reload error:', error);
+  }
+}
+
 import { app } from 'electron';
 
 import WindowManager from './window_manager';
@@ -85,12 +115,22 @@ app.on('ready', async () => {
 
   // await SetupApp();
 
-  // Path calculation: __dirname is dist/main/electron_app/src
-  // Need to go up 3 levels to get to dist/, then into renderer/app/
-  const mainWindowPath = path.join(__dirname, '../../../renderer/app/index.html');
+  // In development, load from webpack dev server for hot reloading
+  // In production, load from static files
   windowManager.CreateWindow('main', { titleBarStyle: 'hidden', titleBarOverlay: true });
   const mainWindow = windowManager.GetWindowByName('main');
-  await mainWindow.loadFile(mainWindowPath);
+
+  if (env === 'development') {
+    // Load from webpack dev server for hot module reloading
+    await mainWindow.loadURL('http://localhost:3000');
+    console.log('Loading from webpack dev server: http://localhost:3000');
+  } else {
+    // Load from static files in production
+    // Path calculation: __dirname is dist/main/electron_app/src
+    // Need to go up 3 levels to get to dist/, then into renderer/app/
+    const mainWindowPath = path.join(__dirname, '../../../renderer/app/index.html');
+    await mainWindow.loadFile(mainWindowPath);
+  }
 
   // Open DevTools for debugging
   mainWindow.webContents.openDevTools();

@@ -9,7 +9,11 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@compx/common/*": ["packages/common/src/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

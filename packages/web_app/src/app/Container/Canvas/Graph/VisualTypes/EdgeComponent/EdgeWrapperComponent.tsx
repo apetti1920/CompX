@@ -16,7 +16,7 @@ export default function EdgeWrapperComponent(props: {
   onDeleteEdgeSplit: (on: MouseOnBlockExtracted<'EDGE'>) => void;
 }) {
   if (props.points.length <= 2) return <React.Fragment />;
-  const color = props.selected ? 'red' : 'white';
+  const color = props.selected ? 'red' : 'green';
   const strokeWidth = props.selected ? 2 : 3;
 
   const mouseDownHandler = (e: KonvaEventObject<MouseEvent>, on: MouseOnBlockExtracted<'EDGE'>) => {
