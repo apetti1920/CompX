@@ -98,6 +98,66 @@
       },
       "additionalProperties": false,
       "description": "Visual styling properties for the block"
+    },
+    "visualization": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["line_graph", "readout", "bar_chart"],
+          "description": "Type of visualization to render"
+        },
+        "config": {
+          "type": "object",
+          "description": "Configuration specific to the visualization type",
+          "properties": {
+            "inputPorts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Which input ports to visualize (default: all input ports)"
+            },
+            "maxDataPoints": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100000,
+              "description": "Maximum number of data points to store (default: 1000)"
+            },
+            "colors": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "description": "Colors for each line/series (hex colors)"
+            },
+            "backgroundColor": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$|^[a-zA-Z]+$",
+              "description": "Background color of the chart area (hex color or CSS color name, default: transparent)"
+            },
+            "margin": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 50,
+              "description": "Margin around the chart inside the block in pixels (default: 8)"
+            },
+            "inputPort": {
+              "type": "string",
+              "description": "Which input port to display (for readout type, default: first input port)"
+            },
+            "format": {
+              "type": "string",
+              "description": "Format string for displaying the value (e.g., '%.2f')"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false,
+      "description": "Visualization configuration for displaying data inside the block"
     }
   },
   "additionalProperties": false,

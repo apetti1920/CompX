@@ -36,6 +36,7 @@ import { app } from 'electron';
 
 import WindowManager from './window_manager';
 import { setupBlockServiceHandlers } from './ipc/blockServiceHandlers';
+import { setupGraphExecutionHandlers } from './ipc/graphExecutionHandlers';
 import DefaultBlockCreation from './startup/defaultblockcreation';
 
 // import { BrowserWindow, BrowserWindowConstructorOptions, app } from 'electron';
@@ -117,6 +118,14 @@ app.on('ready', async () => {
     console.log('Block service initialized successfully');
   } catch (error) {
     console.error('Failed to initialize block service:', error);
+  }
+
+  // Initialize graph execution IPC handlers
+  try {
+    setupGraphExecutionHandlers();
+    console.log('Graph execution handlers initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize graph execution handlers:', error);
   }
 
   // const loadingWindowPath = path.join(__dirname, '/../renderer/loader/index.html');

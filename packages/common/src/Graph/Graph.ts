@@ -29,6 +29,15 @@ class Graph implements GraphStorageType, GraphObject<Graph> {
   // Function to add a block to the graph
   public AddBlock(block: BlockStorageType<PortStringListType, PortStringListType>): string {
     const newBlock = Block.InitializeFromStorage(block);
+
+    // Initialize visualization if the block has visualization config
+    // Note: visualization config needs to be set separately on the Block instance
+    // since BlockStorageType doesn't include it. This is typically set when creating
+    // blocks from BlockDefinition in the web app layer.
+    if (newBlock.visualizationConfig) {
+      newBlock.InitializeVisualization();
+    }
+
     this.blocks.push(newBlock);
     return newBlock.id;
   }
@@ -382,6 +391,14 @@ class Graph implements GraphStorageType, GraphObject<Graph> {
 
   // Executes the current graph
   public Execute(T: number | 'infinite', dt: number): void {
+    // Clear visualization data buffers for all blocks with visualization enabled
+    this.blocks.forEach((block) => {
+      if (block.visualizationConfig) {
+        block.ClearVisualizationData();
+        block.InitializeVisualization();
+      }
+    });
+
     // Set the simulation time to 0.0 time
     let t = 0.0;
 
@@ -397,14 +414,75 @@ class Graph implements GraphStorageType, GraphObject<Graph> {
 
         // Loop through the block's inputs to find their corresponding output values
         const newInputs = block.inputPorts.map((inputPort) => {
-          // Get the edge to connect the block to its corresponding output block and port
-          const edge = this.edges.find((e) => e.input.blockID === bId && e.input.portID === inputPort.name)!;
-          const outputBlock = this.blocks.find((b) => b.id === edge.output.blockID)!;
-          const outputPort = outputBlock.outputPorts.find((p) => p.name === edge.output.portID)!;
+          // Debug: log all edges for this block
+          if (block.name === 'scope' && inputPort.name === 'x') {
+            console.log(
+              `[Graph.Execute] scope block ID: ${bId}, inputPort name: ${inputPort.name}, inputPort id: ${inputPort.id}`
+            );
+            console.log(
+              `[Graph.Execute] All edges:`,
+              this.edges.map((e) => ({
+                edgeId: e.id,
+                inputBlockID: e.input.blockID,
+                inputPortID: e.input.portID,
+                outputBlockID: e.output.blockID,
+                outputPortID: e.output.portID
+              }))
+            );
+          }
 
-          // return the output value for that port
-          return outputPort.GetObjectValue();
+          // Get the edge to connect the block to its corresponding output block and port
+          // Try matching by port name first
+          let edge = this.edges.find((e) => e.input.blockID === bId && e.input.portID === inputPort.name);
+
+          // If not found, try matching by port ID
+          if (!edge) {
+            edge = this.edges.find((e) => e.input.blockID === bId && e.input.portID === inputPort.id);
+          }
+
+          if (edge) {
+            if (block.name === 'scope' && inputPort.name === 'x') {
+              console.log(
+                `[Graph.Execute] Found edge! edge ID: ${edge.id}, input.portID: ${edge.input.portID}, output.portID: ${edge.output.portID}`
+              );
+            }
+            // Input port has an edge connected - get value from connected output port
+            const outputBlock = this.blocks.find((b) => b.id === edge.output.blockID);
+            if (outputBlock) {
+              // Try matching by port name first
+              let outputPort = outputBlock.outputPorts.find((p) => p.name === edge.output.portID);
+              // If not found, try matching by port ID
+              if (!outputPort) {
+                outputPort = outputBlock.outputPorts.find((p) => p.id === edge.output.portID);
+              }
+              if (outputPort) {
+                // return the output value for that port
+                const value = outputPort.GetObjectValue();
+                if (block.name === 'scope' && inputPort.name === 'x') {
+                  console.log(
+                    `[Graph.Execute] scope input ${inputPort.name}: reading from block ${outputBlock.name} port ${edge.output.portID}, value=${value}`
+                  );
+                }
+                return value;
+              }
+            }
+          }
+
+          // No edge connected - use the input port's current value (for source blocks or unconnected inputs)
+          // This allows blocks to work as sources or use their initial values
+          const value = inputPort.GetObjectValue();
+          if (block.name === 'scope' && inputPort.name === 'x') {
+            console.log(
+              `[Graph.Execute] scope input ${inputPort.name}: no edge connected, using default value=${value}`
+            );
+          }
+          return value;
         });
+
+        // Debug logging for scope block
+        if (block.name === 'scope') {
+          console.log(`[Graph.Execute] scope newInputs:`, newInputs);
+        }
 
         // execute the block with these new inputs
         block.Execute(t, dt, newInputs);
@@ -413,14 +491,52 @@ class Graph implements GraphStorageType, GraphObject<Graph> {
 
     // if the execution has not been set to execution mode
     if (T !== 'infinite') {
+      let iterationCount = 0;
       // loop until the sim time has exceeded the end time
       while (t < T + dt) {
+        if (iterationCount < 5 || iterationCount % 100 === 0) {
+          console.log(`[Graph.Execute] iteration=${iterationCount}, t=${t}, dt=${dt}, T=${T}`);
+        }
         executeFunc();
 
         // Add the delta time to the simulation time
         t += dt;
+        iterationCount++;
       }
+      console.log(`[Graph.Execute] Completed ${iterationCount} iterations`);
     }
+  }
+
+  /**
+   * Get visualization data for all blocks that have visualization enabled
+   * @returns Map of block ID to visualization data
+   */
+  public GetVisualizationData(): Record<string, import('../Network/GraphItemStorage/BlockStorage').VisualizationData> {
+    const visualizationDataMap: Record<string, import('../Network/GraphItemStorage/BlockStorage').VisualizationData> =
+      {};
+
+    this.blocks.forEach((block) => {
+      if (block.visualizationConfig && block.visualizationData) {
+        visualizationDataMap[block.id] = block.visualizationData;
+      }
+    });
+
+    return visualizationDataMap;
+  }
+
+  /**
+   * Get visualization data for a specific block
+   * @param blockId - The ID of the block
+   * @returns Visualization data for the block, or undefined if not found or no visualization enabled
+   */
+  public GetBlockVisualizationData(
+    blockId: string
+  ): import('../Network/GraphItemStorage/BlockStorage').VisualizationData | undefined {
+    const block = this.blocks.find((b) => b.id === blockId);
+    if (!block || !block.visualizationConfig || !block.visualizationData) {
+      return undefined;
+    }
+    return block.visualizationData;
   }
 
   // Create a graph storage object

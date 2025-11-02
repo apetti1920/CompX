@@ -14,6 +14,64 @@ export type PortType = 'NUMBER' | 'STRING' | 'VECTOR' | 'MATRIX' | 'BOOLEAN';
 export type BlockShape = 'rect' | 'circ' | 'tri';
 
 /**
+ * Supported visualization types
+ */
+export type VisualizationType = 'line_graph' | 'readout' | 'bar_chart';
+
+/**
+ * Configuration for line graph visualization
+ */
+export interface LineGraphConfig {
+  /** Which input ports to visualize (default: all input ports) */
+  inputPorts?: string[];
+  /** Maximum number of data points to store (default: 1000) */
+  maxDataPoints?: number;
+  /** Colors for each line (hex colors, one per input port) */
+  colors?: string[];
+  /** Background color of the chart area (hex color or CSS color name, default: transparent) */
+  backgroundColor?: string;
+  /** Margin around the chart inside the block in pixels (default: 8) */
+  margin?: number;
+}
+
+/**
+ * Configuration for readout visualization
+ */
+export interface ReadoutConfig {
+  /** Which input port to display (default: first input port) */
+  inputPort?: string;
+  /** Format string for displaying the value (e.g., "%.2f") */
+  format?: string;
+}
+
+/**
+ * Configuration for bar chart visualization
+ */
+export interface BarChartConfig {
+  /** Which input ports to visualize */
+  inputPorts?: string[];
+  /** Maximum number of data points */
+  maxDataPoints?: number;
+  /** Colors for each bar series */
+  colors?: string[];
+}
+
+/**
+ * Visualization configuration union type
+ */
+export type VisualizationConfig = LineGraphConfig | ReadoutConfig | BarChartConfig;
+
+/**
+ * Visualization definition for blocks
+ */
+export interface VisualizationDefinition {
+  /** Type of visualization to render */
+  type: VisualizationType;
+  /** Configuration specific to the visualization type */
+  config?: VisualizationConfig;
+}
+
+/**
  * Port definition with optional initial value
  * Initial values enable prevInput[] access in callbacks
  */
@@ -82,6 +140,9 @@ export interface BlockDefinition {
 
   /** Visual styling properties for the block */
   visual?: VisualDefinition;
+
+  /** Visualization configuration for displaying data inside the block */
+  visualization?: VisualizationDefinition;
 }
 
 /**

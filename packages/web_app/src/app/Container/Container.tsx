@@ -4,6 +4,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 
 import CanvasContainer from './Canvas/CanvasContainer';
+import PlayButton from './Canvas/PlayButton';
 import Overlay from './Overlay';
 import SideBar from './Overlay/Tabs/SideTab/SideBar';
 import { StateType as SaveState } from '../../store/types';
@@ -13,6 +14,8 @@ import './titlebar.css';
 
 type GlobalProps = {
   theme: ColorTheme;
+  graph: import('@compx/common/Network/GraphItemStorage/GraphStorage').VisualGraphStorageType;
+  libraryBlocks: any[];
 };
 type DispatchProps = Record<string, never>;
 type ComponentProps = Record<string, never>;
@@ -51,6 +54,7 @@ class Container extends React.Component<PropsType, StateType> {
           >
             <CanvasContainer />
             <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
+            <PlayButton graph={this.props.graph} libraryBlocks={this.props.libraryBlocks} theme={this.props.theme} />
           </div>
         </div>
       </DndProvider>
@@ -61,7 +65,9 @@ class Container extends React.Component<PropsType, StateType> {
 // Creates a function to map the redux state to the redux props
 function mapStateToProps(state: SaveState): GlobalProps {
   return {
-    theme: state.userStorage.theme
+    theme: state.userStorage.theme,
+    graph: state.currentGraph.graph,
+    libraryBlocks: state.currentGraph.libraryBlocks
   };
 }
 

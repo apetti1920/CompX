@@ -1,12 +1,18 @@
 import _ from 'lodash';
 import { v4 as uuidV4 } from 'uuid';
 
-import { BlockStorageType, BlockStorageWithIDType } from '../Network/GraphItemStorage/BlockStorage';
+import {
+  BlockStorageType,
+  BlockStorageWithIDType,
+  VisualizationData,
+  VisualizationDataPoint
+} from '../Network/GraphItemStorage/BlockStorage';
 import { PortStorageType, PortStorageWithIDType } from '../Network/GraphItemStorage/PortStorage';
 import { Port, PortStringListType, PortTypeInitializers, PortTypes } from './Port';
 import { CompXError } from '../Helpers/ErrorHandling';
 import GraphObject from './GraphObjectBase';
 import { ReplaceInTuple } from '../Helpers/Types';
+import { VisualizationDefinition } from '../BlockSchema/types';
 
 export type MapStringsToPortStoragesType<T extends PortStringListType> = {
   [K in keyof T]: T[K] extends PortStringListType[number] ? PortStorageType<T[K]> : never;
@@ -41,6 +47,10 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
   public callbackString: string;
   private _callback?: Callback<Inputs, Outputs>;
   private _isPseudoSource?: boolean;
+  /** Visualization configuration from block definition */
+  public visualizationConfig?: VisualizationDefinition;
+  /** Visualization data buffers for blocks with visualization enabled */
+  public visualizationData?: VisualizationData;
 
   public isPseudoSource(): boolean {
     return this._isPseudoSource ?? false;
@@ -229,6 +239,102 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
     return tempBlock as never as Block<Inputs, ReplaceInTuple<Outputs, I, U>>;
   }
 
+  /**
+   * Initialize visualization data buffers based on visualization config
+   */
+  public InitializeVisualization(): void {
+    if (!this.visualizationConfig || this.visualizationConfig.type !== 'line_graph') {
+      return;
+    }
+
+    const config = this.visualizationConfig.config;
+    if (!config || !('inputPorts' in config)) {
+      return;
+    }
+
+    const maxDataPoints = ('maxDataPoints' in config && config.maxDataPoints) || 1000;
+    const inputPortsToCapture = config.inputPorts || this.inputPorts.map((p) => p.name);
+
+    if (!this.visualizationData) {
+      this.visualizationData = {};
+    }
+
+    // Initialize buffers for each port
+    inputPortsToCapture.forEach((portName) => {
+      if (!this.visualizationData![portName]) {
+        this.visualizationData![portName] = [];
+      }
+    });
+  }
+
+  /**
+   * Clear visualization data buffers
+   */
+  public ClearVisualizationData(): void {
+    if (this.visualizationData) {
+      Object.keys(this.visualizationData).forEach((portName) => {
+        this.visualizationData![portName] = [];
+      });
+    }
+  }
+
+  /**
+   * Capture input port values for visualization
+   */
+  private captureVisualizationData(t: number, newInputs: MapStringsToTypes<Inputs>): void {
+    if (!this.visualizationConfig || this.visualizationConfig.type !== 'line_graph') {
+      return;
+    }
+
+    const config = this.visualizationConfig.config;
+    if (!config || !('inputPorts' in config)) {
+      return;
+    }
+
+    const maxDataPoints = ('maxDataPoints' in config && config.maxDataPoints) || 1000;
+    const inputPortsToCapture = config.inputPorts || this.inputPorts.map((p) => p.name);
+
+    if (!this.visualizationData) {
+      this.visualizationData = {};
+    }
+
+    inputPortsToCapture.forEach((portName) => {
+      const portIndex = this.inputPorts.findIndex((p) => p.name === portName);
+      if (portIndex === -1) {
+        return;
+      }
+
+      const inputValue = newInputs[portIndex];
+      // Convert value to number for visualization
+      let numericValue: number;
+      if (typeof inputValue === 'number') {
+        numericValue = inputValue;
+      } else if (typeof inputValue === 'boolean') {
+        numericValue = inputValue ? 1 : 0;
+      } else {
+        // For string/vector/matrix, use a default conversion
+        numericValue = typeof inputValue === 'string' ? parseFloat(inputValue) || 0 : 0;
+      }
+
+      const dataPoint: VisualizationDataPoint = {
+        time: t,
+        value: numericValue
+      };
+
+      if (!this.visualizationData![portName]) {
+        this.visualizationData![portName] = [];
+      }
+
+      const buffer = this.visualizationData![portName];
+      buffer.push(dataPoint);
+
+      // Maintain circular buffer - remove oldest points if exceeding maxDataPoints
+      if (buffer.length > maxDataPoints) {
+        buffer.shift();
+      }
+    });
+  }
+
   public Execute(t: number, dt: number, newInputs: MapStringsToTypes<Inputs>): void {
     if (this._callback === undefined)
       throw new CompXError('error', 'Block Execute Error', 'Callback was left undefined');
@@ -236,10 +342,28 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
     const prevInputs = this.inputPorts.map((p) => p.GetObjectValue()) as unknown as MapStringsToTypes<Inputs>;
     const prevOutputs = this.outputPorts.map((p) => p.GetObjectValue()) as unknown as MapStringsToTypes<Outputs>;
 
+    // Debug logging for sine block
+    if (this.name === 'sine') {
+      console.log(`[Block.Execute] sine block: t=${t}, dt=${dt}, typeof t=${typeof t}`);
+    }
+
+    // Debug logging for scope block inputs
+    if (this.name === 'scope') {
+      console.log(`[Block.Execute] scope block: newInputs=`, newInputs, 'newInputs[0]=', newInputs[0]);
+    }
+
     const newOutputs = this._callback(t, dt, prevInputs, prevOutputs, newInputs);
+
+    // Debug logging for sine block output
+    if (this.name === 'sine') {
+      console.log(`[Block.Execute] sine block output:`, newOutputs);
+    }
 
     this.outputPorts.forEach((p, i) => this.outputPorts[i].SetValue(newOutputs[i]));
     this.inputPorts.forEach((p, i) => this.inputPorts[i].SetValue(newInputs[i]));
+
+    // Capture visualization data after updating inputs
+    this.captureVisualizationData(t, newInputs);
   }
 
   public ToStorage(): BlockStorageWithIDType<Inputs, Outputs> {
