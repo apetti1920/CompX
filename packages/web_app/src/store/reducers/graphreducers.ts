@@ -19,7 +19,8 @@ import {
   RemoveEdgeSplitActionType,
   ResizedBlockActionType,
   SelectedObjectActionType,
-  UpdateLibraryActionType
+  UpdateLibraryActionType,
+  UpdateVisualizationDataActionType
 } from '../actions/actiontypes';
 import { ActionPayloadType, StateType } from '../types';
 
@@ -52,7 +53,9 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
         size: new Vector2D(30, 30),
         mirrored: false,
         shape: 'rect' as const,
-        color: '#3b82f6'
+        color: '#3b82f6',
+        // Preserve visualization config and initialize visualization data if config exists
+        visualizationData: (blockTemplate as any).visualization ? {} : undefined
       };
 
       tempState.currentGraph.graph.blocks.push(newBlock);
@@ -358,6 +361,23 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
     }
     case UpdateLibraryActionType: {
       return state;
+    }
+    case UpdateVisualizationDataActionType: {
+      const tempState = _.cloneDeep(state);
+      const visualizationData: Record<
+        string,
+        import('@compx/common/Network/GraphItemStorage/BlockStorage').VisualizationData
+      > = action.payload['visualizationData'];
+
+      // Update visualization data for each block
+      Object.keys(visualizationData).forEach((blockId) => {
+        const blockIndex = tempState.currentGraph.graph.blocks.findIndex((b) => b.id === blockId);
+        if (blockIndex !== -1) {
+          tempState.currentGraph.graph.blocks[blockIndex].visualizationData = visualizationData[blockId];
+        }
+      });
+
+      return tempState;
     }
     default: {
       return state;

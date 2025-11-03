@@ -1,8 +1,10 @@
+import { PortType } from '@compx/common/BlockSchema/types';
 import { VisualBlockStorageType } from '@compx/common/Network/GraphItemStorage/BlockStorage';
 import { VisualEdgeStorageType } from '@compx/common/Network/GraphItemStorage/EdgeStorage';
 import { Vector2D } from '@compx/common/Types';
 import React from 'react';
 
+import { getPortTypeColor } from '../portTypeColors';
 import EdgeWrapperComponent from './EdgeWrapperComponent';
 import { ArrowDirectionType, CalculatePortLocation, MouseOnBlockExtracted } from '../../../utils';
 
@@ -197,38 +199,34 @@ export type EdgeComponentPropType = ({ mouse: MouseDraggingPortType } | { edge: 
 export default function EdgeComponent(props: EdgeComponentPropType): React.ReactElement {
   const radius = 20 * props.canvasZoom;
   let points: Vector2D[];
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  let selectedHandler = (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) => {};
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  let addEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {};
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  let deleteEdgeSplitHandler = (on: MouseOnBlockExtracted<'EDGE'>) => {};
+  let edgeColor: string | undefined;
+  let selectedHandler: (on: MouseOnBlockExtracted<'EDGE'>, selectMultiple: boolean) => void = () => {};
+  let addEdgeSplitHandler: (on: MouseOnBlockExtracted<'EDGE'>) => void = () => {};
+  let deleteEdgeSplitHandler: (on: MouseOnBlockExtracted<'EDGE'>) => void = () => {};
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   if (props.edge === undefined) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const mouse = props.mouse;
     const portLoc = CalculatePortLocation(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props.mouse.block,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props.mouse.isOutput,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props.mouse.portInd,
+      mouse.block,
+      mouse.isOutput,
+      mouse.portInd,
       props.canvasTranslation,
       props.canvasZoom,
       props.screenSize
     ).port;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const startPos = props.mouse.isOutput ? portLoc : props.mouse.mouseLoc;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const endPos = props.mouse.isOutput ? props.mouse.mouseLoc : portLoc;
+    // Extract port type from the dragging port's block
+    const port = mouse.isOutput ? mouse.block.outputPorts[mouse.portInd] : mouse.block.inputPorts[mouse.portInd];
+    if (port) {
+      edgeColor = getPortTypeColor(port.type as PortType);
+    }
+
+    const startPos = mouse.isOutput ? portLoc : mouse.mouseLoc;
+    const endPos = mouse.isOutput ? mouse.mouseLoc : portLoc;
 
     if (endPos.x >= startPos.x + radius) {
       points = CalculateMidPoints(startPos, endPos, [0.5]);
@@ -332,6 +330,9 @@ export default function EdgeComponent(props: EdgeComponentPropType): React.React
         inputPortLoc.block.position
       );
     }
+
+    // Extract port type from edge.type and get color
+    edgeColor = getPortTypeColor(edge.type as PortType);
   }
 
   return (
@@ -339,6 +340,7 @@ export default function EdgeComponent(props: EdgeComponentPropType): React.React
       points={points}
       setCursorStyle={props.onSetCursorStyle}
       selected={props.selected}
+      edgeColor={edgeColor}
       onSelectComponent={selectedHandler}
       onAddEdgeSplit={addEdgeSplitHandler}
       onDeleteEdgeSplit={deleteEdgeSplitHandler}

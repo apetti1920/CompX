@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "name": "sine",
+  "version": "1.0.0",
+  "description": "Outputs a sine wave with respect to time: sin(2πt)",
+  "category": "math",
+  "tags": ["math", "source", "signal", "waveform"],
+  "inputPorts": [],
+  "outputPorts": [
+    {
+      "name": "y",
+      "type": "NUMBER"
+    }
+  ],
+  "callbackString": "console.log('[Sine] t=', t, 'typeof t=', typeof t, 'value=', Math.sin(2 * Math.PI * t)); return [Math.sin(2 * Math.PI * t)]",
+  "visual": {
+    "color": "#FF9800",
+    "icon": "activity",
+    "shape": "rect"
+  }
+}

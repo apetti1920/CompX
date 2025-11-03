@@ -13,6 +13,7 @@ export const AddEdgeActionType = `@@${GraphReducerName}/ADD_EDGE`;
 export const MovedEdgeActionType = `@@${GraphReducerName}/MOVED_EDGE`;
 export const AddEdgeSplitActionType = `@@${GraphReducerName}/ADD_EDGE_SPLIT`;
 export const RemoveEdgeSplitActionType = `@@${GraphReducerName}/REMOVED_EDGE_SPLIT`;
+export const UpdateVisualizationDataActionType = `@@${GraphReducerName}/UPDATE_VISUALIZATION_DATA`;
 
 // Canvas Reducer Strings
 export const TranslatedCanvasActionType = `@@${CanvasReducerName}/TRANSLATED_CANVAS`;

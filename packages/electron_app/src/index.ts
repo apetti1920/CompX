@@ -36,6 +36,8 @@ import { app } from 'electron';
 
 import WindowManager from './window_manager';
 import { setupBlockServiceHandlers } from './ipc/blockServiceHandlers';
+import { setupGraphExecutionHandlers } from './ipc/graphExecutionHandlers';
+import DefaultBlockCreation from './startup/defaultblockcreation';
 
 // import { BrowserWindow, BrowserWindowConstructorOptions, app } from 'electron';
 //
@@ -101,12 +103,29 @@ const windowManager = WindowManager.GetInstance();
 app.setName('CompX');
 
 app.on('ready', async () => {
+  // Copy default block definitions to storage directory
+  try {
+    const defaultBlockCreation = new DefaultBlockCreation();
+    await defaultBlockCreation.run();
+    console.log('Default block definitions copied to storage');
+  } catch (error) {
+    console.error('Failed to copy default block definitions:', error);
+  }
+
   // Initialize block service IPC handlers
   try {
     await setupBlockServiceHandlers();
     console.log('Block service initialized successfully');
   } catch (error) {
     console.error('Failed to initialize block service:', error);
+  }
+
+  // Initialize graph execution IPC handlers
+  try {
+    setupGraphExecutionHandlers();
+    console.log('Graph execution handlers initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize graph execution handlers:', error);
   }
 
   // const loadingWindowPath = path.join(__dirname, '/../renderer/loader/index.html');

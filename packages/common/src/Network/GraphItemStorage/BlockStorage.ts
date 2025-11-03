@@ -55,6 +55,21 @@ export function isBlockStorageWithIDType<Inputs extends PortStringListType, Outp
   return true;
 }
 
+/**
+ * Data point in a time series for visualization
+ */
+export interface VisualizationDataPoint {
+  /** Simulation time */
+  time: number;
+  /** Port value at this time */
+  value: number;
+}
+
+/**
+ * Visualization data buffer: port name -> array of time-value points
+ */
+export type VisualizationData = Record<string, VisualizationDataPoint[]>;
+
 export interface VisualBlockStorageType<Inputs extends PortStringListType, Outputs extends PortStringListType>
   extends BlockStorageWithIDType<Inputs, Outputs> {
   visualName: string;
@@ -64,4 +79,6 @@ export interface VisualBlockStorageType<Inputs extends PortStringListType, Outpu
   shape: 'rect' | 'circ' | 'tri';
   color?: string;
   icon?: string;
+  /** Visualization data buffers for blocks with visualization enabled */
+  visualizationData?: VisualizationData;
 }

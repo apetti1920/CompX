@@ -17,5 +17,14 @@
     "color": "#00BCD4",
     "icon": "eye",
     "shape": "rect"
+  },
+  "visualization": {
+    "type": "line_graph",
+    "config": {
+      "inputPorts": ["x"],
+      "maxDataPoints": 1000,
+      "backgroundColor": "white",
+      "margin": 12
+    }
   }
 }

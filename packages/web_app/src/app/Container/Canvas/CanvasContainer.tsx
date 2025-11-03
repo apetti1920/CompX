@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 
 import BlockComponent from './Graph/VisualTypes/BlockComponent';
+import BlockVisualization from './Graph/VisualTypes/BlockVisualization';
 import CanvasEdgeWrapperComponent from './Graph/VisualTypes/EdgeComponent/CanvasEdgeWrapperComponent';
 import EdgeComponent from './Graph/VisualTypes/EdgeComponent/EdgeComponent';
 import PortList from './Graph/VisualTypes/PortList';
@@ -42,6 +43,8 @@ type GlobalProps = {
   selectedEdgeIds: string[];
   blocks: VisualBlockStorageType<PortStringListType, PortStringListType>[];
   edges: VisualEdgeStorageType<keyof PortTypes>[];
+  libraryBlocks: any[];
+  graph: import('@compx/common/Network/GraphItemStorage/GraphStorage').VisualGraphStorageType;
   theme: ColorTheme;
 };
 type DispatchProps = {
@@ -233,6 +236,10 @@ class CanvasContainer extends Component<PropsType, StateType> {
     );
     if (blockShape.size.x <= 25 || blockShape.size.y <= 25) return <React.Fragment />;
 
+    // Get visualization config from library blocks by block name
+    const libraryBlock = this.props.libraryBlocks.find((lb) => lb.name === props.block.name);
+    const visualization = libraryBlock?.visualization;
+
     /* eslint-disable */
     const PortListWrapper = () => {
       return (
@@ -280,7 +287,24 @@ class CanvasContainer extends Component<PropsType, StateType> {
         />
 
         {/* ------------------------------- Draw Ports -------------------------------------------------------*/}
-        <PortListWrapper />
+        {/* Hide ports only when visualization has actual data (after execution) */}
+        {(() => {
+          // Only hide ports if visualization is configured AND has actual data points
+          if (visualization && props.block.visualizationData) {
+            // Check if visualizationData has any actual data points
+            const hasDataPoints = Object.values(props.block.visualizationData).some(
+              (portData) => Array.isArray(portData) && portData.length > 0
+            );
+            // Show ports if no actual data points exist
+            if (!hasDataPoints) {
+              return <PortListWrapper />;
+            }
+            // Hide ports if visualization has data
+            return null;
+          }
+          // Show ports if no visualization or no visualizationData
+          return <PortListWrapper />;
+        })()}
       </React.Fragment>
     );
   };
@@ -439,6 +463,60 @@ class CanvasContainer extends Component<PropsType, StateType> {
             {/* ------------------------------ Selected Ports ------------------------------------------------*/}
           </Layer>
         </Stage>
+
+        {/* ------------------------------- Visualization Overlays -------------------------------------------*/}
+        {this.props.blocks
+          .filter((block) => {
+            const libraryBlock = this.props.libraryBlocks.find((lb) => lb.name === block.name);
+            return libraryBlock?.visualization && block.visualizationData;
+          })
+          .map((block) => {
+            const libraryBlock = this.props.libraryBlocks.find((lb) => lb.name === block.name);
+            const visualization = libraryBlock?.visualization;
+
+            if (!visualization || !block.visualizationData) {
+              return null;
+            }
+
+            const blockShape = CalculateScreenBlockSizeAndPosition(
+              this.props.canvasTranslation,
+              this.props.canvasZoom,
+              this.state.canvasSize,
+              block.size,
+              block.position
+            );
+
+            // Validate blockShape dimensions
+            const width = Number(blockShape.size.x);
+            const height = Number(blockShape.size.y);
+
+            if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 25 || height <= 25) {
+              return null;
+            }
+
+            return (
+              <div
+                key={`visualization-${block.id}`}
+                style={{
+                  position: 'absolute',
+                  left: `${blockShape.position.x}px`,
+                  top: `${blockShape.position.y}px`,
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  pointerEvents: 'none',
+                  zIndex: 100
+                }}
+              >
+                <BlockVisualization
+                  visualization={visualization}
+                  data={block.visualizationData}
+                  width={width}
+                  height={height}
+                  padding={8}
+                />
+              </div>
+            );
+          })}
       </div>
     );
   }
@@ -514,6 +592,8 @@ function mapStateToProps(state: SaveState): GlobalProps {
     selectedEdgeIds: state.currentGraph.selected.filter((s) => s.itemType === 'EDGE').map((e) => e.id),
     blocks: state.currentGraph.graph.blocks,
     edges: state.currentGraph.graph.edges,
+    libraryBlocks: state.currentGraph.libraryBlocks,
+    graph: state.currentGraph.graph,
     canvasZoom: state.userStorage.canvas.zoom,
     canvasTranslation: state.userStorage.canvas.translation,
     theme: state.userStorage.theme
