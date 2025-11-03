@@ -165,7 +165,7 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
 
         // Y-axis
         const yAxis = d3.axisLeft(yScale).ticks(Math.min(5, Math.floor(plotHeight / 40)));
-        const yAxisContainer = axisGroup.append('g').attr('transform', `translate(${padding}, 0)`);
+        const yAxisContainer = axisGroup.append('g').attr('transform', `translate(${margin}, 0)`);
 
         yAxisContainer.call(yAxis);
 
