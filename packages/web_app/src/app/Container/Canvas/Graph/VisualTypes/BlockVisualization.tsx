@@ -145,40 +145,31 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
           .domain([maxValue + valuePadding, minValue - valuePadding]) // Inverted for SVG coordinates
           .range([margin + internalMarginTop, margin + internalMarginTop + innerPlotHeight]);
 
-        // Create shadow filter for depth effect
-        const defs = svg.append('defs');
-        const filter = defs
-          .append('filter')
-          .attr('id', 'shadow')
-          .attr('x', '-50%')
-          .attr('y', '-50%')
-          .attr('width', '200%')
-          .attr('height', '200%');
+        // Calculate inset shadow colors based on background for recessed effect
+        let insetShadowColor = 'rgba(0, 0, 0, 0.3)';
+        let insetHighlightColor = 'rgba(255, 255, 255, 0.1)';
 
-        filter.append('feGaussianBlur').attr('in', 'SourceAlpha').attr('stdDeviation', 3).attr('result', 'blur');
+        if (props.theme) {
+          const bgColor = props.theme.get('background');
+          const hex = bgColor.replace('#', '');
+          const r = parseInt(hex.substring(0, 2), 16);
+          const g = parseInt(hex.substring(2, 4), 16);
+          const b = parseInt(hex.substring(4, 6), 16);
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
-        filter.append('feOffset').attr('in', 'blur').attr('dx', 2).attr('dy', 2).attr('result', 'offsetBlur');
+          if (brightness > 128) {
+            // Light background - darker shadow, subtle highlight
+            insetShadowColor = 'rgba(0, 0, 0, 0.25)';
+            insetHighlightColor = 'rgba(255, 255, 255, 0.3)';
+          } else {
+            // Dark background - darker shadow, subtle highlight
+            insetShadowColor = 'rgba(0, 0, 0, 0.5)';
+            insetHighlightColor = 'rgba(255, 255, 255, 0.1)';
+          }
+        }
 
-        const feComponentTransfer = filter.append('feComponentTransfer').attr('in', 'offsetBlur');
-
-        feComponentTransfer.append('feFuncA').attr('type', 'linear').attr('slope', 0.3);
-
-        const feMerge = filter.append('feMerge');
-        feMerge.append('feMergeNode').attr('in', 'offsetBlur');
-        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
-
-        // Draw background rectangle with shadow
+        // Draw background rectangle with inset effect
         if (backgroundColor !== 'transparent') {
-          // Shadow rectangle
-          svg
-            .append('rect')
-            .attr('x', margin + 2)
-            .attr('y', margin + 2)
-            .attr('width', plotWidth)
-            .attr('height', plotHeight)
-            .attr('fill', 'rgba(0, 0, 0, 0.15)')
-            .attr('rx', 2);
-
           // Main background rectangle
           svg
             .append('rect')
@@ -187,8 +178,46 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
             .attr('width', plotWidth)
             .attr('height', plotHeight)
             .attr('fill', backgroundColor)
-            .attr('rx', 2)
-            .attr('filter', 'url(#shadow)');
+            .attr('rx', 2);
+
+          // Create inset effect using borders
+          // Top and left edges - darker (shadow) to create recessed look
+          svg
+            .append('line')
+            .attr('x1', margin)
+            .attr('y1', margin)
+            .attr('x2', margin + plotWidth)
+            .attr('y2', margin)
+            .style('stroke', insetShadowColor)
+            .style('stroke-width', '1.5');
+
+          svg
+            .append('line')
+            .attr('x1', margin)
+            .attr('y1', margin)
+            .attr('x2', margin)
+            .attr('y2', margin + plotHeight)
+            .style('stroke', insetShadowColor)
+            .style('stroke-width', '1.5');
+
+          // Bottom and right edges - lighter (highlight) to complete inset effect
+          svg
+            .append('line')
+            .attr('x1', margin)
+            .attr('y1', margin + plotHeight)
+            .attr('x2', margin + plotWidth)
+            .attr('y2', margin + plotHeight)
+            .style('stroke', insetHighlightColor)
+            .style('stroke-width', '1');
+
+          svg
+            .append('line')
+            .attr('x1', margin + plotWidth)
+            .attr('y1', margin)
+            .attr('x2', margin + plotWidth)
+            .attr('y2', margin + plotHeight)
+            .style('stroke', insetHighlightColor)
+            .style('stroke-width', '1');
         }
 
         // Create line generator
