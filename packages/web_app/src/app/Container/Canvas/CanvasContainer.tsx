@@ -513,6 +513,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
                   width={width}
                   height={height}
                   padding={8}
+                  theme={this.props.theme}
                 />
               </div>
             );
