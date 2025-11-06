@@ -67,25 +67,36 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
         const colors = config.colors || ['#2196F3', '#FF9800', '#4CAF50', '#F44336', '#9C27B0', '#00BCD4', '#FFEB3B'];
         // Use theme background color if available, otherwise fall back to config or white
         const backgroundColor = props.theme ? props.theme.get('background') : config.backgroundColor || 'white';
-        const margin = config.margin || padding;
 
-        // Internal margins for axis labels inside the plot area
-        const internalMarginLeft = 40; // Space for Y-axis labels
-        const internalMarginBottom = 25; // Space for X-axis labels
-        const internalMarginTop = 5;
-        const internalMarginRight = 5;
+        // Fixed pixel margin from block edge to graph edge (stays constant at all zoom levels)
+        const graphMargin = 12; // Fixed distance from block edge to graph edge
 
-        // Calculate plot area dimensions with proper margin
-        const plotWidth = props.width - margin * 2;
-        const plotHeight = props.height - margin * 2;
+        // Fixed pixel distances from graph edge to axes (stays constant at all zoom levels)
+        const axisOffsetFromEdge = 10; // Distance from graph edge to axis line
+        const axisLabelOffset = 35; // Space for axis labels (Y-axis needs more for numbers)
+
+        // Calculate plot area dimensions (the dark blue rectangle) - fixed margin from block edge
+        const plotWidth = props.width - graphMargin * 2;
+        const plotHeight = props.height - graphMargin * 2;
 
         if (plotWidth <= 0 || plotHeight <= 0) {
           return;
         }
 
-        // Calculate inner plot area (for actual data) with internal margins for labels
-        const innerPlotWidth = plotWidth - internalMarginLeft - internalMarginRight;
-        const innerPlotHeight = plotHeight - internalMarginTop - internalMarginBottom;
+        // Calculate axis positions - fixed distance from graph edge
+        const yAxisX = graphMargin + axisOffsetFromEdge; // Y-axis X position
+        const xAxisY = graphMargin + plotHeight - axisOffsetFromEdge; // X-axis Y position
+
+        // Calculate inner plot area (where data is drawn) - takes up remaining space
+        // Y-axis labels go to the right of the axis line (inside the graph)
+        const innerPlotLeft = yAxisX + axisLabelOffset; // Start of plot area after Y-axis labels
+        const innerPlotRight = graphMargin + plotWidth - 5; // End of plot area before right edge
+        const innerPlotTop = graphMargin + 5; // Start of plot area after top edge
+        // X-axis labels go above the axis line (inside the graph)
+        const innerPlotBottom = xAxisY - axisLabelOffset; // End of plot area before X-axis labels
+
+        const innerPlotWidth = innerPlotRight - innerPlotLeft;
+        const innerPlotHeight = innerPlotBottom - innerPlotTop;
 
         if (innerPlotWidth <= 0 || innerPlotHeight <= 0) {
           return;
@@ -134,16 +145,16 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
         const timePadding = timeRange * 0.05 || 0.1;
         const valuePadding = valueRange * 0.1 || 0.1;
 
-        // Create scales - position inside the plot area with internal margins
+        // Create scales - position in the inner plot area (where data is drawn)
         const xScale = d3
           .scaleLinear()
           .domain([minTime - timePadding, maxTime + timePadding])
-          .range([margin + internalMarginLeft, margin + internalMarginLeft + innerPlotWidth]);
+          .range([innerPlotLeft, innerPlotRight]);
 
         const yScale = d3
           .scaleLinear()
           .domain([maxValue + valuePadding, minValue - valuePadding]) // Inverted for SVG coordinates
-          .range([margin + internalMarginTop, margin + internalMarginTop + innerPlotHeight]);
+          .range([innerPlotTop, innerPlotBottom]);
 
         // Calculate inset shadow colors based on background for recessed effect
         let insetShadowColor = 'rgba(0, 0, 0, 0.3)';
@@ -173,8 +184,8 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
           // Main background rectangle
           svg
             .append('rect')
-            .attr('x', margin)
-            .attr('y', margin)
+            .attr('x', graphMargin)
+            .attr('y', graphMargin)
             .attr('width', plotWidth)
             .attr('height', plotHeight)
             .attr('fill', backgroundColor)
@@ -184,38 +195,38 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
           // Top and left edges - darker (shadow) to create recessed look
           svg
             .append('line')
-            .attr('x1', margin)
-            .attr('y1', margin)
-            .attr('x2', margin + plotWidth)
-            .attr('y2', margin)
+            .attr('x1', graphMargin)
+            .attr('y1', graphMargin)
+            .attr('x2', graphMargin + plotWidth)
+            .attr('y2', graphMargin)
             .style('stroke', insetShadowColor)
             .style('stroke-width', '1.5');
 
           svg
             .append('line')
-            .attr('x1', margin)
-            .attr('y1', margin)
-            .attr('x2', margin)
-            .attr('y2', margin + plotHeight)
+            .attr('x1', graphMargin)
+            .attr('y1', graphMargin)
+            .attr('x2', graphMargin)
+            .attr('y2', graphMargin + plotHeight)
             .style('stroke', insetShadowColor)
             .style('stroke-width', '1.5');
 
           // Bottom and right edges - lighter (highlight) to complete inset effect
           svg
             .append('line')
-            .attr('x1', margin)
-            .attr('y1', margin + plotHeight)
-            .attr('x2', margin + plotWidth)
-            .attr('y2', margin + plotHeight)
+            .attr('x1', graphMargin)
+            .attr('y1', graphMargin + plotHeight)
+            .attr('x2', graphMargin + plotWidth)
+            .attr('y2', graphMargin + plotHeight)
             .style('stroke', insetHighlightColor)
             .style('stroke-width', '1');
 
           svg
             .append('line')
-            .attr('x1', margin + plotWidth)
-            .attr('y1', margin)
-            .attr('x2', margin + plotWidth)
-            .attr('y2', margin + plotHeight)
+            .attr('x1', graphMargin + plotWidth)
+            .attr('y1', graphMargin)
+            .attr('x2', graphMargin + plotWidth)
+            .attr('y2', graphMargin + plotHeight)
             .style('stroke', insetHighlightColor)
             .style('stroke-width', '1');
         }
@@ -269,8 +280,8 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
           .enter()
           .append('line')
           .attr('class', 'horizontal')
-          .attr('x1', margin + internalMarginLeft)
-          .attr('x2', margin + internalMarginLeft + innerPlotWidth)
+          .attr('x1', innerPlotLeft)
+          .attr('x2', innerPlotRight)
           .attr('y1', (d) => yScale(d))
           .attr('y2', (d) => yScale(d))
           .style('stroke', gridColor)
@@ -288,8 +299,8 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
           .attr('class', 'vertical')
           .attr('x1', (d) => xScale(d))
           .attr('x2', (d) => xScale(d))
-          .attr('y1', margin + internalMarginTop)
-          .attr('y2', margin + internalMarginTop + innerPlotHeight)
+          .attr('y1', innerPlotTop)
+          .attr('y2', innerPlotBottom)
           .style('stroke', gridColor)
           .style('stroke-width', '0.5')
           .style('stroke-dasharray', '2,2')
@@ -298,9 +309,8 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
         // Draw axes inside the plot area
         const axisGroup = svg.append('g').attr('class', 'axes');
 
-        // X-axis - positioned at the bottom of the inner plot area
-        const xAxis = d3.axisBottom(xScale).ticks(Math.min(5, Math.floor(innerPlotWidth / 60)));
-        const xAxisY = margin + internalMarginTop + innerPlotHeight;
+        // X-axis - use axisTop so labels appear above the line (inside the graph)
+        const xAxis = d3.axisTop(xScale).ticks(Math.min(5, Math.floor(innerPlotWidth / 60)));
         const xAxisContainer = axisGroup.append('g').attr('transform', `translate(0, ${xAxisY})`);
 
         xAxisContainer.call(xAxis);
@@ -312,13 +322,13 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
             .selectAll('text')
             .style('font-size', '9px')
             .style('fill', textColor)
-            .style('font-family', 'sans-serif');
+            .style('font-family', 'sans-serif')
+            .attr('dy', '-0.5em'); // Move labels slightly up
           d3.select(xAxisNode).selectAll('line, path').style('stroke', gridColor).style('stroke-width', '1');
         }
 
-        // Y-axis - positioned at the left of the inner plot area
-        const yAxis = d3.axisLeft(yScale).ticks(Math.min(5, Math.floor(innerPlotHeight / 40)));
-        const yAxisX = margin + internalMarginLeft;
+        // Y-axis - use axisRight so labels appear to the right of the line (inside the graph)
+        const yAxis = d3.axisRight(yScale).ticks(Math.min(5, Math.floor(innerPlotHeight / 40)));
         const yAxisContainer = axisGroup.append('g').attr('transform', `translate(${yAxisX}, 0)`);
 
         yAxisContainer.call(yAxis);
@@ -330,7 +340,8 @@ export default function BlockVisualization(props: BlockVisualizationProps): JSX.
             .selectAll('text')
             .style('font-size', '9px')
             .style('fill', textColor)
-            .style('font-family', 'sans-serif');
+            .style('font-family', 'sans-serif')
+            .attr('dx', '0.5em'); // Move labels slightly to the right
           d3.select(yAxisNode).selectAll('line, path').style('stroke', gridColor).style('stroke-width', '1');
         }
 
