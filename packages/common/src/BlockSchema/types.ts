@@ -107,6 +107,22 @@ export interface VisualDefinition {
 }
 
 /**
+ * Meta parameter definition for block configuration
+ */
+export interface MetaParameterDefinition {
+  /** Unique identifier for this meta parameter */
+  name: string;
+  /** Data type for this meta parameter */
+  type: 'NUMBER' | 'STRING' | 'BOOLEAN';
+  /** Default value for this meta parameter */
+  default: number | string | boolean;
+  /** Human-readable label for this parameter (defaults to name if not provided) */
+  label?: string;
+  /** Optional description or tooltip text for this parameter */
+  description?: string;
+}
+
+/**
  * Complete block definition matching JSON Schema
  * This is the core structure for all block definitions in CompX
  */
@@ -143,6 +159,9 @@ export interface BlockDefinition {
 
   /** Visualization configuration for displaying data inside the block */
   visualization?: VisualizationDefinition;
+
+  /** Meta parameters that can be configured per block instance */
+  metaParameters?: MetaParameterDefinition[];
 }
 
 /**

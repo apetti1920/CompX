@@ -12,7 +12,7 @@ import { Port, PortStringListType, PortTypeInitializers, PortTypes } from './Por
 import { CompXError } from '../Helpers/ErrorHandling';
 import GraphObject from './GraphObjectBase';
 import { ReplaceInTuple } from '../Helpers/Types';
-import { VisualizationDefinition } from '../BlockSchema/types';
+import { VisualizationDefinition, MetaParameterDefinition } from '../BlockSchema/types';
 
 export type MapStringsToPortStoragesType<T extends PortStringListType> = {
   [K in keyof T]: T[K] extends PortStringListType[number] ? PortStorageType<T[K]> : never;
@@ -32,7 +32,9 @@ type Callback<Inputs extends PortStringListType, Outputs extends PortStringListT
   dt: number,
   prevInputs: MapStringsToTypes<Inputs>,
   prevOutputs: MapStringsToTypes<Outputs>,
-  newInputs: MapStringsToTypes<Inputs>
+  newInputs: MapStringsToTypes<Inputs>,
+  displayData: any,
+  params: Record<string, number | string | boolean>
 ) => MapStringsToTypes<Outputs>;
 
 export class Block<Inputs extends PortStringListType, Outputs extends PortStringListType>
@@ -51,6 +53,10 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
   public visualizationConfig?: VisualizationDefinition;
   /** Visualization data buffers for blocks with visualization enabled */
   public visualizationData?: VisualizationData;
+  /** Meta parameter definitions from block definition */
+  public metaParameterDefinitions?: MetaParameterDefinition[];
+  /** Per-instance meta parameter overrides */
+  public metaParameters?: Record<string, number | string | boolean>;
 
   public isPseudoSource(): boolean {
     return this._isPseudoSource ?? false;
@@ -119,6 +125,11 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
       return tmpP;
     });
 
+    // Store meta parameters from storage
+    if (blockStorage.metaParameters) {
+      tmpBlock.metaParameters = blockStorage.metaParameters;
+    }
+
     return tmpBlock as never as Block<Inputs, Outputs>;
   }
 
@@ -153,6 +164,14 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
       return `newInputs[${index}]`;
     });
 
+    // Replace params['name'] with params.name (direct property access)
+    convertCallbackString = convertCallbackString.replace(
+      new RegExp('params\\[([\'"])(\\w+)\\1\\]', 'gm'),
+      (a, b, c) => {
+        return `params.${c}`;
+      }
+    );
+
     // callbackString = callbackString.replace(new RegExp("internalData\\[(\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b)\\]","gm"), (a, b) => {
     //     return `Number(this.internalData.find(i => i.id === "${b}").value)`;
     // });
@@ -166,9 +185,16 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
     try {
       return [
         // eslint-disable-next-line no-new-func
-        new Function('t', 'dt', 'prevInputs', 'prevOutputs', 'newInputs', 'displayData', convertCallbackString).bind(
-          this
-        ),
+        new Function(
+          't',
+          'dt',
+          'prevInputs',
+          'prevOutputs',
+          'newInputs',
+          'displayData',
+          'params',
+          convertCallbackString
+        ).bind(this),
         isPseudoSource
       ];
     } catch (syntaxError: any) {
@@ -335,29 +361,41 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
     });
   }
 
+  /**
+   * Get effective parameter values by merging block definition defaults with instance overrides
+   */
+  private getEffectiveParams(): Record<string, number | string | boolean> {
+    const params: Record<string, number | string | boolean> = {};
+
+    // Start with defaults from block definition
+    if (this.metaParameterDefinitions && Array.isArray(this.metaParameterDefinitions)) {
+      this.metaParameterDefinitions.forEach((def) => {
+        if (def && def.name && def.default !== undefined) {
+          params[def.name] = def.default;
+        }
+      });
+    }
+
+    // Override with instance-specific values
+    if (this.metaParameters && typeof this.metaParameters === 'object') {
+      Object.assign(params, this.metaParameters);
+    }
+
+    return params;
+  }
+
   public Execute(t: number, dt: number, newInputs: MapStringsToTypes<Inputs>): void {
     if (this._callback === undefined)
       throw new CompXError('error', 'Block Execute Error', 'Callback was left undefined');
 
     const prevInputs = this.inputPorts.map((p) => p.GetObjectValue()) as unknown as MapStringsToTypes<Inputs>;
     const prevOutputs = this.outputPorts.map((p) => p.GetObjectValue()) as unknown as MapStringsToTypes<Outputs>;
+    const params = this.getEffectiveParams();
 
-    // Debug logging for sine block
-    if (this.name === 'sine') {
-      console.log(`[Block.Execute] sine block: t=${t}, dt=${dt}, typeof t=${typeof t}`);
-    }
+    // Ensure params is always an object (never undefined or null)
+    const safeParams: Record<string, number | string | boolean> = params && typeof params === 'object' ? params : {};
 
-    // Debug logging for scope block inputs
-    if (this.name === 'scope') {
-      console.log(`[Block.Execute] scope block: newInputs=`, newInputs, 'newInputs[0]=', newInputs[0]);
-    }
-
-    const newOutputs = this._callback(t, dt, prevInputs, prevOutputs, newInputs);
-
-    // Debug logging for sine block output
-    if (this.name === 'sine') {
-      console.log(`[Block.Execute] sine block output:`, newOutputs);
-    }
+    const newOutputs = this._callback(t, dt, prevInputs, prevOutputs, newInputs, undefined, safeParams);
 
     this.outputPorts.forEach((p, i) => this.outputPorts[i].SetValue(newOutputs[i]));
     this.inputPorts.forEach((p, i) => this.inputPorts[i].SetValue(newInputs[i]));
@@ -374,7 +412,8 @@ export class Block<Inputs extends PortStringListType, Outputs extends PortString
       tags: this.tags,
       inputPorts: this.inputPorts.map((p) => p.ToStorage()) as never as MapStringsToPortStoragesWithIDType<Inputs>,
       outputPorts: this.outputPorts.map((p) => p.ToStorage()) as never as MapStringsToPortStoragesWithIDType<Outputs>,
-      callbackString: this.callbackString
+      callbackString: this.callbackString,
+      metaParameters: this.metaParameters
     };
   }
 }

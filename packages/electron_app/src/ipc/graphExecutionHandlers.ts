@@ -105,7 +105,7 @@ export function setupGraphExecutionHandlers(): void {
       graphStorage: GraphStorageType,
       T: number | 'infinite',
       dt: number,
-      libraryBlocks?: Array<{ name: string; visualization?: any }>
+      libraryBlocks?: Array<{ name: string; visualization?: any; metaParameters?: any }>
     ): Promise<void> => {
       try {
         if (!graphInstance) {
@@ -117,15 +117,26 @@ export function setupGraphExecutionHandlers(): void {
           graphInstance = new Graph(graphStorage);
         }
 
-        // Set visualization config on blocks from library blocks
+        // Set visualization config and meta parameter definitions on blocks from library blocks
         if (libraryBlocks) {
           graphInstance.blocks.forEach((block) => {
             const libraryBlock = libraryBlocks.find((lb) => lb.name === block.name);
-            if (libraryBlock && libraryBlock.visualization) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (block as any).visualizationConfig = libraryBlock.visualization;
-              // Initialize visualization data buffers
-              block.InitializeVisualization();
+            if (libraryBlock) {
+              // Set visualization config if present
+              if (libraryBlock.visualization) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (block as any).visualizationConfig = libraryBlock.visualization;
+                // Initialize visualization data buffers
+                block.InitializeVisualization();
+              }
+              // Set meta parameter definitions if present
+              if (libraryBlock.metaParameters) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (block as any).metaParameterDefinitions = libraryBlock.metaParameters;
+                // Recreate the callback to ensure it has the correct signature with params
+                // This is necessary because the callback was created before metaParameterDefinitions were set
+                block.SetCallback(block.callbackString);
+              }
             }
           });
         }

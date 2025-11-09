@@ -11,6 +11,8 @@ export type BlockStorageType<Inputs extends PortStringListType, Outputs extends 
   inputPorts: MapStringsToPortStoragesType<Inputs>;
   outputPorts: MapStringsToPortStoragesType<Outputs>;
   callbackString: string;
+  /** Per-instance meta parameter overrides (merges with defaults from block definition) */
+  metaParameters?: Record<string, number | string | boolean>;
 };
 
 export function isBlockStorageType(obj: any): obj is BlockStorageType<PortStringListType, PortStringListType> {

@@ -18,7 +18,11 @@ import PortList from './Graph/VisualTypes/PortList';
 import Grid from './Grid/Grid';
 import { ArrowDirectionType, CalculateScreenBlockSizeAndPosition, MouseOnBlockExtracted } from './utils';
 import { ScreenToWorld } from '../../../helpers';
-import { TranslatedCanvasAction, ZoomedCanvasAction } from '../../../store/actions/canvasactions';
+import {
+  TranslatedCanvasAction,
+  ZoomedCanvasAction,
+  SetConfigurationToolbarBlockAction
+} from '../../../store/actions/canvasactions';
 import {
   AddBlockAction,
   AddEdgeSplitAction,
@@ -63,6 +67,7 @@ type DispatchProps = {
   onDeleteEdgeSplit: (edgePieceInd: number) => void;
   onZoom: (delta: number, around: Vector2D) => void;
   onTranslate: (point: Vector2D) => void;
+  onOpenConfigurationToolbar: (blockId: string | null) => void;
 };
 
 type PropsType = GlobalProps & DispatchProps;
@@ -146,6 +151,10 @@ class CanvasContainer extends Component<PropsType, StateType> {
 
   deselectAllHandler = () => {
     this.props.onDeselectObjects();
+  };
+
+  onBlockDoubleClick = (blockId: string) => {
+    this.props.onOpenConfigurationToolbar(blockId);
   };
 
   mouseMoveHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -279,6 +288,7 @@ class CanvasContainer extends Component<PropsType, StateType> {
           selected={props.selected}
           onSetCursorStyle={this.onSetCursorStyle}
           onMouseDown={this.mouseDownHandler}
+          onDoubleClick={this.onBlockDoubleClick}
           screenSize={this.state.canvasSize}
           canvasTranslation={this.props.canvasTranslation}
           canvasZoom={this.props.canvasZoom}
@@ -616,7 +626,8 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       onAddEdgeSplit: AddEdgeSplitAction,
       onDeleteEdgeSplit: RemoveEdgeSplitAction,
       onTranslate: TranslatedCanvasAction,
-      onZoom: ZoomedCanvasAction
+      onZoom: ZoomedCanvasAction,
+      onOpenConfigurationToolbar: SetConfigurationToolbarBlockAction
     },
     dispatch
   );
