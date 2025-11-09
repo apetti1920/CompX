@@ -25,6 +25,7 @@ type PropType = {
     selectedOn: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE'>
   ) => void;
   onMouseDown: (on: MouseOnBlockExtracted<'BLOCK' | 'BLOCK_EDGE'>) => void;
+  onDoubleClick?: (blockId: string) => void;
   onSetCursorStyle: (side?: ArrowDirectionType) => void;
   screenSize: Vector2D;
   canvasTranslation: Vector2D;
@@ -41,6 +42,8 @@ type StateType = {
 
 export default class BlockComponent extends Component<PropType, StateType> {
   private readonly resizeSize: number = 8;
+  private clickTimeout: NodeJS.Timeout | null = null;
+  private lastClickTime: number = 0;
 
   constructor(props: PropType) {
     super(props);
@@ -52,6 +55,24 @@ export default class BlockComponent extends Component<PropType, StateType> {
   }
 
   onMouseDownRectHandler = (e: KonvaEventObject<MouseEvent>) => {
+    // Don't prevent double-click - let it bubble up
+    // Only handle single clicks here
+
+    // Detect double-click on mouse down instead of mouse up
+    const now = Date.now();
+    const timeSinceLastClick = now - this.lastClickTime;
+
+    if (timeSinceLastClick < 300 && timeSinceLastClick > 0 && this.lastClickTime > 0) {
+      // Double-click detected on mouse down!
+      this.lastClickTime = 0;
+      e.evt.stopPropagation();
+      this.props.onDoubleClick?.(this.props.id);
+      return; // Don't process as single click
+    }
+
+    // Record this click time for potential double-click
+    this.lastClickTime = now;
+
     e.evt.stopPropagation();
 
     if (e.evt.shiftKey) {
@@ -65,7 +86,41 @@ export default class BlockComponent extends Component<PropType, StateType> {
 
   onMouseUpRectHandler = (e: KonvaEventObject<MouseEvent>) => {
     e.evt.stopPropagation();
+    const now = Date.now();
     this.setState({ mouseDownRect: false });
+
+    // Detect double-click manually using class property (not state) for reliable timing
+    const timeSinceLastClick = now - this.lastClickTime;
+
+    // Clear any pending timeout
+    if (this.clickTimeout) {
+      clearTimeout(this.clickTimeout);
+      this.clickTimeout = null;
+    }
+
+    if (timeSinceLastClick < 300 && timeSinceLastClick > 0 && this.lastClickTime > 0) {
+      // Double-click detected!
+      this.lastClickTime = 0; // Reset
+      this.props.onDoubleClick?.(this.props.id);
+    } else {
+      // Single click - wait to see if another click comes
+      const clickTime = now;
+      this.lastClickTime = clickTime;
+
+      // Clear the click count after a delay if no second click
+      this.clickTimeout = setTimeout(() => {
+        // Only clear if this is still the same click (not overwritten by a second click)
+        if (this.lastClickTime === clickTime) {
+          this.lastClickTime = 0;
+        }
+        this.clickTimeout = null;
+      }, 300);
+    }
+  };
+
+  onDoubleClickHandler = (e: KonvaEventObject<MouseEvent>) => {
+    e.evt.stopPropagation();
+    this.props.onDoubleClick?.(this.props.id);
   };
 
   onResizeHoverEnter = (e: KonvaEventObject<MouseEvent>, side: ArrowDirectionType) => {
@@ -124,9 +179,13 @@ export default class BlockComponent extends Component<PropType, StateType> {
           perfectDrawEnabled={false}
           shadowEnabled={false}
           shadowForStrokeEnabled={false}
-          hitStrokeWidth={0}
+          hitStrokeWidth={10}
+          listening={true}
           onMouseUp={this.onMouseUpRectHandler}
           onMouseDown={this.onMouseDownRectHandler}
+          onDblClick={this.onDoubleClickHandler}
+          onDblTap={this.onDoubleClickHandler}
+          onClick={() => {}}
           onWheel={(e) =>
             WheelHandler(
               e,

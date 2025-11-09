@@ -19,6 +19,7 @@ export type StateType = {
     canvas: {
       zoom: number;
       translation: Vector2D;
+      configurationToolbarBlockId: string | null;
     };
   };
 };
@@ -33,7 +34,8 @@ export const defaultState: StateType = {
     theme: new ColorTheme(Theme),
     canvas: {
       zoom: 5.6,
-      translation: new Vector2D()
+      translation: new Vector2D(),
+      configurationToolbarBlockId: null
     }
   }
 };

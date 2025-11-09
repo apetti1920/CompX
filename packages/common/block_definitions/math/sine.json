@@ -12,7 +12,23 @@
       "type": "NUMBER"
     }
   ],
-  "callbackString": "console.log('[Sine] t=', t, 'typeof t=', typeof t, 'value=', Math.sin(2 * Math.PI * t)); return [Math.sin(2 * Math.PI * t)]",
+  "callbackString": "return [params['amplitude'] * Math.sin(2 * Math.PI * params['frequency'] * t)]",
+  "metaParameters": [
+    {
+      "name": "amplitude",
+      "type": "NUMBER",
+      "default": 1,
+      "label": "Amplitude",
+      "description": "The amplitude of the sine wave"
+    },
+    {
+      "name": "frequency",
+      "type": "NUMBER",
+      "default": 1,
+      "label": "Frequency",
+      "description": "The frequency of the sine wave"
+    }
+  ],
   "visual": {
     "color": "#FF9800",
     "icon": "activity",

@@ -11,6 +11,7 @@ interface PlayButtonProps {
   graph: VisualGraphStorageType;
   libraryBlocks: BlockDefinition[];
   theme: any;
+  configurationToolbarOpen: boolean;
 }
 
 /**
@@ -47,7 +48,8 @@ export default function PlayButton(props: PlayButtonProps): JSX.Element {
             tags: blockStorage.tags,
             inputPorts: blockStorage.inputPorts,
             outputPorts: blockStorage.outputPorts,
-            callbackString: blockStorage.callbackString
+            callbackString: blockStorage.callbackString,
+            metaParameters: block.metaParameters // Include instance-specific meta parameter overrides
           };
 
           return blockStorageWithId;
@@ -62,10 +64,11 @@ export default function PlayButton(props: PlayButtonProps): JSX.Element {
       const T = 10.0; // Execute for 10 seconds
       const dt = 0.01; // Time step of 0.01 seconds
 
-      // Pass library blocks with visualization config
+      // Pass library blocks with visualization config and meta parameter definitions
       const libraryBlocksForExecution = props.libraryBlocks.map((lb) => ({
         name: lb.name,
-        visualization: lb.visualization
+        visualization: lb.visualization,
+        metaParameters: lb.metaParameters
       }));
 
       const visualizationData = await executeGraphAndGetVisualizationData(
@@ -84,16 +87,20 @@ export default function PlayButton(props: PlayButtonProps): JSX.Element {
     }
   };
 
+  // Slide button to the left when toolbar is open to avoid overlap
+  const rightPosition = props.configurationToolbarOpen ? '440px' : '20px'; // 400px toolbar width + 20px margin + 20px spacing
+
   return (
     <div
       style={{
         position: 'absolute',
         bottom: '20px',
-        right: '20px',
-        zIndex: 10000,
+        right: rightPosition,
+        zIndex: 999, // Behind the toolbar (1000)
         pointerEvents: 'auto',
         width: '56px',
-        height: '56px'
+        height: '56px',
+        transition: 'right 0.3s ease-in-out'
       }}
     >
       <button

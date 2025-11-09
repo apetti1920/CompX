@@ -7,6 +7,7 @@ import CanvasContainer from './Canvas/CanvasContainer';
 import PlayButton from './Canvas/PlayButton';
 import Overlay from './Overlay';
 import SideBar from './Overlay/Tabs/SideTab/SideBar';
+import BlockConfigurationToolbar from './Canvas/BlockConfigurationToolbar/BlockConfigurationToolbar';
 import { StateType as SaveState } from '../../store/types';
 import ColorTheme from '../../theme/ColorTheme';
 
@@ -16,6 +17,7 @@ type GlobalProps = {
   theme: ColorTheme;
   graph: import('@compx/common/Network/GraphItemStorage/GraphStorage').VisualGraphStorageType;
   libraryBlocks: any[];
+  configurationToolbarBlockId: string | null;
 };
 type DispatchProps = Record<string, never>;
 type ComponentProps = Record<string, never>;
@@ -54,7 +56,14 @@ class Container extends React.Component<PropsType, StateType> {
           >
             <CanvasContainer />
             <Overlay style={{ zIndex: 1, position: 'relative', pointerEvents: 'none' }} />
-            <PlayButton graph={this.props.graph} libraryBlocks={this.props.libraryBlocks} theme={this.props.theme} />
+            <PlayButton
+              graph={this.props.graph}
+              libraryBlocks={this.props.libraryBlocks}
+              theme={this.props.theme}
+              configurationToolbarOpen={!!this.props.configurationToolbarBlockId}
+            />
+            {/* Always render toolbar but use transform to slide in/out - prevents drag interference when closed */}
+            <BlockConfigurationToolbar />
           </div>
         </div>
       </DndProvider>
@@ -67,7 +76,8 @@ function mapStateToProps(state: SaveState): GlobalProps {
   return {
     theme: state.userStorage.theme,
     graph: state.currentGraph.graph,
-    libraryBlocks: state.currentGraph.libraryBlocks
+    libraryBlocks: state.currentGraph.libraryBlocks,
+    configurationToolbarBlockId: state.userStorage.canvas.configurationToolbarBlockId
   };
 }
 

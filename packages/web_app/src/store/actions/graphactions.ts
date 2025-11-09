@@ -19,7 +19,8 @@ import {
   ResizedBlockActionType,
   SelectedObjectActionType,
   UpdateLibraryActionType,
-  UpdateVisualizationDataActionType
+  UpdateVisualizationDataActionType,
+  UpdateBlockMetaParametersActionType
 } from './actiontypes';
 
 // Action to select a block
@@ -112,4 +113,13 @@ export const UpdateVisualizationDataAction: ActionType = (
 ): ActionPayloadType => ({
   type: UpdateVisualizationDataActionType,
   payload: { visualizationData: visualizationData }
+});
+
+// Action to update block meta parameters
+export const UpdateBlockMetaParametersAction: ActionType = (
+  blockId: string,
+  metaParameters: Record<string, number | string | boolean>
+): ActionPayloadType => ({
+  type: UpdateBlockMetaParametersActionType,
+  payload: { blockId, metaParameters }
 });

@@ -20,7 +20,8 @@ import {
   ResizedBlockActionType,
   SelectedObjectActionType,
   UpdateLibraryActionType,
-  UpdateVisualizationDataActionType
+  UpdateVisualizationDataActionType,
+  UpdateBlockMetaParametersActionType
 } from '../actions/actiontypes';
 import { ActionPayloadType, StateType } from '../types';
 
@@ -376,6 +377,18 @@ function GraphReducer(state: StateType, action: ActionPayloadType): StateType {
           tempState.currentGraph.graph.blocks[blockIndex].visualizationData = visualizationData[blockId];
         }
       });
+
+      return tempState;
+    }
+    case UpdateBlockMetaParametersActionType: {
+      const tempState = _.cloneDeep(state);
+      const blockId: string = action.payload['blockId'];
+      const metaParameters: Record<string, number | string | boolean> = action.payload['metaParameters'];
+
+      const blockIndex = tempState.currentGraph.graph.blocks.findIndex((b) => b.id === blockId);
+      if (blockIndex !== -1) {
+        tempState.currentGraph.graph.blocks[blockIndex].metaParameters = metaParameters;
+      }
 
       return tempState;
     }

@@ -94,7 +94,7 @@ export async function executeGraphAndGetVisualizationData(
   graphStorage: any,
   T: number | 'infinite',
   dt: number,
-  libraryBlocks?: Array<{ name: string; visualization?: any }>
+  libraryBlocks?: Array<{ name: string; visualization?: any; metaParameters?: any }>
 ): Promise<Record<string, VisualizationData>> {
   const ipcRenderer = getIpcRenderer();
   if (ipcRenderer) {

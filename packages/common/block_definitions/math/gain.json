@@ -17,7 +17,16 @@
       "type": "NUMBER"
     }
   ],
-  "callbackString": "return [inputPort[x] * 0.75]",
+  "callbackString": "return [inputPort[x] * params['gain']]",
+  "metaParameters": [
+    {
+      "name": "gain",
+      "type": "NUMBER",
+      "default": 0.75,
+      "label": "Gain",
+      "description": "The gain factor to multiply the input by"
+    }
+  ],
   "visual": {
     "color": "#4CAF50",
     "icon": "trending-up",

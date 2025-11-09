@@ -158,10 +158,52 @@
       "required": ["type"],
       "additionalProperties": false,
       "description": "Visualization configuration for displaying data inside the block"
+    },
+    "metaParameters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MetaParameterDefinition"
+      },
+      "maxItems": 50,
+      "description": "Meta parameters that can be configured per block instance",
+      "default": []
     }
   },
   "additionalProperties": false,
   "definitions": {
+    "MetaParameterDefinition": {
+      "type": "object",
+      "required": ["name", "type", "default"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Unique identifier for this meta parameter"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["NUMBER", "STRING", "BOOLEAN"],
+          "description": "Data type for this meta parameter"
+        },
+        "default": {
+          "description": "Default value for this meta parameter",
+          "oneOf": [{ "type": "number" }, { "type": "string" }, { "type": "boolean" }]
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Human-readable label for this parameter (defaults to name if not provided)"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional description or tooltip text for this parameter"
+        }
+      },
+      "additionalProperties": false
+    },
     "PortDefinition": {
       "type": "object",
       "required": ["name", "type"],

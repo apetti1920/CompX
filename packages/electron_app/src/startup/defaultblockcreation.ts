@@ -112,26 +112,41 @@ export default class DefaultBlockCreation extends StartupStep {
           const sourceContent = fs.readFileSync(sourceFile, 'utf-8');
           const sourceBlockData = JSON.parse(sourceContent);
 
-          // Skip if block name already exists (to avoid duplicates)
-          if (existingBlockNames.has(sourceBlockData.name)) {
+          // Skip if block name already exists from a different file (to avoid duplicates)
+          const fileName = path.basename(sourceFile);
+          const destFile = path.join(blockStoragePath, fileName);
+          const destFileExists = fs.existsSync(destFile);
+
+          // Check if this block name exists in a different file
+          if (destFileExists) {
+            try {
+              const destContent = fs.readFileSync(destFile, 'utf-8');
+              const destBlockData = JSON.parse(destContent);
+              if (destBlockData.name !== sourceBlockData.name) {
+                // Different block name in this file, skip to avoid overwriting
+                console.log(`Skipped (different block name in file): ${fileName}`);
+                skippedCount++;
+                continue;
+              }
+            } catch (error) {
+              // If we can't read the dest file, we'll overwrite it
+              console.warn(`Could not read existing file ${fileName}, will overwrite`);
+            }
+          } else if (existingBlockNames.has(sourceBlockData.name)) {
+            // Block name exists but in a different file - skip to avoid duplicates
             console.log(`Skipped (duplicate block name): ${sourceBlockData.name} from ${path.basename(sourceFile)}`);
             duplicateCount++;
             continue;
           }
 
-          const fileName = path.basename(sourceFile);
-          const destFile = path.join(blockStoragePath, fileName);
-
-          // Only copy if file doesn't exist (preserve user modifications)
-          if (!fs.existsSync(destFile)) {
-            fs.copyFileSync(sourceFile, destFile);
+          // Always overwrite if file exists (to get latest updates from source)
+          // This ensures block definitions stay in sync with source code
+          fs.copyFileSync(sourceFile, destFile);
+          if (!existingBlockNames.has(sourceBlockData.name)) {
             existingBlockNames.add(sourceBlockData.name); // Track newly copied block
-            console.log(`Copied: ${fileName} (${sourceBlockData.name})`);
-            copiedCount++;
-          } else {
-            console.log(`Skipped (file already exists): ${fileName}`);
-            skippedCount++;
           }
+          console.log(`${destFileExists ? 'Updated' : 'Copied'}: ${fileName} (${sourceBlockData.name})`);
+          copiedCount++;
         } catch (error) {
           console.error(`Failed to process ${sourceFile}:`, error);
         }

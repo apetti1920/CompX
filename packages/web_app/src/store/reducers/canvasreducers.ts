@@ -2,7 +2,11 @@ import { Clamp } from '@compx/common/Helpers/Other';
 import { Vector2D } from '@compx/common/Types';
 import _ from 'lodash';
 
-import { TranslatedCanvasActionType, ZoomedCanvasActionType } from '../actions/actiontypes';
+import {
+  TranslatedCanvasActionType,
+  ZoomedCanvasActionType,
+  SetConfigurationToolbarBlockActionType
+} from '../actions/actiontypes';
 import { ActionPayloadType, StateType } from '../types';
 
 export default (state: StateType, action: ActionPayloadType): StateType => {
@@ -36,6 +40,11 @@ export default (state: StateType, action: ActionPayloadType): StateType => {
       tempState.userStorage.canvas.zoom = clampedZoom;
       tempState.userStorage.canvas.translation = new Vector2D(newTranslation.x, newTranslation.y);
 
+      return tempState;
+    }
+    case SetConfigurationToolbarBlockActionType: {
+      const tempState = _.cloneDeep(state);
+      tempState.userStorage.canvas.configurationToolbarBlockId = action.payload['blockId'];
       return tempState;
     }
     default: {

@@ -12,7 +12,16 @@
       "type": "NUMBER"
     }
   ],
-  "callbackString": "return [5]",
+  "callbackString": "return [params['value']]",
+  "metaParameters": [
+    {
+      "name": "value",
+      "type": "NUMBER",
+      "default": 5,
+      "label": "Value",
+      "description": "The constant value to output"
+    }
+  ],
   "visual": {
     "color": "#FF9800",
     "icon": "hash",
